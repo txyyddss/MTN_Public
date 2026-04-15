@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反馈问题 - MTN Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #000;
+            color: #fff;
+        }
+
+        /* 导航栏容器 */
+        .nav-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 52px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0 22px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-right: 40px;
+            text-decoration: none;
+        }
+
+        .logo .mtn {
+            color: #4C93FB;
+        }
+
+        .logo .server {
+            color: #fff;
+        }
+
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 400;
+            border-radius: 6px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: #4C93FB;
+        }
+
+        .nav-item.active {
+            color: #4C93FB;
+        }
+
+        /* 展开面板 */
+        .dropdown-wrapper {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+                        opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .dropdown-wrapper.open {
+            max-height: 300px;
+            opacity: 1;
+        }
+
+        .dropdown-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .dropdown-spacer {
+            width: 1px;
+            margin-left: -220px;
+            flex-shrink: 0;
+        }
+
+        .dropdown-column {
+            text-align: left;
+        }
+
+        .dropdown-column ul {
+            list-style: none;
+        }
+
+        .dropdown-column a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+            display: inline-block;
+            padding: 8px 16px;
+        }
+
+        .dropdown-column a:hover {
+            color: #4C93FB;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 52px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 主内容 */
+        .main-content {
+            padding-top: 52px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 40px;
+        }
+
+        /* 大标题 */
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 50px;
+            text-align: center;
+            color: #fff;
+        }
+
+        /* 反馈卡片容器 */
+        .feedback-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* 反馈卡片 */
+        .feedback-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .feedback-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .feedback-card p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* 立即反馈按钮 */
+        .feedback-btn {
+            display: inline-block;
+            background: #4C93FB;
+            color: #fff;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .feedback-btn:hover {
+            background: #3a7fd9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 导航栏 -->
+    <div class="nav-wrapper" onmouseleave="hideMenu()">
+        <nav class="navbar">
+            <a href="index.html" class="logo">
+                <span class="mtn">MTN</span><span class="server"> Server</span>
+            </a>
+            <div class="nav-menu">
+                <a class="nav-item" data-menu="home" href="index.html" onmouseenter="showMenu('home')">主页</a>
+                <a class="nav-item" href="join.html" onmouseenter="hideMenu()">加入服务器</a>
+                <a class="nav-item" href="wiki.html" onmouseenter="hideMenu()">WIKI</a>
+                <a class="nav-item" href="map.html" onmouseenter="hideMenu()">在线地图</a>
+                <a class="nav-item active" href="feedback.html" onmouseenter="hideMenu()">反馈问题</a>
+                <a class="nav-item" href="contact.html" onmouseenter="hideMenu()">联系我们</a>
+            </div>
+        </nav>
+
+        <!-- 下拉面板 -->
+        <div class="dropdown-wrapper" id="dropdownWrapper">
+            <div class="dropdown-content" id="dropdownContent">
+                <!-- 动态内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <h1 class="page-title">问题反馈（需要加速器和登录github）</h1>
+        
+        <div class="feedback-container">
+            <div class="feedback-card">
+                <h2>MTN Server 问题反馈</h2>
+                <p>服务器相关问题、游戏内Bug、玩家举报等</p>
+                <a href="https://github.com/txyyddss/txmcsv/issues" target="_blank" class="feedback-btn">立即反馈</a>
+            </div>
+            
+            <div class="feedback-card">
+                <h2>本网页问题反馈</h2>
+                <p>网页显示问题、功能建议、链接错误等</p>
+                <a href="https://github.com/reallapt/MTN-Web/issues" target="_blank" class="feedback-btn">立即反馈</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const menuContent = {
+            home: {
+                columns: [
+                    {
+                        title: '导航',
+                        links: [
+                            { name: '官方序言', href: 'index.html#preamble' }, 
+                            { name: '为什么选择我们', href: 'index.html#features' }, 
+                            { name: '加入我们', href: 'index.html#join' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        function showMenu(menuKey) {
+            const dropdownWrapper = document.getElementById('dropdownWrapper');
+            const dropdownContent = document.getElementById('dropdownContent');
+            const overlay = document.getElementById('overlay');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            navItems.forEach(item => item.classList.remove('active'));
+
+            const activeItem = document.querySelector(`[data-menu="${menuKey}"]`);
+            if (activeItem) activeItem.classList.add('active');
+
+            const menu = menuContent[menuKey];
+            dropdownContent.innerHTML = `
+                <div class="dropdown-spacer"></div>
+                ${menu.columns.map(col => `
+                <div class="dropdown-column">
+                    <ul>
+                        ${col.links.map(link => `<li><a href="${link.href}">${link.name}</a></li>`).join('')}
+                    </ul>
+                </div>
+            `).join('')}`;
+
+            dropdownWrapper.classList.add('open');
+            overlay.classList.add('visible');
+        }
+
+        function hideMenu() {
+            const dropdownWrapper = document.getElementById('dropdownWrapper');
+            const overlay = document.getElementById('overlay');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            dropdownWrapper.classList.remove('open');
+            overlay.classList.remove('visible');
+            navItems.forEach(item => item.classList.remove('active'));
+        }
+
+        document.getElementById('overlay').addEventListener('click', hideMenu);
+    </script>
+</body>
+</html>

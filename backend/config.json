@@ -1,0 +1,32 @@
+{
+    "server": {
+        "port": 8080,
+        "cors_origins": [
+            "*"
+        ]
+    },
+    "world_dir": "/path/to/world",
+    "redis": {
+        "addr": "localhost:6379",
+        "password": "",
+        "db": 0
+    },
+    "mcmmo_mysql": {
+        "dsn": "user:password@tcp(localhost:3306)/McMMO?parseTime=true"
+    },
+    "floodgate_mysql": {
+        "dsn": "user:password@tcp(localhost:3306)/Floodgate?parseTime=true"
+    },
+    "lucky": {
+        "server_url": "http://127.0.0.1:16601/entrance",
+        "token": "your_lucky_token"
+    },
+    "addresses": {
+        "java_ipv6": "mc6.1919801.xyz:11451",
+        "bedrock_ipv6": "mc6.1919801.xyz",
+        "java_ipv4_srv": "j4.1919801.xyz"
+    },
+    "status_refresh_seconds": 5,
+    "data_refresh_seconds": 300,
+    "active_days": 7
+}
