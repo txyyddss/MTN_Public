@@ -151,6 +151,27 @@ const formatPlaytime = (ticks: number) => {
 // Compute total advancement completion
 const totalAdvancements = computed(() => advancements.value?.length || 0)
 const completedAdvancements = computed(() => advancements.value?.filter((a: any) => a.done).length || 0)
+
+const showLockedAdvancements = ref(false)
+
+const categorizedAdvancements = computed(() => {
+  if (!advancements.value) return {}
+  const result: Record<string, any[]> = {}
+  for (const adv of advancements.value) {
+    if (!showLockedAdvancements.value && !adv.done) continue
+    
+    let category = 'Others'
+    const parts = adv.key.split('/')
+    if (parts.length > 1) {
+       category = parts[0].replace('minecraft:', '').replace(/[_-]/g, ' ')
+    }
+    category = category.charAt(0).toUpperCase() + category.slice(1)
+    
+    if (!result[category]) result[category] = []
+    result[category].push(adv)
+  }
+  return result
+})
 </script>
 
 <template>
@@ -238,17 +259,32 @@ const completedAdvancements = computed(() => advancements.value?.filter((a: any)
           </div>
         </section>
 
-        <!-- Advancements Summary -->
+        <!-- Advancements Detail -->
         <section class="panel glass-card" v-if="advancements && advancements.length > 0">
-          <h3>Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
-          <div class="advancements-grid">
-            <div 
-              class="adv-item" 
-              v-for="adv in advancements.filter((a: any) => a.done)" 
-              :key="adv.key"
-            >
-              <div class="adv-icon">⭐</div>
-              <span class="adv-name" :title="adv.key">{{ adv.key.split('/').pop()?.replace(/_/g, ' ') }}</span>
+          <div class="panel-header" style="margin-bottom: 1rem; border-bottom: none;">
+            <h3>Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
+            <label class="toggle-container">
+              <span class="toggle-label text-muted" style="margin-right: 8px; font-size: 0.85rem;">Show Locked</span>
+              <input type="checkbox" v-model="showLockedAdvancements">
+            </label>
+          </div>
+          
+          <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
+            <h4 class="category-name">{{ category }}</h4>
+            <div class="advancements-grid">
+              <div 
+                :class="['adv-item', { locked: !adv.done }]" 
+                v-for="adv in items" 
+                :key="adv.key"
+              >
+                <div class="adv-icon">{{ adv.done ? '⭐' : '🔒' }}</div>
+                <div class="adv-text-group">
+                  <span class="adv-name" :title="adv.key">{{ adv.key.split('/').pop()?.replace(/_/g, ' ') }}</span>
+                  <span class="adv-progress" v-if="!adv.done && adv.criteria">
+                    {{ Object.keys(adv.criteria).length }} requirements
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -532,6 +568,38 @@ const completedAdvancements = computed(() => advancements.value?.filter((a: any)
   background: rgba(255,255,255,0.05);
   border-radius: 20px;
 }
+
+.adv-category {
+  margin-bottom: 1.5rem;
+}
+
+.category-name {
+  font-size: 1.1rem;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 4px;
+}
+
+.adv-item.locked {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.adv-item.locked .adv-name {
+  color: var(--text-muted);
+}
+
+.adv-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.adv-progress {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 
 .toggle-btn {
   padding: 6px 14px;
