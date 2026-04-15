@@ -3,11 +3,13 @@ package monitor
 
 import (
 	"context"
-	"fmt"
+	"net"
+	"strconv"
 	"sync"
 	"time"
 
-	mcutil "github.com/mcstatus-io/mcutil/v4"
+	"github.com/mcstatus-io/mcutil/v4/response"
+	"github.com/mcstatus-io/mcutil/v4/status"
 )
 
 // ServerStatus holds the current status of the Minecraft server.
@@ -25,7 +27,6 @@ type JavaStatus struct {
 	MaxPlayers int    `json:"max_players"`
 	Version    string `json:"version"`
 	MOTD       string `json:"motd"`
-	Latency    int64  `json:"latency_ms"`
 }
 
 // BedrockStatus holds Bedrock server ping result.
@@ -39,8 +40,10 @@ type BedrockStatus struct {
 
 // Monitor periodically polls server status.
 type Monitor struct {
-	javaAddr    string
-	bedrockAddr string
+	javaHost    string
+	javaPort    uint16
+	bedrockHost string
+	bedrockPort uint16
 	interval    time.Duration
 
 	mu     sync.RWMutex
@@ -49,10 +52,16 @@ type Monitor struct {
 }
 
 // NewMonitor creates a new server status monitor.
+// javaAddr and bedrockAddr should be "host:port" format.
 func NewMonitor(javaAddr, bedrockAddr string, intervalSec int) *Monitor {
+	jh, jp := parseHostPort(javaAddr, 25565)
+	bh, bp := parseHostPort(bedrockAddr, 19132)
+
 	return &Monitor{
-		javaAddr:    javaAddr,
-		bedrockAddr: bedrockAddr,
+		javaHost:    jh,
+		javaPort:    jp,
+		bedrockHost: bh,
+		bedrockPort: bp,
 		interval:    time.Duration(intervalSec) * time.Second,
 		status:      &ServerStatus{},
 	}
@@ -95,21 +104,16 @@ func (m *Monitor) GetStatus() *ServerStatus {
 }
 
 func (m *Monitor) poll(ctx context.Context) {
-	status := &ServerStatus{
+	s := &ServerStatus{
 		Updated: time.Now(),
 	}
 
-	// Poll Java
-	status.Java = m.pollJava(ctx)
-
-	// Poll Bedrock
-	status.Bedrock = m.pollBedrock(ctx)
-
-	// Get system stats
-	status.System = getSystemStats()
+	s.Java = m.pollJava(ctx)
+	s.Bedrock = m.pollBedrock(ctx)
+	s.System = getSystemStats()
 
 	m.mu.Lock()
-	m.status = status
+	m.status = s
 	m.mu.Unlock()
 }
 
@@ -117,39 +121,67 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	result, err := mcutil.Status(ctx, m.javaAddr)
+	result, err := status.Modern(ctx, m.javaHost, m.javaPort)
 	if err != nil {
 		return &JavaStatus{Online: false}
 	}
 
-	motd := ""
-	if result.MOTD != nil {
-		motd = fmt.Sprintf("%v", result.MOTD.Clean)
-	}
+	return parseJavaResult(result)
+}
 
-	return &JavaStatus{
-		Online:     true,
-		Players:    int(*result.Players.Online),
-		MaxPlayers: int(*result.Players.Max),
-		Version:    result.Version.NameClean,
-		MOTD:       motd,
+func parseJavaResult(r *response.StatusModern) *JavaStatus {
+	js := &JavaStatus{Online: true}
+
+	if r.Players.Online != nil {
+		js.Players = int(*r.Players.Online)
 	}
+	if r.Players.Max != nil {
+		js.MaxPlayers = int(*r.Players.Max)
+	}
+	js.Version = r.Version.Name.Clean
+	js.MOTD = r.MOTD.Clean
+
+	return js
 }
 
 func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	result, err := mcutil.StatusBedrock(ctx, m.bedrockAddr)
+	result, err := status.Bedrock(ctx, m.bedrockHost, m.bedrockPort)
 	if err != nil {
 		return &BedrockStatus{Online: false}
 	}
 
-	return &BedrockStatus{
-		Online:     true,
-		Players:    int(*result.OnlinePlayers),
-		MaxPlayers: int(*result.MaxPlayers),
-		Version:    *result.Version,
-		MOTD:       result.MOTD.Clean,
+	return parseBedrockResult(result)
+}
+
+func parseBedrockResult(r *response.StatusBedrock) *BedrockStatus {
+	bs := &BedrockStatus{Online: true}
+
+	if r.OnlinePlayers != nil {
+		bs.Players = int(*r.OnlinePlayers)
 	}
+	if r.MaxPlayers != nil {
+		bs.MaxPlayers = int(*r.MaxPlayers)
+	}
+	if r.Version != nil {
+		bs.Version = *r.Version
+	}
+	bs.MOTD = r.MOTD.Clean
+
+	return bs
+}
+
+func parseHostPort(addr string, defaultPort uint16) (string, uint16) {
+	host, portStr, err := net.SplitHostPort(addr)
+	if err != nil {
+		// No port, use default
+		return addr, defaultPort
+	}
+	port, err := strconv.ParseUint(portStr, 10, 16)
+	if err != nil {
+		return host, defaultPort
+	}
+	return host, uint16(port)
 }

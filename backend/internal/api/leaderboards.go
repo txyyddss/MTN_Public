@@ -6,8 +6,6 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/mtn-server/backend/internal/data"
 )
 
 // LeaderboardEntry holds a single leaderboard row.
@@ -16,6 +14,13 @@ type LeaderboardEntry struct {
 	Name  string `json:"name"`
 	Value int64  `json:"value"`
 	Rank  int    `json:"rank"`
+}
+
+// LeaderboardResponse holds a leaderboard response.
+type LeaderboardResponse struct {
+	Type    string             `json:"type"`
+	Entries []LeaderboardEntry `json:"entries"`
+	Count   int                `json:"count"`
 }
 
 // handleLeaderboard returns leaderboard data by type.
@@ -44,10 +49,10 @@ func (s *Server) handleLeaderboard(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"type":    lbType,
-		"entries": entries,
-		"count":   len(entries),
+	c.JSON(http.StatusOK, LeaderboardResponse{
+		Type:    lbType,
+		Entries: entries,
+		Count:   len(entries),
 	})
 }
 
@@ -82,7 +87,7 @@ func (s *Server) skillsLeaderboard(ctx context.Context) []LeaderboardEntry {
 }
 
 func (s *Server) statLeaderboard(category, stat string) []LeaderboardEntry {
-	allStats := s.getAllStats()
+	allStats := s.store.GetAllStats()
 
 	var entries []LeaderboardEntry
 	for uuid, ps := range allStats {
@@ -105,7 +110,7 @@ func (s *Server) statLeaderboard(category, stat string) []LeaderboardEntry {
 }
 
 func (s *Server) minedTotalLeaderboard() []LeaderboardEntry {
-	allStats := s.getAllStats()
+	allStats := s.store.GetAllStats()
 
 	var entries []LeaderboardEntry
 	for uuid, ps := range allStats {
@@ -129,17 +134,6 @@ func (s *Server) minedTotalLeaderboard() []LeaderboardEntry {
 	}
 
 	return rankEntries(entries)
-}
-
-func (s *Server) getAllStats() map[string]*data.PlayerStats {
-	result := make(map[string]*data.PlayerStats)
-	// Access all players to get their UUIDs, then fetch stats
-	for _, p := range s.store.GetActivePlayers(99999) { // Get all players
-		if st := s.store.GetPlayerStats(p.UUID); st != nil {
-			result[p.UUID] = st
-		}
-	}
-	return result
 }
 
 func rankEntries(entries []LeaderboardEntry) []LeaderboardEntry {

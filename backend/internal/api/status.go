@@ -4,7 +4,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mtn-server/backend/config"
+	"github.com/mtn-server/backend/internal/lucky"
 )
+
+// ConnectionResponse holds detailed connection output.
+type ConnectionResponse struct {
+	Connection *lucky.ConnectionInfo  `json:"connection"`
+	Addresses  config.AddressesConfig `json:"addresses"`
+}
 
 // handleStatus returns real-time server status.
 func (s *Server) handleStatus(c *gin.Context) {
@@ -12,11 +20,17 @@ func (s *Server) handleStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
-// handleConnection returns server connection information.
 func (s *Server) handleConnection(c *gin.Context) {
-	connInfo := s.luckyClient.GetConnectionInfo()
-	c.JSON(http.StatusOK, gin.H{
-		"connection": connInfo,
-		"addresses":  s.cfg.Addresses,
+	connInfo, err := s.luckyClient.GetConnectionInfo()
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"error":   "connection data unavailable",
+			"details": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, ConnectionResponse{
+		Connection: connInfo,
+		Addresses:  s.cfg.Addresses,
 	})
 }

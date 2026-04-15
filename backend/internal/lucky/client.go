@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -79,6 +80,7 @@ type Client struct {
 
 	mu       sync.RWMutex
 	connInfo *ConnectionInfo
+	lastErr  error
 }
 
 // New creates a new Lucky API client.
@@ -91,36 +93,40 @@ func New(cfg config.LuckyConfig, addresses config.AddressesConfig) *Client {
 	}
 }
 
-// Refresh fetches the latest STUN and DDNS data and builds connection info.
 func (c *Client) Refresh(ctx context.Context) error {
-	stunData, err := c.fetchStun(ctx)
-	if err != nil {
-		return fmt.Errorf("fetch stun: %w", err)
-	}
+	stunData, stunErr := c.fetchStun(ctx)
+	ddnsData, ddnsErr := c.fetchDDNS(ctx)
 
-	ddnsData, err := c.fetchDDNS(ctx)
-	if err != nil {
-		return fmt.Errorf("fetch ddns: %w", err)
+	var err error
+	if stunErr != nil {
+		err = fmt.Errorf("fetch stun: %w", stunErr)
+	} else if ddnsErr != nil {
+		err = fmt.Errorf("fetch ddns: %w", ddnsErr)
 	}
-
-	info := c.buildConnectionInfo(stunData, ddnsData)
 
 	c.mu.Lock()
-	c.connInfo = info
-	c.mu.Unlock()
+	defer c.mu.Unlock()
 
-	return nil
+	c.lastErr = err
+	if err == nil {
+		c.connInfo = c.buildConnectionInfo(stunData, ddnsData)
+	}
+
+	return err
 }
 
 // GetConnectionInfo returns the latest connection information.
-func (c *Client) GetConnectionInfo() *ConnectionInfo {
+func (c *Client) GetConnectionInfo() (*ConnectionInfo, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	if c.connInfo == nil {
-		return &ConnectionInfo{}
+	if c.lastErr != nil {
+		return nil, c.lastErr
 	}
-	return c.connInfo
+	if c.connInfo == nil {
+		return &ConnectionInfo{}, nil
+	}
+	return c.connInfo, nil
 }
 
 func (c *Client) fetchStun(ctx context.Context) (*StunResponse, error) {
@@ -190,6 +196,10 @@ func (c *Client) buildConnectionInfo(stun *StunResponse, ddns *DDNSResponse) *Co
 				Domain: domain,
 				IP:     addr,
 				Type:   "IPv4",
+			}
+			if host, portStr, splitErr := net.SplitHostPort(addr); splitErr == nil {
+				addrInfo.IP = host
+				addrInfo.Port = portStr
 			}
 
 			if rule.StunType == "tcp4" {

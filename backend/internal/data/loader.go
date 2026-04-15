@@ -61,20 +61,24 @@ func NewStore(worldDir string) *Store {
 	}
 }
 
-// LoadAll loads all player data from disk into memory.
 func (s *Store) LoadAll() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	tempStore := NewStore(s.worldDir)
 
-	if err := s.loadPlayerData(); err != nil {
+	if err := tempStore.loadPlayerData(); err != nil {
 		return fmt.Errorf("load playerdata: %w", err)
 	}
-	if err := s.loadStats(); err != nil {
+	if err := tempStore.loadStats(); err != nil {
 		return fmt.Errorf("load stats: %w", err)
 	}
-	if err := s.loadAdvancements(); err != nil {
+	if err := tempStore.loadAdvancements(); err != nil {
 		return fmt.Errorf("load advancements: %w", err)
 	}
+
+	s.mu.Lock()
+	s.Players = tempStore.Players
+	s.Stats = tempStore.Stats
+	s.Advancements = tempStore.Advancements
+	s.mu.Unlock()
 
 	return nil
 }
@@ -113,6 +117,28 @@ func (s *Store) GetPlayerAdvancements(uuid string) *PlayerAdvancements {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.Advancements[uuid]
+}
+
+// GetAllPlayers returns a list of all players without filtering.
+func (s *Store) GetAllPlayers() []*PlayerInfo {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var result []*PlayerInfo
+	for _, p := range s.Players {
+		result = append(result, p)
+	}
+	return result
+}
+
+// GetAllStats returns a map of all player stats.
+func (s *Store) GetAllStats() map[string]*PlayerStats {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	result := make(map[string]*PlayerStats, len(s.Stats))
+	for k, v := range s.Stats {
+		result[k] = v
+	}
+	return result
 }
 
 // SearchPlayers does fuzzy search by name or UUID.

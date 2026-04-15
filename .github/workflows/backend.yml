@@ -1,0 +1,24 @@
+name: Build Backend
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22.x'
+        
+    - name: Build AMD64
+      run: cd backend && GOOS=linux GOARCH=amd64 go build -o mtn-backend-amd64 ./cmd/server
+      
+    - name: Build ARM64
+      run: cd backend && GOOS=linux GOARCH=arm64 go build -o mtn-backend-arm64 ./cmd/server

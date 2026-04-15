@@ -7,7 +7,25 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mtn-server/backend/internal/data"
 )
+
+// PlayerListResponse represents list of players
+type PlayerListResponse struct {
+	Players    []*data.PlayerInfo `json:"players"`
+	Count      int                `json:"count"`
+	ActiveDays int                `json:"active_days,omitempty"`
+}
+
+// PlayerDetailResponse represents detailed player info
+type PlayerDetailResponse struct {
+	Info          *data.PlayerInfo         `json:"info"`
+	Stats         *data.PlayerStats        `json:"stats"`
+	Advancements  *data.PlayerAdvancements `json:"advancements"`
+	McMMO         interface{}              `json:"mcmmo"`
+	LinkedAccount interface{}              `json:"linked_account"`
+	OreStats      []OreData                `json:"ore_stats"`
+}
 
 // handlePlayers returns active players or search results.
 func (s *Server) handlePlayers(c *gin.Context) {
@@ -15,18 +33,18 @@ func (s *Server) handlePlayers(c *gin.Context) {
 
 	if search != "" {
 		players := s.store.SearchPlayers(search)
-		c.JSON(http.StatusOK, gin.H{
-			"players": players,
-			"count":   len(players),
+		c.JSON(http.StatusOK, PlayerListResponse{
+			Players: players,
+			Count:   len(players),
 		})
 		return
 	}
 
 	players := s.store.GetActivePlayers(s.cfg.ActiveDays)
-	c.JSON(http.StatusOK, gin.H{
-		"players":     players,
-		"count":       len(players),
-		"active_days": s.cfg.ActiveDays,
+	c.JSON(http.StatusOK, PlayerListResponse{
+		Players:    players,
+		Count:      len(players),
+		ActiveDays: s.cfg.ActiveDays,
 	})
 }
 
@@ -83,13 +101,13 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	// Compute ore stats (mined vs used/crafted)
 	oreStats := computeOreStats(stats)
 
-	c.JSON(http.StatusOK, gin.H{
-		"info":           info,
-		"stats":          stats,
-		"advancements":   advancements,
-		"mcmmo":          mcmmoSkills,
-		"linked_account": linkedAccount,
-		"ore_stats":      oreStats,
+	c.JSON(http.StatusOK, PlayerDetailResponse{
+		Info:          info,
+		Stats:         stats,
+		Advancements:  advancements,
+		McMMO:         mcmmoSkills,
+		LinkedAccount: linkedAccount,
+		OreStats:      oreStats,
 	})
 }
 
@@ -100,23 +118,8 @@ type OreData struct {
 	Used  int64  `json:"used"`
 }
 
-func computeOreStats(stats interface{}) []OreData {
-	if stats == nil {
-		return nil
-	}
-
-	// Type assert to get the actual stats
-	type statsType struct {
-		Stats map[string]map[string]int64 `json:"stats"`
-	}
-
-	// We need to check the actual data structure
-	// The stats are stored as PlayerStats with Stats map
-	ps, ok := stats.(*struct {
-		UUID  string
-		Stats map[string]map[string]int64
-	})
-	if !ok {
+func computeOreStats(ps *data.PlayerStats) []OreData {
+	if ps == nil {
 		return nil
 	}
 
