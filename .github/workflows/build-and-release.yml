@@ -1,0 +1,52 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22.x'
+        
+    - name: Build Backend AMD64
+      run: cd backend && GOOS=linux GOARCH=amd64 go build -o ../mtn-backend-amd64 ./cmd/server
+      
+    - name: Build Backend ARM64
+      run: cd backend && GOOS=linux GOARCH=arm64 go build -o ../mtn-backend-arm64 ./cmd/server
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+        
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+        cd dist
+        zip -r ../../mtn-frontend.zip .
+        
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          mtn-backend-amd64
+          mtn-backend-arm64
+          mtn-frontend.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
