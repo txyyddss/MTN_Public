@@ -26,7 +26,7 @@ jobs:
       run: cd backend && GOOS=linux GOARCH=arm64 go build -o ../mtn-backend-arm64 ./cmd/server
 
     - name: Setup Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '20'
         cache: 'npm'
