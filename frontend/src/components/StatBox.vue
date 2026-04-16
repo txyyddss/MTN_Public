@@ -1,31 +1,25 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   name: string
   value: number | string
+  isEnlarged: boolean
   rank?: number
   icon?: string
   formatValue?: (val: any) => string
 }>()
 
-const isEnlarged = ref(false)
+const emit = defineEmits(['toggle'])
 
 const toggleEnlarge = (e: Event) => {
   e.stopPropagation()
-  isEnlarged.value = !isEnlarged.value
+  emit('toggle')
 }
-
-const resetEnlarge = () => {
-  isEnlarged.value = false
-}
-
-// Expose resetEnlarge so parent can call it on global click/scroll
-defineExpose({ resetEnlarge })
 
 const displayValue = computed(() => {
   if (props.formatValue) return props.formatValue(props.value)
-  return props.value.toLocaleString()
+  return typeof props.value === 'number' ? props.value.toLocaleString() : props.value
 })
 
 const formatName = (name: string) => {

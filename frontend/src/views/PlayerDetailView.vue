@@ -22,7 +22,7 @@ const oreStats = ref<any>([])
 const ranks = ref<Record<string, number>>({})
 
 const enlargedAdvancement = ref<string | null>(null)
-const statBoxRefs = ref<any[]>([])
+const enlargedStat = ref<string | null>(null)
 
 const toggleAdvancement = (key: string, e: Event) => {
   e.stopPropagation()
@@ -36,9 +36,16 @@ const toggleAdvancement = (key: string, e: Event) => {
 
 const resetAllEnlarged = () => {
   enlargedAdvancement.value = null
-  statBoxRefs.value.forEach(ref => {
-    if (ref && ref.resetEnlarge) ref.resetEnlarge()
-  })
+  enlargedStat.value = null
+}
+
+const toggleStat = (key: string) => {
+  if (enlargedStat.value === key) {
+    enlargedStat.value = null
+  } else {
+    resetAllEnlarged()
+    enlargedStat.value = key
+  }
 }
 
 const selectedCategory = ref<string>('minecraft:custom')
@@ -306,7 +313,7 @@ const getStatIconPath = (category: string, name: string) => {
 </script>
 
 <template>
-  <div class="player-detail container animate-entry">
+  <div class="player-detail container animate-entry" @click="resetAllEnlarged">
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Loading player data...</p>
@@ -360,7 +367,7 @@ const getStatIconPath = (category: string, name: string) => {
         
         <!-- Ores Pie Chart -->
         <section class="panel glass-card" v-if="oreStats && oreStats.length > 0">
-          <h3><img src="/icons/all_blocks.ico" class="header-icon" /> Ore Mined Statistics</h3>
+          <h3 @click.stop="resetAllEnlarged"><img src="/icons/all_blocks.ico" class="header-icon" /> Ore Mined Statistics</h3>
           <div class="ore-content">
               <div class="chart-container">
                 <canvas ref="pieChartCanvas"></canvas>
@@ -376,7 +383,7 @@ const getStatIconPath = (category: string, name: string) => {
 
         <!-- McMMO Skills -->
         <section class="panel glass-card" v-if="mcmmo">
-          <div class="panel-header-simple">
+          <div class="panel-header-simple" @click.stop="resetAllEnlarged">
             <h3><img src="/icons/monsters_hunted.ico" class="header-icon" /> McMMO Skills</h3>
             <div class="rank-badge" v-if="ranks.skills">Rank #{{ ranks.skills }}</div>
             <div class="total-badge">Total {{ mcmmo.total }}</div>
@@ -393,7 +400,7 @@ const getStatIconPath = (category: string, name: string) => {
         </section>
 
         <section class="panel glass-card" v-if="advancements && advancements.length > 0">
-          <h3><img src="/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
+          <h3 @click.stop="resetAllEnlarged"><img src="/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
           
           <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
             <h4 class="category-name">{{ category }}</h4>
@@ -412,7 +419,7 @@ const getStatIconPath = (category: string, name: string) => {
 
         <!-- Extended Statistics -->
         <section class="panel glass-card" v-if="stats && Object.keys(stats).length > 0">
-          <div class="panel-header-simple">
+          <div class="panel-header-simple" @click.stop="resetAllEnlarged">
             <h3><img src="/icons/all_blocks.ico" class="header-icon" /> Extended Statistics</h3>
             <div class="rank-group">
                 <div class="rank-badge mini" v-if="ranks.playtime">Playtime #{{ ranks.playtime }}</div>
@@ -438,9 +445,10 @@ const getStatIconPath = (category: string, name: string) => {
             <StatBox 
               v-for="(value, name) in filteredStats" 
               :key="name"
-              ref="statBoxRefs"
               :name="String(name)"
               :value="value"
+              :isEnlarged="enlargedStat === name"
+              @toggle="toggleStat(String(name))"
               :rank="ranks['stat:' + selectedCategory + ':' + name]"
               :icon="getStatIconPath(selectedCategory, String(name))"
               :formatValue="formatNumber"
