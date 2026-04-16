@@ -21,6 +21,26 @@ const linkedAccount = ref<any>(null)
 const oreStats = ref<any>([])
 const ranks = ref<Record<string, number>>({})
 
+const enlargedAdvancement = ref<string | null>(null)
+const statBoxRefs = ref<any[]>([])
+
+const toggleAdvancement = (key: string, e: Event) => {
+  e.stopPropagation()
+  if (enlargedAdvancement.value === key) {
+    enlargedAdvancement.value = null
+  } else {
+    resetAllEnlarged()
+    enlargedAdvancement.value = key
+  }
+}
+
+const resetAllEnlarged = () => {
+  enlargedAdvancement.value = null
+  statBoxRefs.value.forEach(ref => {
+    if (ref && ref.resetEnlarge) ref.resetEnlarge()
+  })
+}
+
 const selectedCategory = ref<string>('minecraft:custom')
 const statSearch = ref('')
 
@@ -158,6 +178,8 @@ const getSkinUrl = (p: any) => {
 
 onMounted(() => {
   fetchDetail()
+  window.addEventListener('click', resetAllEnlarged)
+  window.addEventListener('scroll', resetAllEnlarged, { passive: true })
 })
 
 watch(uuid, (newUuid) => {
@@ -168,6 +190,8 @@ watch(uuid, (newUuid) => {
 
 onUnmounted(() => {
   if (chartInstance) chartInstance.destroy()
+  window.removeEventListener('click', resetAllEnlarged)
+  window.removeEventListener('scroll', resetAllEnlarged)
 })
 
 const formatDate = (ms: number) => {
@@ -380,7 +404,7 @@ const getStatIconPath = (category: string, name: string) => {
           <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
             <h4 class="category-name">{{ category }}</h4>
             <div class="advancements-grid">
-              <div class="adv-card" v-for="adv in items" :key="adv.key">
+              <div class="adv-card" v-for="adv in items" :key="adv.key" :class="{ enlarged: enlargedAdvancement === adv.key }" @click="toggleAdvancement(adv.key, $event)">
                 <div class="adv-icon-wrap" :class="getAdvancementMetadata(adv.key).type">
                   <img :src="getAdvIconPath(adv.key)" :alt="getAdvancementMetadata(adv.key).name" class="adv-icon" @error="(e: any) => e.target.style.display='none'" />
                 </div>
@@ -420,6 +444,7 @@ const getStatIconPath = (category: string, name: string) => {
             <StatBox 
               v-for="(value, name) in filteredStats" 
               :key="name"
+              ref="statBoxRefs"
               :name="String(name)"
               :value="value"
               :rank="ranks['stat:' + selectedCategory + ':' + name]"
@@ -640,9 +665,21 @@ const getStatIconPath = (category: string, name: string) => {
   padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid var(--glass-border);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 .adv-card:hover { border-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
+
+.adv-card.enlarged {
+  transform: scale(1.1);
+  z-index: 10;
+  background: rgba(30, 41, 59, 0.95);
+  border-color: var(--primary);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
 
 .adv-icon-wrap {
   width: 32px;
@@ -654,14 +691,30 @@ const getStatIconPath = (category: string, name: string) => {
   background: rgba(0,0,0,0.3);
   border-radius: 6px;
   padding: 4px;
+  transition: transform 0.3s ease;
 }
+.adv-card.enlarged .adv-icon-wrap { transform: scale(1.2); }
 .adv-icon-wrap.goal { border: 1px solid #fcd34d; }
 .adv-icon-wrap.challenge { border: 1px solid #f43f5e; }
 
 .adv-icon { width: 20px; height: 20px; image-rendering: pixelated; }
 
 .adv-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-.adv-name { font-weight: 700; color: #fff; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adv-name { 
+  font-weight: 700; 
+  color: #fff; 
+  font-size: 0.8rem; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  transition: all 0.3s ease;
+}
+
+.adv-card.enlarged .adv-name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
 
 .stat-value { font-weight: 800; color: #fff; font-size: 1.1rem; font-family: var(--heading); }
 
