@@ -24,14 +24,18 @@ onMounted(() => {
         <div class="mtn-block"></div>
         <div class="mtn-block"></div>
       </div>
-      <h2 style="position: absolute; margin-top: 120px; font-family: 'Outfit', sans-serif; color: #fff; letter-spacing: 4px;">MTN</h2>
+      <h2 style="position: absolute; margin-top: 120px; font-family: 'Outfit', sans-serif; letter-spacing: 4px;">
+        <span class="logo-accent">MTN</span><span class="logo-white">etwork</span>
+      </h2>
     </div>
 
     <!-- Main Navigation -->
     <nav class="desktop-nav glass-nav">
       <div class="container nav-content">
         <div class="logo">
-          <RouterLink to="/">MTN</RouterLink>
+          <RouterLink to="/">
+            <span class="logo-accent">MTN</span><span class="logo-white">etwork</span>
+          </RouterLink>
         </div>
 
         <!-- Hamburger -->
@@ -98,12 +102,17 @@ onMounted(() => {
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: 2px;
-  color: #fff;
   text-decoration: none;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+}
+
+.logo-accent {
+  color: var(--primary);
+}
+
+.logo-white {
+  color: #fff;
 }
 
 .nav-links {

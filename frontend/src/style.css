@@ -72,7 +72,7 @@ a {
 }
 
 a:hover {
-  text-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
 
 /* Animations */
@@ -168,12 +168,12 @@ a:hover {
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 230, 118, 0.5);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
   color: #000;
 }
 

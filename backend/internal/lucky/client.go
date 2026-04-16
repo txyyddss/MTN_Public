@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -143,21 +144,9 @@ func (c *Client) buildConnectionInfo(stun *StunResponse, ddns *DDNSResponse) *Co
 	info := &ConnectionInfo{}
 
 	// Static IPv6 addresses from config
-	info.JavaIPv6 = &AddressInfo{
-		Domain: c.addresses.JavaIPv6,
-		IP:     c.addresses.JavaIPv6,
-		Type:   "IPv6",
-	}
-	info.BedrockIPv6 = &AddressInfo{
-		Domain: c.addresses.BedrockIPv6,
-		IP:     c.addresses.BedrockIPv6,
-		Type:   "IPv6",
-	}
-	info.JavaSRV = &AddressInfo{
-		Domain: c.addresses.JavaIPv4SRV,
-		IP:     c.addresses.JavaIPv4SRV,
-		Type:   "SRV",
-	}
+	info.JavaIPv6 = buildAddressInfo(c.addresses.JavaIPv6, "IPv6")
+	info.BedrockIPv6 = buildAddressInfo(c.addresses.BedrockIPv6, "IPv6")
+	info.JavaSRV = buildAddressInfo(c.addresses.JavaIPv4SRV, "SRV")
 
 	// Build domain map from DDNS
 	domainMap := make(map[string]string) // ip -> domain
@@ -207,6 +196,33 @@ func (c *Client) buildConnectionInfo(stun *StunResponse, ddns *DDNSResponse) *Co
 			} else if rule.StunType == "udp4" {
 				info.BedrockIPv4 = addrInfo
 			}
+		}
+	}
+
+	return info
+}
+
+func buildAddressInfo(addr, addrType string) *AddressInfo {
+	if addr == "" {
+		return nil
+	}
+
+	info := &AddressInfo{
+		Domain: addr,
+		IP:     addr,
+		Type:   addrType,
+	}
+
+	// Try to split host and port
+	// handles host:port, [ipv6]:port, or just host/ip
+	if host, portStr, err := net.SplitHostPort(addr); err == nil {
+		info.IP = host
+		info.Port = portStr
+	} else if addrType == "IPv6" && strings.HasPrefix(addr, "[") {
+		// Handle bracketed IPv6 without port if SplitHostPort failed
+		end := strings.LastIndex(addr, "]")
+		if end > 0 {
+			info.IP = addr[1:end]
 		}
 	}
 

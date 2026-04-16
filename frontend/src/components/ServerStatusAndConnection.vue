@@ -51,12 +51,14 @@ onUnmounted(() => {
 
 const getJavaTotal = () => {
   if (!status.value?.java?.online) return 'Offline'
-  return `${status.value.java.players} Players`
+  const count = status.value.java.players
+  return `${count} ${count <= 1 ? 'Player' : 'Players'}`
 }
 
 const getBedrockTotal = () => {
   if (!status.value?.bedrock?.online) return 'Offline'
-  return `${status.value.bedrock.players} Players`
+  const count = status.value.bedrock.players
+  return `${count} ${count <= 1 ? 'Player' : 'Players'}`
 }
 
 const formatBytes = (bytes: number) => {

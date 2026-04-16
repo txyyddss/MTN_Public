@@ -96,13 +96,13 @@ onMounted(() => {
         <h1>Players Directory</h1>
         <p class="subtitle" v-if="loading">Searching...</p>
         <p class="subtitle" v-else-if="!searchQuery && !showAll">
-          Showing {{ count }} players active in last {{ activeDays }} days
+          Showing {{ count }} {{ count === 1 ? 'player' : 'players' }} active in last {{ activeDays }} days
         </p>
         <p class="subtitle" v-else-if="!searchQuery && showAll">
-          Showing all {{ count }} unique players
+          Showing all {{ count }} unique {{ count === 1 ? 'player' : 'players' }}
         </p>
         <p class="subtitle" v-else>
-          Found {{ count }} players matching "{{ searchQuery }}"
+          Found {{ count }} {{ count === 1 ? 'player' : 'players' }} matching "{{ searchQuery }}"
         </p>
       </div>
 

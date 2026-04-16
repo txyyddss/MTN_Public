@@ -262,7 +262,7 @@ const getRankClass = (rank: number) => {
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--primary);
-  background: rgba(0, 230, 118, 0.1);
+  background: rgba(59, 130, 246, 0.1);
   padding: 6px 12px;
   border-radius: 12px;
 }
@@ -304,7 +304,7 @@ const getRankClass = (rank: number) => {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(0, 230, 118, 0.2);
+  border: 4px solid rgba(59, 130, 246, 0.2);
   border-left-color: var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
