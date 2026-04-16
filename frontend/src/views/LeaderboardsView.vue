@@ -314,4 +314,74 @@ const getRankClass = (rank: number) => {
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
+
+/* Mobile responsive leaderboard */
+@media (max-width: 600px) {
+  .leaderboards-view {
+    padding-top: 1rem;
+  }
+
+  .header {
+    padding: 1.5rem;
+  }
+
+  .header-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .lb-table thead {
+    display: none;
+  }
+
+  .lb-table tbody tr {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    padding: 12px 16px;
+    gap: 0 12px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .lb-table td {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .rank-col {
+    grid-row: 1 / 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .player-link {
+    grid-column: 2;
+    margin-bottom: 4px;
+  }
+
+  .val-col {
+    grid-column: 2;
+    text-align: left !important;
+    display: flex;
+    align-items: center;
+    margin-left: 46px; /* 32px avatar + 14px gap - wait gap was 14 in player-link */
+  }
+
+  /* Adjust gap for mobile if needed */
+  .player-link {
+    gap: 12px;
+  }
+  
+  .val-col {
+    margin-left: 44px; /* 32px + 12px gap */
+  }
+
+  .value-badge {
+    background: transparent;
+    padding: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+}
 </style>

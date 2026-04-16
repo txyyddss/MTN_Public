@@ -262,7 +262,7 @@ const getAdvIconPath = (advKey: string) => {
             <span class="label">XP Level</span>
             <span class="val badge lvl-badge">{{ info.xp_level }}</span>
           </div>
-          <div class="info-row linked-row" v-if="linkedAccount">
+          <div class="info-row linked-row" v-if="linkedAccount && info.type === 'Bedrock'">
             <span class="label">Linked to</span>
             <span class="val account-link">
                 {{ linkedAccount.bedrock_username || linkedAccount.java_username }}
