@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -282,7 +283,7 @@ func (s *Store) loadPlayerData() error {
 		uuid := strings.TrimSuffix(entry.Name(), ".dat")
 		info, err := parsePlayerDat(filepath.Join(dir, entry.Name()))
 		if err != nil {
-			// Skip malformed files
+			log.Printf("Warning: failed to parse player data for %s: %v", entry.Name(), err)
 			continue
 		}
 		info.UUID = uuid

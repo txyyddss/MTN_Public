@@ -4,6 +4,7 @@ package data
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,6 +83,7 @@ func (s *Store) LoadAll() error {
 	s.Advancements = tempStore.Advancements
 	s.mu.Unlock()
 
+	log.Printf("Successfully loaded data: %d players, %d stats, %d advancements", len(s.Players), len(s.Stats), len(s.Advancements))
 	return nil
 }
 
@@ -174,6 +176,7 @@ func (s *Store) loadStats() error {
 		uuid := strings.TrimSuffix(entry.Name(), ".json")
 		data, err := os.ReadFile(filepath.Join(dir, entry.Name()))
 		if err != nil {
+			log.Printf("Warning: failed to read stats for %s: %v", entry.Name(), err)
 			continue
 		}
 
@@ -181,6 +184,7 @@ func (s *Store) loadStats() error {
 			Stats map[string]map[string]int64 `json:"stats"`
 		}
 		if err := json.Unmarshal(data, &raw); err != nil {
+			log.Printf("Warning: failed to parse stats JSON for %s: %v", entry.Name(), err)
 			continue
 		}
 
@@ -207,12 +211,14 @@ func (s *Store) loadAdvancements() error {
 		uuid := strings.TrimSuffix(entry.Name(), ".json")
 		data, err := os.ReadFile(filepath.Join(dir, entry.Name()))
 		if err != nil {
+			log.Printf("Warning: failed to read advancements for %s: %v", entry.Name(), err)
 			continue
 		}
 
 		// Advancements JSON is a flat map of advancement_key -> { criteria, done }
 		var raw map[string]json.RawMessage
 		if err := json.Unmarshal(data, &raw); err != nil {
+			log.Printf("Warning: failed to parse advancements JSON for %s: %v", entry.Name(), err)
 			continue
 		}
 

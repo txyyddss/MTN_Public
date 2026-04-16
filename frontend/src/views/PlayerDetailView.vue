@@ -4,6 +4,8 @@ import { useRoute } from 'vue-router'
 import Chart from 'chart.js/auto'
 import { API_BASE_URL } from '@/config'
 import advancementData from '@/assets/advancements.json'
+import StatBox from '@/components/StatBox.vue'
+import SkillItem from '@/components/SkillItem.vue'
 
 const route = useRoute()
 const uuid = route.params.uuid as string
@@ -275,10 +277,13 @@ const getAdvIconPath = (advKey: string) => {
             <div class="total-badge">Total {{ mcmmo.total }}</div>
           </div>
           <div class="skill-grid">
-            <div class="skill-item" v-for="(level, skill) in filteredMcmmo" :key="skill">
-              <span class="skill-name">{{ skill }}</span>
-              <span class="skill-level">{{ level }}</span>
-            </div>
+            <SkillItem 
+              v-for="(level, skill) in filteredMcmmo" 
+              :key="skill"
+              :name="String(skill)"
+              :level="Number(level)"
+              :rank="ranks['mcmmo:' + skill.toLowerCase()]"
+            />
           </div>
         </section>
 
@@ -326,15 +331,14 @@ const getAdvIconPath = (advKey: string) => {
           </div>
           
           <div class="stat-grid" v-if="selectedCategory && Object.keys(filteredStats).length > 0">
-            <div class="stat-box" v-for="(value, name) in filteredStats" :key="name">
-              <div class="stat-main">
-                <span class="stat-name">{{ formatStatName(name as string) }}</span>
-                <span class="stat-value">{{ formatNumber(value as number) }}</span>
-              </div>
-              <div class="stat-rank" v-if="ranks['stat:' + selectedCategory + ':' + name]">
-                  #{{ ranks['stat:' + selectedCategory + ':' + name] }}
-              </div>
-            </div>
+            <StatBox 
+              v-for="(value, name) in filteredStats" 
+              :key="name"
+              :name="String(name)"
+              :value="value"
+              :rank="ranks['stat:' + selectedCategory + ':' + name]"
+              :formatValue="formatNumber"
+            />
           </div>
           <div v-else class="empty-mini">No stats matching search</div>
         </section>
@@ -517,25 +521,6 @@ const getAdvIconPath = (advKey: string) => {
   gap: 1rem;
 }
 
-.skill-item {
-  background: rgba(255,255,255,0.03);
-  padding: 12px;
-  border-radius: 8px;
-  border-left: 3px solid var(--primary);
-}
-
-.skill-name {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  display: block;
-}
-
-.skill-level {
-  font-weight: 700;
-  color: #fff;
-  font-size: 1.2rem;
-}
-
 .total-badge {
     color: var(--primary);
     font-weight: 800;
@@ -594,23 +579,7 @@ const getAdvIconPath = (advKey: string) => {
 .adv-name { font-weight: 700; color: #fff; font-size: 0.95rem; }
 .adv-desc { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.stat-box {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
-  padding: 10px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-left: 2px solid transparent;
-  transition: all 0.2s;
-}
-.stat-box:hover { border-left-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
-
-.stat-main { display: flex; flex-direction: column; }
-.stat-name { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-value { font-weight: 800; color: #fff; font-size: 1.1rem; font-family: var(--heading); }
-
-.stat-rank { font-size: 0.8rem; font-weight: 800; color: #fcd34d; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; }
 
 .rank-badge.mini { font-size: 0.7rem; padding: 2px 8px; }
 
