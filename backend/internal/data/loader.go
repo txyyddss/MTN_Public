@@ -40,6 +40,8 @@ type PlayerInfo struct {
 	LastSeen      int64   `json:"last_seen"`    // milliseconds
 	FirstPlayed   int64   `json:"first_played"` // milliseconds
 	LastKnownName string  `json:"last_known_name"`
+	CleanName     string  `json:"clean_name"`
+	Type          string  `json:"type"` // Java or Bedrock
 }
 
 // Store holds all preloaded player data in memory.

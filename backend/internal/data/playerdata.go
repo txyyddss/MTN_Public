@@ -286,6 +286,21 @@ func (s *Store) loadPlayerData() error {
 			continue
 		}
 		info.UUID = uuid
+
+		if strings.HasPrefix(uuid, "00000000-0000-0000") {
+			info.Type = "Bedrock"
+			clean := info.LastKnownName
+			if strings.HasPrefix(clean, ".") {
+				clean = clean[1:]
+			} else if strings.HasPrefix(clean, "BE_") {
+				clean = clean[3:]
+			}
+			info.CleanName = clean
+		} else {
+			info.Type = "Java"
+			info.CleanName = info.LastKnownName
+		}
+
 		s.Players[uuid] = info
 	}
 	return nil

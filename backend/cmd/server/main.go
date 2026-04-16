@@ -118,8 +118,8 @@ func main() {
 
 	// Start server status monitor
 	mon := monitor.NewMonitor(
-		cfg.Addresses.JavaIPv6,
-		cfg.Addresses.BedrockIPv6,
+		cfg.LocalConnection.Java,
+		cfg.LocalConnection.Bedrock,
 		cfg.StatusRefreshSec,
 	)
 	mon.Start(ctx)

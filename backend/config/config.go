@@ -15,10 +15,17 @@ type Config struct {
 	McmmoMySQL      MySQLConfig     `json:"mcmmo_mysql"`
 	FloodgateMySQL  MySQLConfig     `json:"floodgate_mysql"`
 	Lucky           LuckyConfig     `json:"lucky"`
-	Addresses       AddressesConfig `json:"addresses"`
-	StatusRefreshSec int            `json:"status_refresh_seconds"`
-	DataRefreshSec   int            `json:"data_refresh_seconds"`
-	ActiveDays       int            `json:"active_days"`
+	LocalConnection LocalConnectionConfig `json:"local_connection"`
+	Addresses       AddressesConfig       `json:"addresses"`
+	StatusRefreshSec int                  `json:"status_refresh_seconds"`
+	DataRefreshSec   int                  `json:"data_refresh_seconds"`
+	ActiveDays       int                  `json:"active_days"`
+}
+
+// LocalConnectionConfig holds local query addresses.
+type LocalConnectionConfig struct {
+	Java    string `json:"java"`
+	Bedrock string `json:"bedrock"`
 }
 
 // ServerConfig holds HTTP server settings.

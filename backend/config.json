@@ -21,6 +21,10 @@
         "server_url": "http://127.0.0.1:16601/entrance",
         "token": "your_lucky_token"
     },
+    "local_connection": {
+        "java": "localhost:25565",
+        "bedrock": "localhost:19132"
+    },
     "addresses": {
         "java_ipv6": "mc6.1919801.xyz:11451",
         "bedrock_ipv6": "mc6.1919801.xyz",

@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mcstatus-io/mcutil/v4/query"
 	"github.com/mcstatus-io/mcutil/v4/response"
 	"github.com/mcstatus-io/mcutil/v4/status"
 )
@@ -22,20 +23,20 @@ type ServerStatus struct {
 
 // JavaStatus holds Java server ping result.
 type JavaStatus struct {
-	Online     bool   `json:"online"`
-	Players    int    `json:"players"`
-	MaxPlayers int    `json:"max_players"`
-	Version    string `json:"version"`
-	MOTD       string `json:"motd"`
+	Online     bool     `json:"online"`
+	Players    int      `json:"players"`
+	PlayerList []string `json:"player_list"`
+	Version    string   `json:"version"`
+	MOTD       string   `json:"motd"`
 }
 
 // BedrockStatus holds Bedrock server ping result.
 type BedrockStatus struct {
-	Online     bool   `json:"online"`
-	Players    int    `json:"players"`
-	MaxPlayers int    `json:"max_players"`
-	Version    string `json:"version"`
-	MOTD       string `json:"motd"`
+	Online     bool     `json:"online"`
+	Players    int      `json:"players"`
+	PlayerList []string `json:"player_list"`
+	Version    string   `json:"version"`
+	MOTD       string   `json:"motd"`
 }
 
 // Monitor periodically polls server status.
@@ -121,12 +122,30 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	result, err := status.Modern(ctx, m.javaHost, m.javaPort)
+	result, err := query.Full(ctx, m.javaHost, m.javaPort)
 	if err != nil {
+		if resultMod, errMod := status.Modern(ctx, m.javaHost, m.javaPort); errMod == nil {
+			return parseJavaResult(resultMod)
+		}
 		return &JavaStatus{Online: false}
 	}
 
-	return parseJavaResult(result)
+	js := &JavaStatus{Online: true}
+
+	if val, ok := result.Data["version"]; ok {
+		js.Version = val
+	}
+	if val, ok := result.Data["motd"]; ok {
+		js.MOTD = val
+	}
+	if val, ok := result.Data["numplayers"]; ok {
+		if i, err := strconv.Atoi(val); err == nil {
+			js.Players = i
+		}
+	}
+	js.PlayerList = result.Players
+
+	return js
 }
 
 func parseJavaResult(r *response.StatusModern) *JavaStatus {
@@ -134,9 +153,6 @@ func parseJavaResult(r *response.StatusModern) *JavaStatus {
 
 	if r.Players.Online != nil {
 		js.Players = int(*r.Players.Online)
-	}
-	if r.Players.Max != nil {
-		js.MaxPlayers = int(*r.Players.Max)
 	}
 	js.Version = r.Version.Name.Clean
 	js.MOTD = r.MOTD.Clean
@@ -161,9 +177,6 @@ func parseBedrockResult(r *response.StatusBedrock) *BedrockStatus {
 
 	if r.OnlinePlayers != nil {
 		bs.Players = int(*r.OnlinePlayers)
-	}
-	if r.MaxPlayers != nil {
-		bs.MaxPlayers = int(*r.MaxPlayers)
 	}
 	if r.Version != nil {
 		bs.Version = *r.Version
