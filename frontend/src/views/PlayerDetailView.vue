@@ -241,6 +241,8 @@ const getAdvIconPath = (advKey: string) => {
   return `/mc_icons/advancements/${category}/${iconName}.png`
 }
 
+import iconMap from '@/assets/icon_map.json'
+
 const customStatIcons:Record<string, string> = {
   'play_one_minute': '/mc_icons/blocks/special/observer^32.png',
   'jump': '/mc_icons/blocks/misc/scaffolding^32.png',
@@ -273,45 +275,30 @@ const getStatIconPath = (category: string, name: string) => {
   const id = name.replace('minecraft:', '')
   
   if (category === 'minecraft:custom') {
-    return customStatIcons[id] || '/mc_icons/items/paper^32.png'
+    return customStatIcons[id] || (iconMap as any)[id] || '/mc_icons/items/paper^32.png'
   }
 
-  const blockFolders: Record<string, string> = {
-    'iron_ore': 'materials', 'gold_ore': 'materials', 'diamond_ore': 'materials', 'emerald_ore': 'materials',
-    'lapis_ore': 'materials', 'redstone_ore': 'materials', 'coal_ore': 'materials', 'copper_ore': 'materials',
-    'deepslate_iron_ore': 'deepslate', 'deepslate_gold_ore': 'deepslate', 'deepslate_diamond_ore': 'deepslate',
-    'deepslate_emerald_ore': 'deepslate', 'deepslate_lapis_ore': 'deepslate', 'deepslate_redstone_ore': 'deepslate',
-    'deepslate_coal_ore': 'deepslate', 'deepslate_copper_ore': 'deepslate',
-    'iron_block': 'materials', 'gold_block': 'materials', 'diamond_block': 'materials', 'emerald_block': 'materials',
-    'raw_iron_block': 'materials', 'raw_gold_block': 'materials', 'raw_copper_block': 'materials',
-    'dirt': 'dirt', 'coarse_dirt': 'dirt', 'rooted_dirt': 'dirt', 'grass_block': 'dirt', 'podzol': 'dirt', 'mycelium': 'dirt',
-    'stone': 'stone', 'cobblestone': 'cobble', 'andesite': 'stone', 'diorite': 'stone', 'granite': 'stone',
-    'deepslate': 'deepslate', 'cobbled_deepslate': 'deepslate', 'polished_deepslate': 'deepslate',
-    'oak_log': 'wood', 'spruce_log': 'wood', 'birch_log': 'wood', 'jungle_log': 'wood', 'acacia_log': 'wood', 'dark_oak_log': 'wood',
-    'oak_planks': 'wood', 'spruce_planks': 'wood', 'birch_planks': 'wood', 'jungle_planks': 'wood', 'acacia_planks': 'wood', 'dark_oak_planks': 'wood',
-    'obsidian': 'stone', 'tnt': 'misc', 'netherrack': 'nether', 'end_stone': 'end', 'basalt': 'nether', 'blackstone': 'nether',
-    'amethyst_block': 'amethyst', 'budding_amethyst': 'amethyst', 'calcite': 'stone', 'tuff': 'stone'
+  // Try exact match in icon map
+  if ((iconMap as any)[id]) return (iconMap as any)[id]
+  
+  // Fuzzy matching for mobs
+  if (category === 'minecraft:killed' || category === 'minecraft:killed_by') {
+      // If it's a mob, try adding _spawn_egg if not found
+      const eggId = `${id}_spawn_egg`
+      if ((iconMap as any)[eggId]) return (iconMap as any)[eggId]
   }
 
-  // Items that are known to have ^32 suffix
-  const itemsWithSuffix = [
-    'conduit', 'skull_and_beacon', 'tnt_block', 'gold_block', 'gold_blocks', 
-    'cauldron', 'sniffer_mob', 'wither_mob', 'bee_nest_pickup', 'bee_nest_full_pickup'
-  ]
+  // Try removing 'spawn_egg' if it's there
+  const cleanId = id.replace('_spawn_egg', '')
+  if ((iconMap as any)[cleanId]) return (iconMap as any)[cleanId]
 
+  // Final fallbacks for items/blocks
   if (category === 'minecraft:mined' || category === 'minecraft:broken') {
-    const folder = blockFolders[id]
-    if (folder) return `/mc_icons/blocks/${folder}/${id}^32.png`
     return `/mc_icons/blocks/misc/${id}^32.png` 
   }
 
   if (['minecraft:crafted', 'minecraft:used', 'minecraft:picked_up', 'minecraft:dropped'].includes(category)) {
-      if (itemsWithSuffix.includes(id)) return `/mc_icons/items/${id}^32.png`
       return `/mc_icons/items/${id}.png`
-  }
-
-  if (category === 'minecraft:killed' || category === 'minecraft:killed_by') {
-    return `/mc_icons/items/${id}_spawn_egg.png`
   }
 
   return null
