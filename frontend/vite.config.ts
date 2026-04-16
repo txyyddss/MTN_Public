@@ -16,7 +16,7 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '/api': 'https://mtnapi.1391399.xyz/'
+            '/api': 'https://mtnapi.1391399.xyz/api'
         }
     }
 })
