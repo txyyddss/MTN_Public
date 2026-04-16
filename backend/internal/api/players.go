@@ -330,7 +330,7 @@ func computeOreStats(ps *data.PlayerStats) []OreData {
 		}
 	}
 
-	var result []OreData
+	result := []OreData{}
 	for category, displayName := range oreNames {
 		mined := minedMap[category]
 		used := usedMap[category]

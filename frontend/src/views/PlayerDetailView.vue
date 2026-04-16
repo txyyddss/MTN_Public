@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { watch } from 'vue'
 import Chart from 'chart.js/auto'
 import { API_BASE_URL } from '@/config'
 import advancementData from '@/assets/advancements.json'
@@ -8,7 +9,7 @@ import StatBox from '@/components/StatBox.vue'
 import SkillItem from '@/components/SkillItem.vue'
 
 const route = useRoute()
-const uuid = route.params.uuid as string
+const uuid = computed(() => route.params.uuid as string)
 const loading = ref(true)
 
 const info = ref<any>(null)
@@ -71,12 +72,17 @@ const pieChartCanvas = ref<HTMLCanvasElement | null>(null)
 let chartInstance: Chart | null = null
 
 const initPieChart = () => {
-  if (!pieChartCanvas.value || oreStats.value.length === 0) return
+  console.log('Initializing pie chart with oreStats:', oreStats.value)
+  if (!pieChartCanvas.value || oreStats.value.length === 0) {
+    console.warn('Cannot init pie chart: canvas missing or no oreStats')
+    return
+  }
   
   if (chartInstance) chartInstance.destroy()
 
   const labels = oreStats.value.map((o: any) => o.name)
   const minedData = oreStats.value.map((o: any) => o.mined)
+  console.log('Chart labels:', labels, 'Chart data:', minedData)
 
   chartInstance = new Chart(pieChartCanvas.value, {
     type: 'pie',
@@ -107,8 +113,9 @@ const initPieChart = () => {
 }
 
 const fetchDetail = async () => {
+  loading.value = true
   try {
-    const res = await fetch(`${API_BASE_URL}/api/players/${uuid}`)
+    const res = await fetch(`${API_BASE_URL}/api/players/${uuid.value}`)
     const json = await res.json()
     info.value = json.info
     stats.value = json.stats?.stats || null
@@ -118,19 +125,24 @@ const fetchDetail = async () => {
     oreStats.value = json.ore_stats
     ranks.value = json.ranks || {}
     
+    console.log('Player detail fetched:', {
+      hasStats: !!stats.value,
+      oreStatsCount: oreStats.value?.length,
+      oreStats: oreStats.value
+    })
+    
     if (stats.value && Object.keys(stats.value).length > 0) {
       const keys = Object.keys(stats.value)
       if (keys.includes('minecraft:custom')) selectedCategory.value = 'minecraft:custom'
       else selectedCategory.value = keys[0]
     }
-    
-    nextTick(() => {
-      initPieChart()
-    })
   } catch (e) {
     console.error('Failed to load player detail', e)
   } finally {
     loading.value = false
+    nextTick(() => {
+      initPieChart()
+    })
   }
 }
 
@@ -145,6 +157,12 @@ const getAvatarUrl = (p: any) => {
 
 onMounted(() => {
   fetchDetail()
+})
+
+watch(uuid, (newUuid) => {
+  if (newUuid) {
+    fetchDetail()
+  }
 })
 
 onUnmounted(() => {
