@@ -241,11 +241,11 @@ const getAdvIconPath = (advKey: string) => {
   return `/mc_icons/advancements/${category}/${iconName}.png`
 }
 
-const customStatIcons: Record<string, string> = {
+const customStatIcons:Record<string, string> = {
   'play_one_minute': '/mc_icons/blocks/special/observer^32.png',
   'jump': '/mc_icons/blocks/misc/scaffolding^32.png',
   'damage_dealt': '/mc_icons/items/iron_sword.png',
-  'damage_taken': '/mc_icons/items/iron_sword.png', // Fallback to sword for combat
+  'damage_taken': '/mc_icons/items/iron_sword.png', 
   'deaths': '/mc_icons/items/skull_and_beacon^32.png',
   'mob_kills': '/mc_icons/items/iron_sword.png',
   'player_kills': '/mc_icons/items/iron_sword.png',
@@ -254,12 +254,12 @@ const customStatIcons: Record<string, string> = {
   'fly_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
   'climb_one_cm': '/mc_icons/blocks/misc/ladder^32.png',
   'fall_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
-  'minecart_one_cm': '/mc_icons/items/conduit^32.png', // Generic tech
+  'minecart_one_cm': '/mc_icons/items/conduit^32.png',
   'boat_one_cm': '/mc_icons/items/water_bucket.png',
   'pig_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
   'horse_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
   'strider_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
-  'aviate_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
+  'aviate_one_cm': '/mc_icons/items/elytra.png',
   'swim_one_cm': '/mc_icons/items/water_bucket.png',
   'walk_on_water_one_cm': '/mc_icons/items/water_bucket.png',
   'walk_under_water_one_cm': '/mc_icons/items/water_bucket.png',
@@ -276,35 +276,42 @@ const getStatIconPath = (category: string, name: string) => {
     return customStatIcons[id] || '/mc_icons/items/paper^32.png'
   }
 
-  // Common blocks subfolder mapping
   const blockFolders: Record<string, string> = {
     'iron_ore': 'materials', 'gold_ore': 'materials', 'diamond_ore': 'materials', 'emerald_ore': 'materials',
     'lapis_ore': 'materials', 'redstone_ore': 'materials', 'coal_ore': 'materials', 'copper_ore': 'materials',
-    'deepslate_iron_ore': 'materials', 'deepslate_gold_ore': 'materials', 'deepslate_diamond_ore': 'materials',
-    'deepslate_emerald_ore': 'materials', 'deepslate_lapis_ore': 'materials', 'deepslate_redstone_ore': 'materials',
-    'deepslate_coal_ore': 'materials', 'deepslate_copper_ore': 'materials',
+    'deepslate_iron_ore': 'deepslate', 'deepslate_gold_ore': 'deepslate', 'deepslate_diamond_ore': 'deepslate',
+    'deepslate_emerald_ore': 'deepslate', 'deepslate_lapis_ore': 'deepslate', 'deepslate_redstone_ore': 'deepslate',
+    'deepslate_coal_ore': 'deepslate', 'deepslate_copper_ore': 'deepslate',
     'iron_block': 'materials', 'gold_block': 'materials', 'diamond_block': 'materials', 'emerald_block': 'materials',
+    'raw_iron_block': 'materials', 'raw_gold_block': 'materials', 'raw_copper_block': 'materials',
     'dirt': 'dirt', 'coarse_dirt': 'dirt', 'rooted_dirt': 'dirt', 'grass_block': 'dirt', 'podzol': 'dirt', 'mycelium': 'dirt',
-    'stone': 'stone', 'cobblestone': 'cobblestone', 'andesite': 'andesite', 'diorite': 'diorite', 'granite': 'granite',
+    'stone': 'stone', 'cobblestone': 'cobble', 'andesite': 'stone', 'diorite': 'stone', 'granite': 'stone',
+    'deepslate': 'deepslate', 'cobbled_deepslate': 'deepslate', 'polished_deepslate': 'deepslate',
     'oak_log': 'wood', 'spruce_log': 'wood', 'birch_log': 'wood', 'jungle_log': 'wood', 'acacia_log': 'wood', 'dark_oak_log': 'wood',
     'oak_planks': 'wood', 'spruce_planks': 'wood', 'birch_planks': 'wood', 'jungle_planks': 'wood', 'acacia_planks': 'wood', 'dark_oak_planks': 'wood',
+    'obsidian': 'stone', 'tnt': 'misc', 'netherrack': 'nether', 'end_stone': 'end', 'basalt': 'nether', 'blackstone': 'nether',
+    'amethyst_block': 'amethyst', 'budding_amethyst': 'amethyst', 'calcite': 'stone', 'tuff': 'stone'
   }
+
+  // Items that are known to have ^32 suffix
+  const itemsWithSuffix = [
+    'conduit', 'skull_and_beacon', 'tnt_block', 'gold_block', 'gold_blocks', 
+    'cauldron', 'sniffer_mob', 'wither_mob', 'bee_nest_pickup', 'bee_nest_full_pickup'
+  ]
 
   if (category === 'minecraft:mined' || category === 'minecraft:broken') {
     const folder = blockFolders[id]
     if (folder) return `/mc_icons/blocks/${folder}/${id}^32.png`
-    // Default to a guess in blocks root if not in mapping, but since we saw blocks has no root files, 
-    // we should probably try blocks/misc if we had one, but we'll try items first as a fallback.
-    return `/mc_icons/items/${id}^32.png`
+    return `/mc_icons/blocks/misc/${id}^32.png` 
   }
 
   if (['minecraft:crafted', 'minecraft:used', 'minecraft:picked_up', 'minecraft:dropped'].includes(category)) {
-      // Try items first with suffix
-      return `/mc_icons/items/${id}^32.png`
+      if (itemsWithSuffix.includes(id)) return `/mc_icons/items/${id}^32.png`
+      return `/mc_icons/items/${id}.png`
   }
 
   if (category === 'minecraft:killed' || category === 'minecraft:killed_by') {
-    return `/mc_icons/items/${id}_spawn_egg^32.png`
+    return `/mc_icons/items/${id}_spawn_egg.png`
   }
 
   return null
