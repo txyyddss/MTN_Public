@@ -179,7 +179,7 @@ const getSkinUrl = (p: any) => {
 onMounted(() => {
   fetchDetail()
   window.addEventListener('click', resetAllEnlarged)
-  window.addEventListener('scroll', resetAllEnlarged, { passive: true })
+  window.addEventListener('scroll', resetAllEnlarged, { capture: true, passive: true })
 })
 
 watch(uuid, (newUuid) => {
@@ -191,7 +191,7 @@ watch(uuid, (newUuid) => {
 onUnmounted(() => {
   if (chartInstance) chartInstance.destroy()
   window.removeEventListener('click', resetAllEnlarged)
-  window.removeEventListener('scroll', resetAllEnlarged)
+  window.removeEventListener('scroll', resetAllEnlarged, { capture: true })
 })
 
 const formatDate = (ms: number) => {
