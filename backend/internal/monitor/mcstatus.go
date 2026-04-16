@@ -216,12 +216,7 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 	for _, t := range m.targets {
 		if t.Type == "java" {
 			host = t.Host
-			// Use split query port if it's the main local address
-			if m.cfg != nil && (host == m.cfg.LocalConnection.Java || strings.Contains(m.cfg.LocalConnection.Java, host)) {
-				port = m.cfg.LocalConnection.JavaQueryPort
-			} else {
-				port = t.Port
-			}
+			port = t.Port
 			break
 		}
 	}

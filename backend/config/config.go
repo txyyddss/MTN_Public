@@ -24,9 +24,8 @@ type Config struct {
 
 // LocalConnectionConfig holds local query addresses.
 type LocalConnectionConfig struct {
-	Java          string `json:"java"`
-	JavaQueryPort uint16 `json:"java_query_port"`
-	Bedrock       string `json:"bedrock"`
+	Java    string `json:"java"`
+	Bedrock string `json:"bedrock"`
 }
 
 // ServerConfig holds HTTP server settings.
