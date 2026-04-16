@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { API_BASE_URL } from '@/config'
 
 interface PlayerInfo {
   uuid: string
@@ -18,7 +19,8 @@ const loading = ref(true)
 const fetchPlayers = async (search = '') => {
   loading.value = true
   try {
-    const url = search ? `/api/players?search=${encodeURIComponent(search)}` : '/api/players'
+    const endpoint = search ? `/api/players?search=${encodeURIComponent(search)}` : '/api/players'
+    const url = `${API_BASE_URL}${endpoint}`
     const res = await fetch(url)
     const json = await res.json()
     players.value = json.players || []
@@ -39,7 +41,7 @@ const handleSearch = () => {
 
 const handleRandom = async () => {
   try {
-    const res = await fetch('/api/players/random')
+    const res = await fetch(`${API_BASE_URL}/api/players/random`)
     if (!res.ok) return
     const json = await res.json()
     if (json.uuid) {

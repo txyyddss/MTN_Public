@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { API_BASE_URL } from '@/config'
 
 const types = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
 const currentType = ref('mining')
@@ -10,7 +11,7 @@ const fetchLeaderboard = async (type: string) => {
   loading.value = true
   currentType.value = type
   try {
-    const res = await fetch(`/api/leaderboards/${type}`)
+    const res = await fetch(`${API_BASE_URL}/api/leaderboards/${type}`)
     const json = await res.json()
     entries.value = json.entries || []
   } catch(e) {

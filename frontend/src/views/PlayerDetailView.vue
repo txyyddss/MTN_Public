@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { SkinViewer, IdleAnimation } from 'skinview3d'
 import Chart from 'chart.js/auto'
+import { API_BASE_URL } from '@/config'
 
 const route = useRoute()
 const uuid = route.params.uuid as string
@@ -102,7 +103,7 @@ const initPieChart = () => {
 
 const fetchDetail = async () => {
   try {
-    const res = await fetch(`/api/players/${uuid}`)
+    const res = await fetch(`${API_BASE_URL}/api/players/${uuid}`)
     const json = await res.json()
     info.value = json.info
     stats.value = json.stats?.stats || null

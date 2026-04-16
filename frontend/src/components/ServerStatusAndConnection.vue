@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { API_BASE_URL } from '@/config'
 
 const status = ref<any>(null)
 const connInfo = ref<any>(null)
@@ -7,9 +8,8 @@ let pollInterval: any = null
 
 const fetchStatus = async () => {
   try {
-    // Note: Assuming API is at same domain under /api
-    // In dev, you'd configure Vite proxy
-    const res = await fetch('/api/status')
+    // Note: Prepend API_BASE_URL to support environment variable configuration
+    const res = await fetch(`${API_BASE_URL}/api/status`)
     if (res.ok) {
       status.value = await res.json()
     }
@@ -20,7 +20,7 @@ const fetchStatus = async () => {
 
 const fetchConnection = async () => {
   try {
-    const res = await fetch('/api/connection')
+    const res = await fetch(`${API_BASE_URL}/api/connection`)
     if (res.ok) {
       connInfo.value = await res.json()
     }
