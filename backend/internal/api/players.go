@@ -1,13 +1,16 @@
 package api
 
 import (
+	"context"
 	"math/rand"
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mtn-server/backend/internal/data"
+	"github.com/mtn-server/backend/internal/database"
 )
 
 // PlayerListResponse represents list of players
@@ -23,29 +26,91 @@ type PlayerDetailResponse struct {
 	Stats         *data.PlayerStats        `json:"stats"`
 	Advancements  *data.PlayerAdvancements `json:"advancements"`
 	McMMO         interface{}              `json:"mcmmo"`
-	LinkedAccount interface{}              `json:"linked_account"`
+	LinkedAccount *database.LinkedPlayer   `json:"linked_account"`
 	OreStats      []OreData                `json:"ore_stats"`
+	Ranks         map[string]int           `json:"ranks"`
 }
 
 // handlePlayers returns active players or search results.
 func (s *Server) handlePlayers(c *gin.Context) {
 	search := c.Query("search")
+	all := c.Query("all") == "true"
 
+	var players []*data.PlayerInfo
 	if search != "" {
-		players := s.store.SearchPlayers(search)
-		c.JSON(http.StatusOK, PlayerListResponse{
-			Players: players,
-			Count:   len(players),
-		})
-		return
+		players = s.store.SearchPlayers(search)
+	} else if all {
+		players = s.store.GetAllPlayers()
+	} else {
+		players = s.store.GetActivePlayers(s.cfg.ActiveDays)
 	}
 
-	players := s.store.GetActivePlayers(s.cfg.ActiveDays)
+	// Sort by last seen descending
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].LastSeen > players[j].LastSeen
+	})
+
+	validPlayers := s.filterValidPlayers(c.Request.Context(), players)
+
 	c.JSON(http.StatusOK, PlayerListResponse{
-		Players:    players,
-		Count:      len(players),
+		Players:    validPlayers,
+		Count:      len(validPlayers),
 		ActiveDays: s.cfg.ActiveDays,
 	})
+}
+
+func (s *Server) getMcmmoValidUUIDs(ctx context.Context) map[string]bool {
+	valid := make(map[string]bool)
+	if s.mcmmoDB == nil {
+		return valid
+	}
+
+	if s.cache != nil {
+		var cached []string
+		if ok, _ := s.cache.Get(ctx, "mcmmo_valid_uuids", &cached); ok {
+			for _, u := range cached {
+				valid[u] = true
+			}
+			return valid
+		}
+	}
+
+	skills, err := s.mcmmoDB.GetAllSkills(ctx)
+	if err == nil {
+		var uuids []string
+		for _, sk := range skills {
+			if sk.Total > 0 {
+				valid[sk.UUID] = true
+				uuids = append(uuids, sk.UUID)
+			}
+		}
+		if s.cache != nil {
+			s.cache.Set(ctx, "mcmmo_valid_uuids", uuids, 5*time.Minute)
+		}
+	}
+	return valid
+}
+
+func (s *Server) filterValidPlayers(ctx context.Context, players []*data.PlayerInfo) []*data.PlayerInfo {
+	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
+
+	var valid []*data.PlayerInfo
+	for _, p := range players {
+		ps := s.store.GetPlayerStats(p.UUID)
+		if ps == nil || len(ps.Stats) == 0 {
+			continue
+		}
+		pa := s.store.GetPlayerAdvancements(p.UUID)
+		if pa == nil || len(pa.Advancements) == 0 {
+			continue
+		}
+		if s.mcmmoDB != nil && !mcmmoValid[p.UUID] {
+			continue
+		}
+
+		valid = append(valid, p)
+	}
+	return valid
 }
 
 // handleRandomPlayer redirects to a random player's detail.
@@ -82,9 +147,8 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	}
 
 	// Linked account
-	var linkedAccount interface{}
+	var linkedAccount *database.LinkedPlayer
 	if s.floodDB != nil {
-		// Check if this is a Bedrock player (UUID starts with 00000000-0000-0000)
 		if strings.HasPrefix(uuid, "00000000-0000-0000") {
 			linked, err := s.floodDB.GetLinkedByBedrockUUID(c.Request.Context(), uuid)
 			if err == nil && linked != nil {
@@ -94,12 +158,25 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 			linked, err := s.floodDB.GetLinkedByJavaUUID(c.Request.Context(), uuid)
 			if err == nil && linked != nil {
 				linkedAccount = linked
+				// Look up Bedrock username in store
+				if bi := s.store.GetPlayer(linked.BedrockUUID); bi != nil {
+					linkedAccount.BedrockUsername = bi.CleanName
+				}
 			}
 		}
 	}
 
-	// Compute ore stats (mined vs used/crafted)
+	// Compute ore stats
 	oreStats := computeOreStats(stats)
+
+	// Compute ranks for major categories
+	ranks := make(map[string]int)
+	categories := []string{"skills", "playtime", "mining", "killing", "deaths", "walking", "pvp"}
+	for _, cat := range categories {
+		if rank := s.getPlayerRank(c.Request.Context(), cat, uuid); rank > 0 {
+			ranks[cat] = rank
+		}
+	}
 
 	c.JSON(http.StatusOK, PlayerDetailResponse{
 		Info:          info,
@@ -108,7 +185,30 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 		McMMO:         mcmmoSkills,
 		LinkedAccount: linkedAccount,
 		OreStats:      oreStats,
+		Ranks:         ranks,
 	})
+}
+
+func (s *Server) getPlayerRank(ctx context.Context, lbType, uuid string) int {
+	var entries []LeaderboardEntry
+	cacheKey := "lb_" + lbType
+
+	// Try cache first
+	if s.cache != nil {
+		if ok, _ := s.cache.Get(ctx, cacheKey, &entries); ok {
+			for _, e := range entries {
+				if e.UUID == uuid {
+					return e.Rank
+				}
+			}
+		}
+	}
+
+	// If not in cache or cached version doesn't have the player, skip calculating on the fly for detail view
+	// because it might be too slow if many people visit.
+	// However, for the detail view we might want to be accurate.
+	// But let's rely on the leaderboards being cached frequently.
+	return 0
 }
 
 // OreData holds mined and used counts for an ore type.

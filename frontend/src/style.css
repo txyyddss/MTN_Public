@@ -1,25 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Outfit:wght@400;600;800&display=swap');
+
+@font-face {
+  font-family: 'Minecraft';
+  src: url('./assets/minecraft.otf');
+}
 
 :root {
   /* Colors */
-  --bg-dark: #0b0f19;
-  --bg-lighter: #151b2b;
-  --text-main: #e2e8f0;
+  --bg-dark: #000000;
+  --bg-lighter: #0a0c10;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --primary: #00e676; /* Vivid Cyan/Green */
-  --primary-hover: #00c853;
-  --secondary: #6366f1; /* Indigo */
-  --accent: #8b5cf6; /* Violet */
+  --primary: #3B82F6;
+  /* Modern Blue */
+  --primary-hover: #2563EB;
+  --secondary: #6366f1;
+  /* Indigo */
+  --accent: #8b5cf6;
+  /* Violet */
   --danger: #f43f5e;
-  
+
   /* Glassmorphism */
-  --glass-bg: rgba(21, 27, 43, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  
+  --glass-bg: rgba(10, 12, 16, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+
   /* Utilities */
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --heading: 'Outfit', var(--sans);
+  --sans: 'Noto Sans SC', 'Inter', system-ui, -apple-system, sans-serif;
+  --heading: 'Outfit', 'Noto Sans SC', sans-serif;
+  --minecraft: 'Minecraft', 'Noto Sans SC', sans-serif;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -41,7 +50,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--heading);
   color: #fff;
   line-height: 1.2;
@@ -63,6 +77,7 @@ a:hover {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -75,22 +90,36 @@ a:hover {
 }
 
 /* Delay helpers */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-dark);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--bg-lighter);
   border-radius: 5px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
 }
@@ -114,6 +143,7 @@ a:hover {
   padding: 24px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .glass-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
@@ -177,11 +207,13 @@ a:hover {
   background: var(--primary);
   /* M */
 }
+
 .mtn-block:nth-child(2) {
   background: var(--secondary);
   animation-delay: 0.2s;
   /* T */
 }
+
 .mtn-block:nth-child(3) {
   background: var(--accent);
   animation-delay: 0.4s;
@@ -189,6 +221,12 @@ a:hover {
 }
 
 @keyframes bounceBlock {
-  0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-30px) scale(1.1); box-shadow: 0 20px 25px rgba(0,0,0,0.4); }
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    transform: translateY(-30px) scale(1.1);
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.4);
+  }
 }

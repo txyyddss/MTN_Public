@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { API_BASE_URL } from '@/config'
 
@@ -7,6 +7,7 @@ interface PlayerInfo {
   uuid: string
   last_known_name: string
   last_seen: number
+  type: string
 }
 
 const router = useRouter()
@@ -14,20 +15,23 @@ const players = ref<PlayerInfo[]>([])
 const count = ref(0)
 const activeDays = ref(0)
 const searchQuery = ref('')
+const showAll = ref(false)
 const loading = ref(true)
+const onlinePlayers = ref<string[]>([])
 
-const fetchPlayers = async (search = '') => {
+const fetchPlayers = async () => {
   loading.value = true
   try {
-    const endpoint = search ? `/api/players?search=${encodeURIComponent(search)}` : '/api/players'
-    const url = `${API_BASE_URL}${endpoint}`
+    const params = new URLSearchParams()
+    if (searchQuery.value) params.append('search', searchQuery.value)
+    if (showAll.value) params.append('all', 'true')
+    
+    const url = `${API_BASE_URL}/api/players?${params.toString()}`
     const res = await fetch(url)
     const json = await res.json()
     players.value = json.players || []
     count.value = json.count || 0
-    if (json.active_days !== undefined) {
-      activeDays.value = json.active_days
-    }
+    activeDays.value = json.active_days || 0
   } catch (e) {
     console.error('Failed to fetch players:', e)
   } finally {
@@ -35,9 +39,23 @@ const fetchPlayers = async (search = '') => {
   }
 }
 
-const handleSearch = () => {
-  fetchPlayers(searchQuery.value)
+const fetchOnline = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/status`)
+    if (res.ok) {
+        const json = await res.json()
+        onlinePlayers.value = json.online_players || []
+    }
+  } catch (e) {}
 }
+
+let searchTimeout: any = null
+watch(searchQuery, () => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(fetchPlayers, 300)
+})
+
+watch(showAll, fetchPlayers)
 
 const handleRandom = async () => {
   try {
@@ -52,16 +70,22 @@ const handleRandom = async () => {
   }
 }
 
+const isOnline = (uuid: string) => {
+    return onlinePlayers.value.includes(uuid)
+}
+
 const getAvatarUrl = (p: PlayerInfo) => {
   if (!p.last_known_name) return 'https://mineskin.eu/helm/Steve'
-  const cleanName = p.last_known_name.startsWith('be_') 
-    ? p.last_known_name.substring(3) 
-    : p.last_known_name
+  let cleanName = p.last_known_name
+  if (p.type === 'Bedrock' || cleanName.startsWith('.')) {
+      cleanName = cleanName.replace(/^\./, '').replace(/^BE_/, '')
+  }
   return `https://mineskin.eu/helm/${cleanName}`
 }
 
 onMounted(() => {
   fetchPlayers()
+  fetchOnline()
 })
 </script>
 
@@ -70,10 +94,14 @@ onMounted(() => {
     <div class="header">
       <div class="title-area">
         <h1>Players Directory</h1>
-        <p class="subtitle" v-if="!searchQuery && activeDays > 0">
-          Showing {{ count }} players active in the last {{ activeDays }} days
+        <p class="subtitle" v-if="loading">Searching...</p>
+        <p class="subtitle" v-else-if="!searchQuery && !showAll">
+          Showing {{ count }} players active in last {{ activeDays }} days
         </p>
-        <p class="subtitle" v-else-if="searchQuery">
+        <p class="subtitle" v-else-if="!searchQuery && showAll">
+          Showing all {{ count }} unique players
+        </p>
+        <p class="subtitle" v-else>
           Found {{ count }} players matching "{{ searchQuery }}"
         </p>
       </div>
@@ -81,16 +109,20 @@ onMounted(() => {
       <div class="controls glass-card">
         <input 
           v-model="searchQuery" 
-          @keyup.enter="handleSearch"
-          placeholder="Search by name or UUID..." 
+          placeholder="Type to search..." 
           class="search-box"
         />
-        <button @click="handleSearch" class="btn-primary">Search</button>
-        <button @click="handleRandom" class="btn-secondary">Random Player</button>
+        
+        <div class="filter-group">
+            <button @click="showAll = !showAll" :class="['btn-filter', { active: showAll }]">
+                {{ showAll ? 'Showing All' : 'Showing Recent' }}
+            </button>
+            <button @click="handleRandom" class="btn-icon" title="Random Player">🎲</button>
+        </div>
       </div>
     </div>
 
-    <div v-if="loading" class="loading-state">
+    <div v-if="loading && players.length === 0" class="loading-state">
       <div class="spinner"></div>
       <p>Loading players...</p>
     </div>
@@ -98,23 +130,28 @@ onMounted(() => {
     <div v-else-if="players.length === 0" class="empty-state glass-card">
       <h3>No players found</h3>
       <p>Try searching for a different username or UUID.</p>
-      <button @click="() => { searchQuery = ''; fetchPlayers(); }" class="btn-primary mt-4">Reset Search</button>
+      <button @click="() => { searchQuery = ''; showAll = false; }" class="btn-primary mt-4">Reset Search</button>
     </div>
 
-    <div v-else class="grid">
+    <div v-else class="player-grid">
       <RouterLink 
         v-for="(p, index) in players" 
         :key="p.uuid" 
         :to="`/player/${p.uuid}`"
         class="player-card glass-card animate-entry"
-        :style="{ animationDelay: `${(index % 20) * 50}ms` }"
+        :style="{ animationDelay: `${(index % 20) * 30}ms` }"
       >
-        <div class="avatar-container">
+        <div class="avatar-wrap">
           <img :src="getAvatarUrl(p)" :alt="p.last_known_name" class="avatar" loading="lazy" />
+          <div v-if="isOnline(p.uuid)" class="online-indicator" title="Online now"></div>
         </div>
+        
         <div class="info">
-          <h3>{{ p.last_known_name || 'Unknown' }}</h3>
-          <span class="uuid">{{ p.uuid.split('-')[0] }}...</span>
+          <div class="name-row">
+            <span :class="['type-tag', p.type?.toLowerCase()]">{{ p.type === 'Bedrock' ? 'BE' : 'JE' }}</span>
+            <h3 class="player-name">{{ p.last_known_name || 'Unknown' }}</h3>
+          </div>
+          <span class="last-seen">Seen {{ new Date(p.last_seen).toLocaleDateString() }}</span>
         </div>
         <div class="card-arrow">→</div>
       </RouterLink>
@@ -156,9 +193,9 @@ onMounted(() => {
 .controls {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1.5rem;
+  padding: 1rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .search-box {
@@ -171,125 +208,147 @@ onMounted(() => {
   min-width: 200px;
   font-family: var(--sans);
   font-size: 1rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .search-box:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.2);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  font-family: var(--heading);
-  font-weight: 700;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.3s ease;
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
+.btn-filter {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-filter.active {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
 }
 
-.grid {
+.btn-icon {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    filter: grayscale(1);
+    transition: all 0.2s;
+}
+.btn-icon:hover { filter: grayscale(0); transform: scale(1.1); }
+
+.player-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
 }
 
 .player-card {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   text-decoration: none;
   color: inherit;
-  padding: 1.5rem;
+  padding: 1rem;
   position: relative;
-  overflow: hidden;
 }
 
 .player-card:hover {
   border-color: var(--primary);
+  transform: translateY(-2px);
 }
 
-.player-card:hover .card-arrow {
-  transform: translateX(0);
-  opacity: 1;
-  color: var(--primary);
-}
-
-.avatar-container {
-  width: 70px;
-  height: 70px;
-  border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+.avatar-wrap {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .avatar {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  border-radius: 6px;
   image-rendering: pixelated;
-  transform: scale(1.1); /* To crop out any edge artifacts from skins */
+  background: #111;
 }
 
-.info {
-  flex: 1;
+.online-indicator {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 14px;
+    height: 14px;
+    background: #10b981;
+    border: 2px solid var(--bg-dark);
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
 }
 
-.info h3 {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.2rem;
+.info { overflow: hidden; }
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.player-name {
+  margin: 0;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--minecraft);
 }
 
-.uuid {
-  font-family: var(--mono);
+.type-tag {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 800;
+}
+.type-tag.java { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.type-tag.bedrock { background: rgba(79, 70, 229, 0.2); color: #c7d2fe; }
+
+.last-seen {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 .card-arrow {
-  font-size: 1.5rem;
-  font-weight: bold;
+  margin-left: auto;
+  font-size: 1.2rem;
   color: var(--text-muted);
-  transform: translateX(-10px);
-  opacity: 0.5;
-  transition: all 0.3s ease;
+  opacity: 0.3;
+  transition: 0.3s;
 }
-
-.loading-state, .empty-state {
-  text-align: center;
-  padding: 5rem 2rem;
-}
+.player-card:hover .card-arrow { opacity: 1; color: var(--primary); transform: translateX(3px); }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(0, 230, 118, 0.2);
+  border: 3px solid rgba(59, 130, 246, 0.1);
   border-left-color: var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 1rem;
 }
 
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
-
+@keyframes spin { 100% { transform: rotate(360deg); } }
 .mt-4 { margin-top: 1.5rem; }
 </style>

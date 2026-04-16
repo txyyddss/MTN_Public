@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -100,10 +101,32 @@ func main() {
 		log.Println("Lucky API connected")
 	}
 
-	// Start periodic Lucky refresh
+	// Start server status monitor
+	mon := monitor.NewMonitor(
+		cfg.LocalConnection.Java,
+		cfg.LocalConnection.Bedrock,
+		cfg.StatusRefreshSec,
+	)
+
+	// Add static addresses from config
+	if cfg.Addresses.JavaIPv4SRV != "" {
+		mon.AddTarget("java_ipv4_srv", cfg.Addresses.JavaIPv4SRV, 25565, "java")
+	}
+	if cfg.Addresses.JavaIPv6 != "" {
+		// java_ipv6 is already added as the main Java target in monitor.NewMonitor
+		// but I might want to ensure it has the right label if I add it again.
+		// For now, let's just add others.
+	}
+
+	mon.Start(ctx)
+	defer mon.Stop()
+	log.Println("Server status monitor started")
+
+	// Start periodic Lucky refresh and sync with monitor
 	go func() {
 		ticker := time.NewTicker(time.Duration(cfg.StatusRefreshSec) * time.Second)
 		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -111,20 +134,35 @@ func main() {
 			case <-ticker.C:
 				if err := luckyClient.Refresh(ctx); err != nil {
 					log.Printf("Lucky refresh error: %v", err)
+				} else {
+					// Sync dynamic targets to monitor
+					info, err := luckyClient.GetConnectionInfo()
+					if err == nil {
+						var targets []monitor.MonitoredAddr
+						if info.JavaIPv4 != nil {
+							port, _ := strconv.ParseUint(info.JavaIPv4.Port, 10, 16)
+							targets = append(targets, monitor.MonitoredAddr{
+								Label: "java_ipv4",
+								Host:  info.JavaIPv4.IP,
+								Port:  uint16(port),
+								Type:  "java",
+							})
+						}
+						if info.BedrockIPv4 != nil {
+							port, _ := strconv.ParseUint(info.BedrockIPv4.Port, 10, 16)
+							targets = append(targets, monitor.MonitoredAddr{
+								Label: "bedrock_ipv4",
+								Host:  info.BedrockIPv4.IP,
+								Port:  uint16(port),
+								Type:  "bedrock",
+							})
+						}
+						mon.SyncDynamicTargets(targets)
+					}
 				}
 			}
 		}
 	}()
-
-	// Start server status monitor
-	mon := monitor.NewMonitor(
-		cfg.LocalConnection.Java,
-		cfg.LocalConnection.Bedrock,
-		cfg.StatusRefreshSec,
-	)
-	mon.Start(ctx)
-	defer mon.Stop()
-	log.Println("Server status monitor started")
 
 	// Create API server
 	srv := api.NewServer(cfg, store, mcmmoDB, floodDB, luckyClient, mon, cacheClient)

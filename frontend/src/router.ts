@@ -7,8 +7,7 @@ const routes = [
     { path: '/gallery', name: 'gallery', component: () => import('@/views/StubView.vue') },
     { path: '/players', name: 'players', component: () => import('@/views/PlayersView.vue') },
     { path: '/player/:uuid', name: 'playerDetail', component: () => import('@/views/PlayerDetailView.vue') },
-    { path: '/leaderboards', name: 'leaderboards', component: () => import('@/views/LeaderboardsView.vue') },
-    { path: '/wiki', redirect: () => { window.location.href = '/wiki'; return '/' } }
+    { path: '/leaderboards', name: 'leaderboards', component: () => import('@/views/LeaderboardsView.vue') }
 ]
 
 const router = createRouter({

@@ -89,25 +89,26 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 .logo a {
   font-family: var(--heading);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: 2px;
   color: #fff;
   text-decoration: none;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: center;
 }
 
@@ -117,7 +118,7 @@ onMounted(() => {
   font-weight: 600;
   font-family: var(--heading);
   letter-spacing: 0.5px;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   position: relative;
 }
 

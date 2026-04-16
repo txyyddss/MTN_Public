@@ -39,9 +39,10 @@ type McmmoSkills struct {
 
 // LinkedPlayer holds a Floodgate account link.
 type LinkedPlayer struct {
-	BedrockUUID  string `json:"bedrock_uuid"`
-	JavaUUID     string `json:"java_uuid"`
-	JavaUsername string `json:"java_username"`
+	BedrockUUID     string `json:"bedrock_uuid"`
+	BedrockUsername string `json:"bedrock_username,omitempty"`
+	JavaUUID        string `json:"java_uuid"`
+	JavaUsername    string `json:"java_username"`
 }
 
 // McmmoDB provides access to the McMMO MySQL database.

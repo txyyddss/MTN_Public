@@ -5,6 +5,7 @@ import (
 	"context"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,12 +14,19 @@ import (
 	"github.com/mcstatus-io/mcutil/v4/status"
 )
 
-// ServerStatus holds the current status of the Minecraft server.
+// ServerStatus holds the current status and individual connection latencies.
 type ServerStatus struct {
-	Java    *JavaStatus    `json:"java"`
-	Bedrock *BedrockStatus `json:"bedrock"`
-	System  *SystemStats   `json:"system"`
-	Updated time.Time      `json:"updated"`
+	Java        *JavaStatus                  `json:"java"`
+	Bedrock     *BedrockStatus               `json:"bedrock"`
+	System      *SystemStats                 `json:"system"`
+	Connections map[string]*ConnectionStatus `json:"connections"`
+	Updated     time.Time                    `json:"updated"`
+}
+
+// ConnectionStatus holds latency and status for a specific connection method.
+type ConnectionStatus struct {
+	Online  bool          `json:"online"`
+	Latency time.Duration `json:"latency"`
 }
 
 // JavaStatus holds Java server ping result.
@@ -39,33 +47,48 @@ type BedrockStatus struct {
 	MOTD       string   `json:"motd"`
 }
 
+type MonitoredAddr struct {
+	Label   string
+	Host    string
+	Port    uint16
+	Type    string // "java" or "bedrock"
+	Dynamic bool
+}
+
 // Monitor periodically polls server status.
 type Monitor struct {
-	javaHost    string
-	javaPort    uint16
-	bedrockHost string
-	bedrockPort uint16
-	interval    time.Duration
+	targets  []MonitoredAddr
+	interval time.Duration
 
 	mu     sync.RWMutex
 	status *ServerStatus
 	cancel context.CancelFunc
 }
 
-// NewMonitor creates a new server status monitor.
-// javaAddr and bedrockAddr should be "host:port" format.
+// NewMonitor creates a new server status monitor for multiple addresses.
 func NewMonitor(javaAddr, bedrockAddr string, intervalSec int) *Monitor {
 	jh, jp := parseHostPort(javaAddr, 25565)
 	bh, bp := parseHostPort(bedrockAddr, 19132)
 
-	return &Monitor{
-		javaHost:    jh,
-		javaPort:    jp,
-		bedrockHost: bh,
-		bedrockPort: bp,
-		interval:    time.Duration(intervalSec) * time.Second,
-		status:      &ServerStatus{},
+	targets := []MonitoredAddr{
+		{Label: "java_ipv6", Host: jh, Port: jp, Type: "java"},
+		{Label: "bedrock_ipv6", Host: bh, Port: bp, Type: "bedrock"},
 	}
+
+	return &Monitor{
+		targets:  targets,
+		interval: time.Duration(intervalSec) * time.Second,
+		status: &ServerStatus{
+			Connections: make(map[string]*ConnectionStatus),
+		},
+	}
+}
+
+// AddTarget adds a new address to monitor.
+func (m *Monitor) AddTarget(label, addr string, port uint16, t string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.targets = append(m.targets, MonitoredAddr{Label: label, Host: addr, Port: port, Type: t})
 }
 
 // Start begins periodic polling. Call Stop() to cancel.
@@ -97,6 +120,26 @@ func (m *Monitor) Stop() {
 	}
 }
 
+// SyncDynamicTargets replaces all dynamic targets with new ones.
+func (m *Monitor) SyncDynamicTargets(targets []MonitoredAddr) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	var newTargets []MonitoredAddr
+	// Keep static targets
+	for _, t := range m.targets {
+		if !t.Dynamic {
+			newTargets = append(newTargets, t)
+		}
+	}
+	// Add new dynamic targets
+	for _, t := range targets {
+		t.Dynamic = true
+		newTargets = append(newTargets, t)
+	}
+	m.targets = newTargets
+}
+
 // GetStatus returns the latest server status.
 func (m *Monitor) GetStatus() *ServerStatus {
 	m.mu.RLock()
@@ -106,9 +149,48 @@ func (m *Monitor) GetStatus() *ServerStatus {
 
 func (m *Monitor) poll(ctx context.Context) {
 	s := &ServerStatus{
-		Updated: time.Now(),
+		Connections: make(map[string]*ConnectionStatus),
+		Updated:     time.Now(),
 	}
 
+	// Poll all targets for latencies
+	var wg sync.WaitGroup
+	m.mu.RLock()
+	targets := m.targets
+	m.mu.RUnlock()
+
+	for _, target := range targets {
+		wg.Add(1)
+		go func(t MonitoredAddr) {
+			defer wg.Done()
+			start := time.Now()
+			online := false
+
+			pollCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+			defer cancel()
+
+			if t.Type == "java" {
+				if _, err := status.Modern(pollCtx, t.Host, t.Port); err == nil {
+					online = true
+				}
+			} else {
+				if _, err := status.Bedrock(pollCtx, t.Host, t.Port); err == nil {
+					online = true
+				}
+			}
+
+			m.mu.Lock()
+			s.Connections[t.Label] = &ConnectionStatus{
+				Online:  online,
+				Latency: time.Since(start),
+			}
+			m.mu.Unlock()
+		}(target)
+	}
+	wg.Wait()
+
+	// Pick the first java/bedrock targets as the "main" status
+	// (Usually java_ipv6/bedrock_ipv6)
 	s.Java = m.pollJava(ctx)
 	s.Bedrock = m.pollBedrock(ctx)
 	s.System = getSystemStats()
@@ -122,9 +204,21 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	result, err := query.Full(ctx, m.javaHost, m.javaPort)
+	// Default to first java target
+	m.mu.RLock()
+	var host string
+	var port uint16
+	for _, t := range m.targets {
+		if t.Type == "java" {
+			host, port = t.Host, t.Port
+			break
+		}
+	}
+	m.mu.RUnlock()
+
+	result, err := query.Full(ctx, host, port)
 	if err != nil {
-		if resultMod, errMod := status.Modern(ctx, m.javaHost, m.javaPort); errMod == nil {
+		if resultMod, errMod := status.Modern(ctx, host, port); errMod == nil {
 			return parseJavaResult(resultMod)
 		}
 		return &JavaStatus{Online: false}
@@ -164,29 +258,41 @@ func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	result, err := status.Bedrock(ctx, m.bedrockHost, m.bedrockPort)
+	m.mu.RLock()
+	var host string
+	var port uint16
+	for _, t := range m.targets {
+		if t.Type == "bedrock" {
+			host, port = t.Host, t.Port
+			break
+		}
+	}
+	m.mu.RUnlock()
+
+	result, err := status.Bedrock(ctx, host, port)
 	if err != nil {
 		return &BedrockStatus{Online: false}
 	}
 
-	return parseBedrockResult(result)
-}
-
-func parseBedrockResult(r *response.StatusBedrock) *BedrockStatus {
 	bs := &BedrockStatus{Online: true}
 
-	if r.OnlinePlayers != nil {
-		bs.Players = int(*r.OnlinePlayers)
+	if result.OnlinePlayers != nil {
+		bs.Players = int(*result.OnlinePlayers)
 	}
-	if r.Version != nil {
-		bs.Version = *r.Version
+	if result.Version != nil {
+		bs.Version = *result.Version
 	}
-	bs.MOTD = r.MOTD.Clean
+	bs.MOTD = result.MOTD.Clean
 
 	return bs
 }
 
 func parseHostPort(addr string, defaultPort uint16) (string, uint16) {
+	// Handle bracketed IPv6 without port: [2001:db8::1]
+	if strings.HasPrefix(addr, "[") && strings.HasSuffix(addr, "]") {
+		return addr[1 : len(addr)-1], defaultPort
+	}
+
 	host, portStr, err := net.SplitHostPort(addr)
 	if err != nil {
 		// No port, use default

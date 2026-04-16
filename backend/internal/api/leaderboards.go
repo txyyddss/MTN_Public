@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"sort"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,8 +28,22 @@ type LeaderboardResponse struct {
 // handleLeaderboard returns leaderboard data by type.
 func (s *Server) handleLeaderboard(c *gin.Context) {
 	lbType := c.Param("type")
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+	pageSize := 20
 
 	var entries []LeaderboardEntry
+	cacheKey := "lb_" + lbType
+
+	// Try checking cache first
+	if s.cache != nil {
+		if ok, _ := s.cache.Get(c.Request.Context(), cacheKey, &entries); ok {
+			s.sendPaginatedLeaderboard(c, lbType, entries, page, pageSize)
+			return
+		}
+	}
 
 	switch lbType {
 	case "skills":
@@ -49,9 +65,27 @@ func (s *Server) handleLeaderboard(c *gin.Context) {
 		return
 	}
 
+	if s.cache != nil && len(entries) > 0 {
+		s.cache.Set(c.Request.Context(), cacheKey, entries, 5*time.Minute)
+	}
+
+	s.sendPaginatedLeaderboard(c, lbType, entries, page, pageSize)
+}
+
+func (s *Server) sendPaginatedLeaderboard(c *gin.Context, lbType string, entries []LeaderboardEntry, page, pageSize int) {
+	start := (page - 1) * pageSize
+	if start >= len(entries) {
+		start = 0
+		page = 1
+	}
+	end := start + pageSize
+	if end > len(entries) {
+		end = len(entries)
+	}
+
 	c.JSON(http.StatusOK, LeaderboardResponse{
 		Type:    lbType,
-		Entries: entries,
+		Entries: entries[start:end],
 		Count:   len(entries),
 	})
 }
@@ -143,11 +177,6 @@ func rankEntries(entries []LeaderboardEntry) []LeaderboardEntry {
 
 	for i := range entries {
 		entries[i].Rank = i + 1
-	}
-
-	// Limit to top 100
-	if len(entries) > 100 {
-		entries = entries[:100]
 	}
 
 	return entries

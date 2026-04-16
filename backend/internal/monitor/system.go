@@ -2,6 +2,7 @@ package monitor
 
 import (
 	"runtime"
+	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -22,14 +23,24 @@ type SystemStats struct {
 	MemPercent     float64 `json:"mem_percent"`
 	DiskRead       uint64  `json:"disk_read"`
 	DiskWrite      uint64  `json:"disk_write"`
+	DiskReadRate   uint64  `json:"disk_read_rate"`  // bytes per second
+	DiskWriteRate  uint64  `json:"disk_write_rate"` // bytes per second
 	NetSent        uint64  `json:"net_sent"`
 	NetRecv        uint64  `json:"net_recv"`
+	NetSentRate    uint64  `json:"net_sent_rate"` // bytes per second
+	NetRecvRate    uint64  `json:"net_recv_rate"` // bytes per second
 	Load1          float64 `json:"load_1"`
 	Load5          float64 `json:"load_5"`
 	Load15         float64 `json:"load_15"`
 }
 
+var (
+	prevStats *SystemStats
+	lastPoll  time.Time
+)
+
 func getSystemStats() *SystemStats {
+	now := time.Now()
 	stats := &SystemStats{}
 
 	// Platform info
@@ -67,6 +78,25 @@ func getSystemStats() *SystemStats {
 		stats.NetRecv = counters[0].BytesRecv
 	}
 
+	// Rate calculation
+	if prevStats != nil {
+		duration := now.Sub(lastPoll).Seconds()
+		if duration > 0 {
+			if stats.DiskRead >= prevStats.DiskRead {
+				stats.DiskReadRate = uint64(float64(stats.DiskRead-prevStats.DiskRead) / duration)
+			}
+			if stats.DiskWrite >= prevStats.DiskWrite {
+				stats.DiskWriteRate = uint64(float64(stats.DiskWrite-prevStats.DiskWrite) / duration)
+			}
+			if stats.NetSent >= prevStats.NetSent {
+				stats.NetSentRate = uint64(float64(stats.NetSent-prevStats.NetSent) / duration)
+			}
+			if stats.NetRecv >= prevStats.NetRecv {
+				stats.NetRecvRate = uint64(float64(stats.NetRecv-prevStats.NetRecv) / duration)
+			}
+		}
+	}
+
 	// Load average (Linux only)
 	if runtime.GOOS == "linux" {
 		if avg, err := load.Avg(); err == nil {
@@ -75,6 +105,9 @@ func getSystemStats() *SystemStats {
 			stats.Load15 = avg.Load15
 		}
 	}
+
+	prevStats = stats
+	lastPoll = now
 
 	return stats
 }
