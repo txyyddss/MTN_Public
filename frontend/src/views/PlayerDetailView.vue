@@ -7,6 +7,7 @@ import { API_BASE_URL } from '@/config'
 import advancementData from '@/assets/advancements.json'
 import StatBox from '@/components/StatBox.vue'
 import SkillItem from '@/components/SkillItem.vue'
+import SkinViewer from '@/components/SkinViewer.vue'
 
 const route = useRoute()
 const uuid = computed(() => route.params.uuid as string)
@@ -146,13 +147,13 @@ const fetchDetail = async () => {
   }
 }
 
-const getAvatarUrl = (p: any) => {
-  if (!p?.last_known_name) return 'https://mineskin.eu/helm/Steve'
+const getSkinUrl = (p: any) => {
+  if (!p?.last_known_name) return 'https://mineskin.eu/skin/Steve'
   let cleanName = p.last_known_name
   if (p.type === 'Bedrock' || cleanName.startsWith('.')) {
       cleanName = cleanName.replace(/^\./, '').replace(/^BE_/, '')
   }
-  return `https://mineskin.eu/helm/${cleanName}`
+  return `https://mineskin.eu/skin/${cleanName}`
 }
 
 onMounted(() => {
@@ -237,7 +238,9 @@ const getAdvIconPath = (advKey: string) => {
       <!-- Sidebar Profile Card -->
       <aside class="profile-card glass-card">
         <div class="avatar-header">
-            <img :src="getAvatarUrl(info)" :alt="info.last_known_name" class="detail-avatar" />
+            <div class="skin-wrapper">
+              <SkinViewer :skin-url="getSkinUrl(info)" />
+            </div>
             <h2 class="profile-name minecraft-font">{{ info.last_known_name }}</h2>
             <span :class="['type-tag', info.type?.toLowerCase()]">{{ info.type === 'Bedrock' ? 'Bedrock' : 'Java' }}</span>
         </div>
@@ -403,14 +406,11 @@ const getAdvIconPath = (advKey: string) => {
     margin-bottom: 2rem;
 }
 
-.detail-avatar {
-    width: 96px;
-    height: 96px;
-    border-radius: 12px;
-    background: #111;
-    image-rendering: pixelated;
+.skin-wrapper {
+    width: 250px;
+    height: 300px;
     margin-bottom: 1rem;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));
 }
 
 .profile-name {
