@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import { API_BASE_URL } from '@/config'
-import { preloadImages, PreloadPriority } from '@/utils/preloader'
+import { preloadImages, PreloadPriority, preloadScripts } from '@/utils/preloader'
 import iconMap from '@/assets/icon_map.json'
 
 const menuOpen = ref(false)
@@ -11,6 +11,13 @@ const toggleMenu = () => menuOpen.value = !menuOpen.value
 const isLoading = ref(true)
 
 const preloadGlobalAssets = async () => {
+    // 0. Preload critical JS chunks for other pages (highest priority)
+    preloadScripts([
+        '/src/views/PlayersView.vue',
+        '/src/views/LeaderboardsView.vue',
+        '/src/views/PlayerDetailView.vue'
+    ])
+
     // 1. Preload all icons from the map with BACKGROUND priority
     const iconUrls = Object.values(iconMap)
     preloadImages(iconUrls, PreloadPriority.BACKGROUND)

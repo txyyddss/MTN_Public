@@ -1,6 +1,7 @@
 const preloadedUrls = new Set<string>();
 
 export const PreloadPriority = {
+    URGENT: 20,       // Scripts, critical core assets
     HIGH: 10,       // Player skins
     MEDIUM_HIGH: 7, // Advancements
     MEDIUM: 5,      // Other images (heads/avatars)
@@ -11,6 +12,7 @@ export const PreloadPriority = {
 interface PreloadItem {
     url: string;
     priority: number;
+    type?: 'image' | 'script';
 }
 
 const queue: PreloadItem[] = [];
@@ -86,5 +88,23 @@ export async function preloadImagesAsync(urls: (string | null | undefined)[], _p
             };
             img.src = url;
         });
+    });
+}
+
+/**
+ * Preloads JS modules using <link rel="modulepreload">.
+ * These are injected immediately as they are typically top-priority for navigation.
+ */
+export function preloadScripts(urls: string[]) {
+    if (typeof document === 'undefined') return;
+
+    urls.forEach(url => {
+        if (preloadedUrls.has(url)) return;
+        preloadedUrls.add(url);
+
+        const link = document.createElement('link');
+        link.rel = 'modulepreload';
+        link.href = url;
+        document.head.appendChild(link);
     });
 }
