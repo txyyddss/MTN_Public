@@ -136,15 +136,6 @@ const formatDate = (dateStr: string) => {
             <div class="conn-box">
               <h4>Java Edition</h4>
               <ul v-if="showAllJava">
-                <li v-if="connInfo.connection.java_ipv6" @click="copyToClipboard(connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip, 'Java IPv6')">
-                  <div class="addr-row">
-                    <span class="type-badge ipv6">IPv6</span> 
-                    <code>{{ connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip }}</code>
-                  </div>
-                  <span v-if="status?.connections?.java_ipv6" :class="['latency-dot', status.connections.java_ipv6.online ? 'online' : 'offline']">
-                    {{ status.connections.java_ipv6.latency_ms || '...' }}ms
-                  </span>
-                </li>
                 <li v-if="connInfo.connection.java_ipv4" @click="copyToClipboard(connInfo.connection.java_ipv4.domain || connInfo.connection.java_ipv4.ip + ':' + connInfo.connection.java_ipv4.port, 'Java IPv4')">
                    <div class="addr-row">
                     <span class="type-badge ipv4">IPv4</span> 
@@ -152,6 +143,15 @@ const formatDate = (dateStr: string) => {
                   </div>
                   <span v-if="status?.connections?.java_ipv4" :class="['latency-dot', status.connections.java_ipv4.online ? 'online' : 'offline']">
                     {{ status.connections.java_ipv4.latency_ms || '...' }}ms
+                  </span>
+                </li>
+                <li v-if="connInfo.connection.java_ipv6" @click="copyToClipboard(connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip, 'Java IPv6')">
+                  <div class="addr-row">
+                    <span class="type-badge ipv6">IPv6</span> 
+                    <code>{{ connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip }}</code>
+                  </div>
+                  <span v-if="status?.connections?.java_ipv6" :class="['latency-dot', status.connections.java_ipv6.online ? 'online' : 'offline']">
+                    {{ status.connections.java_ipv6.latency_ms || '...' }}ms
                   </span>
                 </li>
               </ul>

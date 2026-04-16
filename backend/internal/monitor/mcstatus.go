@@ -16,11 +16,12 @@ import (
 
 // ServerStatus holds the current status and individual connection latencies.
 type ServerStatus struct {
-	Stats        *JavaStatus                  `json:"stats"`
-	BedrockStats *BedrockStatus               `json:"bedrock_stats"`
-	System       *SystemStats                 `json:"system"`
-	Connections  map[string]*ConnectionStatus `json:"connections"`
-	Updated      time.Time                    `json:"updated"`
+	Stats         *JavaStatus                  `json:"java"`
+	BedrockStats  *BedrockStatus               `json:"bedrock"`
+	System        *SystemStats                 `json:"system"`
+	Connections   map[string]*ConnectionStatus `json:"connections"`
+	OnlinePlayers []string                     `json:"online_players"`
+	Updated       time.Time                    `json:"updated"`
 }
 
 // ConnectionStatus holds latency and status for a specific connection method.
@@ -196,7 +197,9 @@ func (m *Monitor) poll(ctx context.Context) {
 
 	// Pick the first java/bedrock targets as the "main" status
 	// (Usually java_ipv6/bedrock_ipv6)
-	s.Stats = m.pollJava(ctx)
+	var onlineUUIDs []string
+	s.Stats, onlineUUIDs = m.pollJava(ctx)
+	s.OnlinePlayers = onlineUUIDs
 	s.BedrockStats = m.pollBedrock(ctx)
 	s.System = getSystemStats()
 
@@ -205,7 +208,7 @@ func (m *Monitor) poll(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
+func (m *Monitor) pollJava(ctx context.Context) (*JavaStatus, []string) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -224,18 +227,22 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 
 	result, err := status.Modern(ctx, host, port)
 	if err != nil {
-		return &JavaStatus{Online: false}
+		return &JavaStatus{Online: false}, nil
 	}
 
 	js := parseJavaResult(result)
 
 	// Populate player list from sample
 	js.PlayerList = []string{}
+	var onlineUUIDs []string
 	for _, p := range result.Players.Sample {
 		// Filter out players with zero UUIDs (often fake/bot indicators)
 		if p.ID == "00000000-0000-0000-0000-000000000000" {
 			continue
 		}
+
+		onlineUUIDs = append(onlineUUIDs, p.ID)
+
 		name := p.Name.Clean
 		if name == "" {
 			continue
@@ -247,7 +254,7 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 	}
 	js.Players = len(js.PlayerList)
 
-	return js
+	return js, onlineUUIDs
 }
 
 func parseJavaResult(r *response.StatusModern) *JavaStatus {
