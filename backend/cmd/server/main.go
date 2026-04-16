@@ -162,6 +162,33 @@ func main() {
 	srv := api.NewServer(cfg, store, mcmmoDB, floodDB, luckyClient, mon, cacheClient)
 	router := srv.SetupRouter()
 
+	// Start periodic mcMMO ranking refresh
+	if mcmmoDB != nil && cacheClient != nil {
+		go func() {
+			// Run once on startup
+			if err := srv.RefreshAllMcmmoRanks(ctx); err != nil {
+				log.Printf("Initial mcMMO ranking refresh error: %v", err)
+			} else {
+				log.Println("Initial mcMMO ranking refresh complete")
+			}
+
+			ticker := time.NewTicker(15 * time.Minute) // Refresh every 15 minutes
+			defer ticker.Stop()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					if err := srv.RefreshAllMcmmoRanks(ctx); err != nil {
+						log.Printf("Periodic mcMMO ranking refresh error: %v", err)
+					} else {
+						log.Println("Periodic mcMMO ranking refresh complete")
+					}
+				}
+			}
+		}()
+	}
+
 	// Start HTTP server
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Server.Port),

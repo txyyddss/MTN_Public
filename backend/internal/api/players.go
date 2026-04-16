@@ -384,3 +384,93 @@ func getOreCategory(ore string) string {
 		return "other"
 	}
 }
+
+// RefreshAllMcmmoRanks calculates and caches rankings for all mcMMO skills for all players.
+func (s *Server) RefreshAllMcmmoRanks(ctx context.Context) error {
+	if s.mcmmoDB == nil || s.cache == nil {
+		return fmt.Errorf("mcmmo db or cache unavailable")
+	}
+
+	skills, err := s.mcmmoDB.GetAllSkills(ctx)
+	if err != nil {
+		return fmt.Errorf("get all skills: %w", err)
+	}
+
+	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
+
+	skillNames := []string{
+		"taming", "mining", "woodcutting", "repair", "unarmed",
+		"herbalism", "excavation", "archery", "swords", "axes",
+		"acrobatics", "fishing", "alchemy", "crossbows", "tridents",
+		"maces", "spears",
+	}
+
+	for _, skillName := range skillNames {
+		var entries []LeaderboardEntry
+		for _, sk := range skills {
+			if !s.isValidPlayer(ctx, sk.UUID, mcmmoValid) {
+				continue
+			}
+
+			val := 0
+			switch skillName {
+			case "taming":
+				val = sk.Taming
+			case "mining":
+				val = sk.Mining
+			case "woodcutting":
+				val = sk.Woodcutting
+			case "repair":
+				val = sk.Repair
+			case "unarmed":
+				val = sk.Unarmed
+			case "herbalism":
+				val = sk.Herbalism
+			case "excavation":
+				val = sk.Excavation
+			case "archery":
+				val = sk.Archery
+			case "swords":
+				val = sk.Swords
+			case "axes":
+				val = sk.Axes
+			case "acrobatics":
+				val = sk.Acrobatics
+			case "fishing":
+				val = sk.Fishing
+			case "alchemy":
+				val = sk.Alchemy
+			case "crossbows":
+				val = sk.Crossbows
+			case "tridents":
+				val = sk.Tridents
+			case "maces":
+				val = sk.Maces
+			case "spears":
+				val = sk.Spears
+			}
+
+			if val > 0 {
+				name := sk.User
+				if info := s.store.GetPlayer(sk.UUID); info != nil {
+					name = info.LastKnownName
+				}
+				entries = append(entries, LeaderboardEntry{
+					UUID:  sk.UUID,
+					Name:  name,
+					Value: int64(val),
+				})
+			}
+		}
+
+		if len(entries) > 0 {
+			ranked := rankEntries(entries)
+			cacheKey := "lb_mcmmo:" + skillName
+			if err := s.cache.Set(ctx, cacheKey, ranked, 1*time.Hour); err != nil {
+				fmt.Printf("Error caching mcmmo rank for %s: %v\n", skillName, err)
+			}
+		}
+	}
+
+	return nil
+}

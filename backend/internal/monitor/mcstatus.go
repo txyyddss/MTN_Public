@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mcstatus-io/mcutil/v4/query"
 	"github.com/mcstatus-io/mcutil/v4/response"
 	"github.com/mcstatus-io/mcutil/v4/status"
 	"github.com/mtn-server/backend/config"
@@ -17,11 +16,11 @@ import (
 
 // ServerStatus holds the current status and individual connection latencies.
 type ServerStatus struct {
-	Java        *JavaStatus                  `json:"java"`
-	Bedrock     *BedrockStatus               `json:"bedrock"`
-	System      *SystemStats                 `json:"system"`
-	Connections map[string]*ConnectionStatus `json:"connections"`
-	Updated     time.Time                    `json:"updated"`
+	Stats        *JavaStatus                  `json:"stats"`
+	BedrockStats *BedrockStatus               `json:"bedrock_stats"`
+	System       *SystemStats                 `json:"system"`
+	Connections  map[string]*ConnectionStatus `json:"connections"`
+	Updated      time.Time                    `json:"updated"`
 }
 
 // ConnectionStatus holds latency and status for a specific connection method.
@@ -197,8 +196,8 @@ func (m *Monitor) poll(ctx context.Context) {
 
 	// Pick the first java/bedrock targets as the "main" status
 	// (Usually java_ipv6/bedrock_ipv6)
-	s.Java = m.pollJava(ctx)
-	s.Bedrock = m.pollBedrock(ctx)
+	s.Stats = m.pollJava(ctx)
+	s.BedrockStats = m.pollBedrock(ctx)
 	s.System = getSystemStats()
 
 	m.mu.Lock()
@@ -228,44 +227,27 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 	}
 	m.mu.RUnlock()
 
-	result, err := query.Full(ctx, host, port)
+	result, err := status.Modern(ctx, host, port)
 	if err != nil {
-		// Fallback to TCP Ping
-		// IMPORTANT: Ping should use the original target port (usually 25565),
-		// NOT the possibly overridden Query port.
-		var targetPort uint16 = 25565
-		m.mu.RLock()
-		for _, t := range m.targets {
-			if t.Type == "java" && t.Host == host {
-				targetPort = t.Port
-				break
-			}
-		}
-		m.mu.RUnlock()
-
-		if resultMod, errMod := status.Modern(ctx, host, targetPort); errMod == nil {
-			return parseJavaResult(resultMod)
-		}
 		return &JavaStatus{Online: false}
 	}
 
-	js := &JavaStatus{Online: true}
+	js := parseJavaResult(result)
 
-	if val, ok := result.Data["version"]; ok {
-		js.Version = val
-	}
-	if val, ok := result.Data["motd"]; ok {
-		js.MOTD = val
-	}
-	if val, ok := result.Data["numplayers"]; ok {
-		if i, err := strconv.Atoi(val); err == nil {
-			js.Players = i
-		}
-	}
+	// Populate player list from sample
 	js.PlayerList = []string{}
-	for _, p := range result.Players {
-		if !strings.HasPrefix(p, ".") && !strings.HasPrefix(p, "BE_") {
-			js.PlayerList = append(js.PlayerList, p)
+	for _, p := range result.Players.Sample {
+		// Filter out players with zero UUIDs (often fake/bot indicators)
+		if p.ID == "00000000-0000-0000-0000-000000000000" {
+			continue
+		}
+		name := p.Name.Clean
+		if name == "" {
+			continue
+		}
+		// Filter out BE_ or . prefixed players for the main Java list
+		if !strings.HasPrefix(name, ".") && !strings.HasPrefix(name, "BE_") {
+			js.PlayerList = append(js.PlayerList, name)
 		}
 	}
 	js.Players = len(js.PlayerList)
@@ -313,19 +295,39 @@ func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 	}
 
 	// Bedrock online count adjustment:
-	// If it's a Geyser/Floodgate server, we should count players from the Java list with prefixes
-	if m.status != nil && m.status.Java != nil {
-		javaFull, err := query.Full(ctx, m.cfg.LocalConnection.Java, m.cfg.LocalConnection.JavaQueryPort)
-		if err == nil {
-			beCount := 0
-			for _, p := range javaFull.Players {
-				if strings.HasPrefix(p, ".") || strings.HasPrefix(p, "BE_") {
-					beCount++
+	// If it's a Geyser/Floodgate server, we should count players from the Java status sample
+	if m.status != nil && m.status.Stats != nil {
+		// We use the already polled Java status to count Bedrock players
+		beCount := 0
+		bs.PlayerList = []string{}
+
+		// Note: We need to re-poll or use the latest Java status sample.
+		// Since pollJava was called just before pollBedrock, m.status.Stats might not be updated yet.
+		// But in this implementation, pollBedrock is called after pollJava in same poll cycle,
+		// and poll() update m.status at the END. So we should use the one we just got.
+		// Wait, let's pass it in or rely on the fact that Geyser players are in the Java sample.
+
+		// Re-poll Java to get the latest sample for Bedrock counting if needed,
+		// but for efficiency we can just use the one we just calculated in poll()
+		// Actually, let's simplify and just use the Java status if available.
+		for _, t := range m.targets {
+			if t.Type == "java" {
+				res, err := status.Modern(ctx, t.Host, t.Port)
+				if err == nil {
+					for _, p := range res.Players.Sample {
+						name := p.Name.Clean
+						if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "BE_") {
+							beCount++
+							bs.PlayerList = append(bs.PlayerList, name)
+						}
+					}
 				}
+				break
 			}
-			if beCount > 0 {
-				bs.Players = beCount
-			}
+		}
+
+		if beCount > 0 {
+			bs.Players = beCount
 		}
 	}
 
