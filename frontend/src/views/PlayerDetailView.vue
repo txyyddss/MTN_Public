@@ -190,14 +190,14 @@ const getAdvancementMetadata = (key: string) => {
 
 const getAdvIconPath = (advKey: string) => {
   const meta = getAdvancementMetadata(advKey)
-  const category = advKey.split(':')[1]?.split('/')[0] || 'minecraft'
-  const iconName = meta.icon
+  let category = advKey.split(':')[1]?.split('/')[0] || 'minecraft'
   
-  // Try to use a base path that works in both dev and prod
-  // If icons are moved to public, use /mc_icons/...
-  // For now, keep as src assets but use a relative import-friendly style if possible.
-  // Actually, standardizing on /assets/mc_icons/ might be better if they are in public.
-  // But they are in src/assets. 
+  // Tab 'story' in Minecraft is actually the root 'minecraft' namespace in some contexts,
+  // but in the filesystem/advancements, it's often referred to as 'story'.
+  // However, the assets folder is 'minecraft'.
+  if (category === 'story') category = 'minecraft'
+  
+  const iconName = meta.icon
   return `/mc_icons/advancements/${category}/${iconName}.png`
 }
 </script>
