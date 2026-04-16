@@ -8,6 +8,7 @@ import advancementData from '@/assets/advancements.json'
 import StatBox from '@/components/StatBox.vue'
 import SkillItem from '@/components/SkillItem.vue'
 import SkinViewer from '@/components/SkinViewer.vue'
+import { preloadImages } from '@/utils/preloader'
 
 const route = useRoute()
 const uuid = computed(() => route.params.uuid as string)
@@ -310,6 +311,37 @@ const getStatIconPath = (category: string, name: string) => {
 
   return null
 }
+
+// REALTIME PRELOAD LOGIC
+// Preload skin when info is fetched
+watch(info, (newInfo) => {
+  if (newInfo) {
+    preloadImages([getSkinUrl(newInfo)])
+  }
+})
+
+// Preload advancement icons when they are categorized
+watch(categorizedAdvancements, (categories) => {
+  if (categories) {
+    const urls: string[] = []
+    Object.values(categories).forEach(items => {
+      items.forEach(adv => {
+        urls.push(getAdvIconPath(adv.key))
+      })
+    })
+    preloadImages(urls)
+  }
+}, { immediate: true })
+
+// Preload stat icons when category or search changes
+watch(filteredStats, (newStats) => {
+  if (newStats) {
+      const urls = Object.keys(newStats)
+        .map(name => getStatIconPath(selectedCategory.value, name))
+        .filter((url): url is string => !!url)
+      preloadImages(urls)
+  }
+}, { immediate: true })
 </script>
 
 <template>

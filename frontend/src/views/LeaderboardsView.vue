@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { API_BASE_URL } from '@/config'
+import { preloadImages } from '@/utils/preloader'
 
 const types = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
 const currentType = ref('mining')
@@ -38,6 +39,13 @@ const fetchLeaderboard = async (type: string) => {
 onMounted(() => {
     fetchLeaderboard(currentType.value)
     fetchOnline()
+})
+
+watch(entries, (newEntries) => {
+  if (newEntries && newEntries.length > 0) {
+    const urls = newEntries.map(e => getAvatarUrl(e.name))
+    preloadImages(urls)
+  }
 })
 
 const formatValue = (val: number, type: string) => {
@@ -335,11 +343,11 @@ const getRankClass = (rank: number) => {
 
   .lb-table tbody tr {
     display: grid;
-    grid-template-columns: 50px 1fr;
-    padding: 12px 16px;
-    gap: 0 12px;
+    grid-template-columns: 60px 1fr;
+    padding: 16px;
+    gap: 4px 12px;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .lb-table td {
@@ -355,9 +363,21 @@ const getRankClass = (rank: number) => {
     align-items: center;
   }
 
+  .rank-badge {
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
   .player-link {
     grid-column: 2;
-    margin-bottom: 4px;
+    margin-bottom: 0;
+    gap: 12px;
   }
 
   .val-col {
@@ -365,23 +385,15 @@ const getRankClass = (rank: number) => {
     text-align: left !important;
     display: flex;
     align-items: center;
-    margin-left: 46px; /* 32px avatar + 14px gap - wait gap was 14 in player-link */
-  }
-
-  /* Adjust gap for mobile if needed */
-  .player-link {
-    gap: 12px;
-  }
-  
-  .val-col {
-    margin-left: 44px; /* 32px + 12px gap */
+    margin-left: 44px; /* Align with name: 32px avatar + 12px gap */
   }
 
   .value-badge {
     background: transparent;
     padding: 0;
-    font-size: 0.9rem;
-    color: var(--text-muted);
+    font-size: 0.95rem;
+    color: var(--primary);
+    font-weight: 600;
   }
 }
 </style>
