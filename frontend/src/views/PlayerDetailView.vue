@@ -304,7 +304,7 @@ const getAdvIconPath = (advKey: string) => {
         <!-- Extended Statistics -->
         <section class="panel glass-card" v-if="stats && Object.keys(stats).length > 0">
           <div class="panel-header-simple">
-            <h3><img src="/src/assets/icons/all_blocks.ico" class="header-icon" /> Extended Statistics</h3>
+            <h3><img src="/icons/all_blocks.ico" class="header-icon" /> Extended Statistics</h3>
             <div class="rank-group">
                 <div class="rank-badge mini" v-if="ranks.playtime">Playtime #{{ ranks.playtime }}</div>
                 <div class="rank-badge mini" v-if="ranks.mining">Mining #{{ ranks.mining }}</div>
