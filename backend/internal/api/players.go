@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"sort"
@@ -468,6 +469,72 @@ func (s *Server) RefreshAllMcmmoRanks(ctx context.Context) error {
 			cacheKey := "lb_mcmmo:" + skillName
 			if err := s.cache.Set(ctx, cacheKey, ranked, 1*time.Hour); err != nil {
 				fmt.Printf("Error caching mcmmo rank for %s: %v\n", skillName, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// RefreshAllStatRanks calculates and caches rankings for every single Minecraft statistic.
+func (s *Server) RefreshAllStatRanks(ctx context.Context) error {
+	if s.cache == nil {
+		return fmt.Errorf("cache unavailable")
+	}
+
+	allStats := s.store.GetAllStats()
+	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
+
+	// Collect all unique (category, stat) pairs that have any player with value > 0
+	uniqueStats := make(map[string]map[string]bool)
+	for uuid, ps := range allStats {
+		// Only consider stats from valid players
+		if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+			continue
+		}
+
+		for cat, items := range ps.Stats {
+			if _, ok := uniqueStats[cat]; !ok {
+				uniqueStats[cat] = make(map[string]bool)
+			}
+			for stat, val := range items {
+				if val > 0 {
+					uniqueStats[cat][stat] = true
+				}
+			}
+		}
+	}
+
+	// For each unique stat, calculate a leaderboard and cache it
+	for cat, stats := range uniqueStats {
+		for stat := range stats {
+			var entries []LeaderboardEntry
+			for uuid, ps := range allStats {
+				if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+					continue
+				}
+
+				if catMap, ok := ps.Stats[cat]; ok {
+					if val, ok := catMap[stat]; ok && val > 0 {
+						name := uuid
+						if info := s.store.GetPlayer(uuid); info != nil {
+							name = info.LastKnownName
+						}
+						entries = append(entries, LeaderboardEntry{
+							UUID:  uuid,
+							Name:  name,
+							Value: val,
+						})
+					}
+				}
+			}
+
+			if len(entries) > 0 {
+				ranked := rankEntries(entries)
+				cacheKey := fmt.Sprintf("lb_stat:%s:%s", cat, stat)
+				if err := s.cache.Set(ctx, cacheKey, ranked, 1*time.Hour); err != nil {
+					log.Printf("Error caching stat rank for %s:%s: %v", cat, stat, err)
+				}
 			}
 		}
 	}

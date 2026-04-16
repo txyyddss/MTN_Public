@@ -21,7 +21,7 @@ const props = defineProps<{
 <style scoped>
 .skill-item {
   background: rgba(255, 255, 255, 0.03);
-  padding: 12px;
+  padding: 8px 12px;
   border-radius: 8px;
   border-left: 3px solid var(--primary);
   display: flex;
@@ -36,18 +36,21 @@ const props = defineProps<{
 
 .skill-name {
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   display: block;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
 .skill-level {
   font-weight: 700;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  line-height: 1.2;
 }
 
 .skill-rank {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #fcd34d;
 }

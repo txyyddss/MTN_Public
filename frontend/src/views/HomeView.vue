@@ -4,33 +4,35 @@ import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vu
 
 const features = ref([
   {
-    title: 'Zero-Cost Infrastructure',
-    description: 'Goal: using rubbish hardware and relatively zero-cost homeserver to create the smoothest MC Server.',
-    icon: '⚡'
+    title: 'Efficiency by Design',
+    description: 'We leverage optimized infrastructure and advanced resource management to deliver a buttery-smooth survival experience without the premium cost.',
+    icon: '⚡',
+    class: 'feature-large'
   },
   {
-    title: 'Vanilla Survival',
-    description: 'Positioning: Vanilla survival server with strong anticheat and small modifications to enhance gameplay.',
+    title: 'Pure Vanilla',
+    description: 'A genuine Minecraft experience. We focus on fair-play with robust anticheat and only the most essential quality-of-life enhancements.',
     icon: '🌲'
   },
   {
-    title: 'Pure Fairness',
-    description: 'No discrimination between VIPs and normal players, zero pay-to-win, no admin privilege abuse.',
+    title: 'Absolute Fairness',
+    description: 'Strict non-P2W policy. Every player starts on equal footing, with no paid advantages, rank-based perks, or administrative bias.',
     icon: '⚖️'
   },
   {
-    title: 'Cross-play Supported',
-    description: 'Supports both Java and Bedrock connection with full account binding support.',
-    icon: '🎮'
+    title: 'Full Cross-Play',
+    description: 'Seamlessly connect from Java or Bedrock Editions. Our integrated account system ensures your progress stays with you on any device.',
+    icon: '🎮',
+    class: 'feature-medium'
   },
   {
-    title: 'Long-Term Stability',
-    description: 'Stable and open for a long time due to low-cost maintenance requirements.',
+    title: 'Built for Longevity',
+    description: 'Our sustainable operational model ensures the server remains online and stable for years to come. Your builds are safe here.',
     icon: '🛡️'
   },
   {
-    title: 'Non-Profit Community',
-    description: 'It is a strictly non-profit server aimed at bringing players together.',
+    title: 'Community First',
+    description: 'MTNetwork is a non-profit, passion project dedicated to fostering a diverse and welcoming community for all Minecraft enthusiasts.',
     icon: '💖'
   }
 ])
@@ -64,17 +66,28 @@ const features = ref([
     <!-- Features Section -->
     <section class="features-section">
       <div class="container">
-        <h2 class="section-title animate-entry delay-200">Server Philosophy</h2>
+        <div class="section-header animate-entry delay-200">
+          <h2 class="section-title">Server Philosophy</h2>
+          <p class="section-subtitle">The principles that drive MTNetwork forward.</p>
+        </div>
         <div class="features-grid">
           <div 
             v-for="(feature, index) in features" 
             :key="feature.title"
             class="feature-card glass-card animate-entry"
+            :class="feature.class"
             :style="{ animationDelay: `${300 + index * 100}ms` }"
           >
-            <div class="feature-icon">{{ feature.icon }}</div>
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
+            <div class="feature-content">
+              <div class="feature-icon-wrapper">
+                <div class="feature-icon">{{ feature.icon }}</div>
+                <div class="icon-glow"></div>
+              </div>
+              <div class="feature-text">
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -206,44 +219,140 @@ const features = ref([
 .features-section {
   position: relative;
   z-index: 10;
+  padding: 4rem 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
 }
 
 .section-title {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+  gap: 1.5rem;
 }
 
 .feature-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  height: 100%;
+}
+
+.feature-card.feature-large {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+.feature-card.feature-medium {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.feature-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 8px;
+}
+
+.feature-icon-wrapper {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
 }
 
 .feature-icon {
-  font-size: 2.5rem;
-  width: 60px;
-  height: 60px;
+  position: relative;
+  z-index: 2;
+  font-size: 2rem;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
-.feature-card h3 {
-  font-size: 1.25rem;
+.icon-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
-.feature-card p {
+
+.feature-card:hover .icon-glow {
+  opacity: 0.4;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1);
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.feature-text h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+  transition: color 0.3s ease;
+}
+
+.feature-card:hover h3 {
+  color: var(--primary);
+}
+
+.feature-text p {
   color: var(--text-muted);
   font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .feature-card.feature-large {
+    grid-column: span 1;
+  }
+  .section-title {
+    font-size: 2.5rem;
+  }
 }
 
 /* CTA */

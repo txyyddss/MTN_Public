@@ -162,14 +162,22 @@ func main() {
 	srv := api.NewServer(cfg, store, mcmmoDB, floodDB, luckyClient, mon, cacheClient)
 	router := srv.SetupRouter()
 
-	// Start periodic mcMMO ranking refresh
-	if mcmmoDB != nil && cacheClient != nil {
+	// Start periodic mcMMO and Stats ranking refresh
+	if cacheClient != nil {
 		go func() {
 			// Run once on startup
-			if err := srv.RefreshAllMcmmoRanks(ctx); err != nil {
-				log.Printf("Initial mcMMO ranking refresh error: %v", err)
+			if mcmmoDB != nil {
+				if err := srv.RefreshAllMcmmoRanks(ctx); err != nil {
+					log.Printf("Initial mcMMO ranking refresh error: %v", err)
+				} else {
+					log.Println("Initial mcMMO ranking refresh complete")
+				}
+			}
+
+			if err := srv.RefreshAllStatRanks(ctx); err != nil {
+				log.Printf("Initial stats ranking refresh error: %v", err)
 			} else {
-				log.Println("Initial mcMMO ranking refresh complete")
+				log.Println("Initial stats ranking refresh complete")
 			}
 
 			ticker := time.NewTicker(15 * time.Minute) // Refresh every 15 minutes
@@ -179,10 +187,17 @@ func main() {
 				case <-ctx.Done():
 					return
 				case <-ticker.C:
-					if err := srv.RefreshAllMcmmoRanks(ctx); err != nil {
-						log.Printf("Periodic mcMMO ranking refresh error: %v", err)
+					if mcmmoDB != nil {
+						if err := srv.RefreshAllMcmmoRanks(ctx); err != nil {
+							log.Printf("Periodic mcMMO ranking refresh error: %v", err)
+						} else {
+							log.Println("Periodic mcMMO ranking refresh complete")
+						}
+					}
+					if err := srv.RefreshAllStatRanks(ctx); err != nil {
+						log.Printf("Periodic stats ranking refresh error: %v", err)
 					} else {
-						log.Println("Periodic mcMMO ranking refresh complete")
+						log.Println("Periodic stats ranking refresh complete")
 					}
 				}
 			}

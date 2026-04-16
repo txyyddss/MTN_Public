@@ -197,10 +197,10 @@ func (m *Monitor) poll(ctx context.Context) {
 
 	// Pick the first java/bedrock targets as the "main" status
 	// (Usually java_ipv6/bedrock_ipv6)
-	var onlineUUIDs []string
-	s.Stats, onlineUUIDs = m.pollJava(ctx)
+	js, javaResult, onlineUUIDs := m.pollJava(ctx)
+	s.Stats = js
 	s.OnlinePlayers = onlineUUIDs
-	s.BedrockStats = m.pollBedrock(ctx)
+	s.BedrockStats = m.pollBedrock(ctx, javaResult)
 	s.System = getSystemStats()
 
 	m.mu.Lock()
@@ -208,7 +208,7 @@ func (m *Monitor) poll(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-func (m *Monitor) pollJava(ctx context.Context) (*JavaStatus, []string) {
+func (m *Monitor) pollJava(ctx context.Context) (*JavaStatus, *response.StatusModern, []string) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -227,49 +227,29 @@ func (m *Monitor) pollJava(ctx context.Context) (*JavaStatus, []string) {
 
 	result, err := status.Modern(ctx, host, port)
 	if err != nil {
-		return &JavaStatus{Online: false}, nil
+		return &JavaStatus{Online: false}, nil, nil
 	}
 
 	js := parseJavaResult(result)
 
-	// Populate player list from sample
-	js.PlayerList = []string{}
-	var onlineUUIDs []string
-	for _, p := range result.Players.Sample {
-		// Filter out players with zero UUIDs (often fake/bot indicators)
-		if p.ID == "00000000-0000-0000-0000-000000000000" {
-			continue
-		}
-
-		onlineUUIDs = append(onlineUUIDs, p.ID)
-
-		name := p.Name.Clean
-		if name == "" {
-			continue
-		}
-		// Filter out BE_ or . prefixed players for the main Java list
-		if !strings.HasPrefix(name, ".") && !strings.HasPrefix(name, "BE_") {
-			js.PlayerList = append(js.PlayerList, name)
-		}
-	}
+	// Populate player lists and UUIDs
+	javaPlayers, _, onlineUUIDs := splitPlayers(result.Players.Sample)
+	js.PlayerList = javaPlayers
 	js.Players = len(js.PlayerList)
 
-	return js, onlineUUIDs
+	return js, result, onlineUUIDs
 }
 
 func parseJavaResult(r *response.StatusModern) *JavaStatus {
 	js := &JavaStatus{Online: true}
 
-	if r.Players.Online != nil {
-		js.Players = int(*r.Players.Online)
-	}
 	js.Version = r.Version.Name.Clean
 	js.MOTD = r.MOTD.Clean
 
 	return js
 }
 
-func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
+func (m *Monitor) pollBedrock(ctx context.Context, javaResult *response.StatusModern) *BedrockStatus {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -292,45 +272,15 @@ func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 
 	bs := &BedrockStatus{Online: true}
 
-	if result.OnlinePlayers != nil {
-		bs.Players = int(*result.OnlinePlayers)
-	}
-
 	// Bedrock online count adjustment:
 	// If it's a Geyser/Floodgate server, we should count players from the Java status sample
-	if m.status != nil && m.status.Stats != nil {
-		// We use the already polled Java status to count Bedrock players
-		beCount := 0
-		bs.PlayerList = []string{}
-
-		// Note: We need to re-poll or use the latest Java status sample.
-		// Since pollJava was called just before pollBedrock, m.status.Stats might not be updated yet.
-		// But in this implementation, pollBedrock is called after pollJava in same poll cycle,
-		// and poll() update m.status at the END. So we should use the one we just got.
-		// Wait, let's pass it in or rely on the fact that Geyser players are in the Java sample.
-
-		// Re-poll Java to get the latest sample for Bedrock counting if needed,
-		// but for efficiency we can just use the one we just calculated in poll()
-		// Actually, let's simplify and just use the Java status if available.
-		for _, t := range m.targets {
-			if t.Type == "java" {
-				res, err := status.Modern(ctx, t.Host, t.Port)
-				if err == nil {
-					for _, p := range res.Players.Sample {
-						name := p.Name.Clean
-						if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "BE_") {
-							beCount++
-							bs.PlayerList = append(bs.PlayerList, name)
-						}
-					}
-				}
-				break
-			}
-		}
-
-		if beCount > 0 {
-			bs.Players = beCount
-		}
+	if javaResult != nil {
+		_, bedrockPlayers, _ := splitPlayers(javaResult.Players.Sample)
+		bs.PlayerList = bedrockPlayers
+		bs.Players = len(bs.PlayerList)
+	} else if result.OnlinePlayers != nil {
+		// Fallback to Bedrock's own report if no Java sample available
+		bs.Players = int(*result.OnlinePlayers)
 	}
 
 	if result.Version != nil {
@@ -339,6 +289,34 @@ func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 	bs.MOTD = result.MOTD.Clean
 
 	return bs
+}
+
+// splitPlayers separates Java and Bedrock players from a combined Java server sample list.
+func splitPlayers(sample []response.SamplePlayer) (java []string, bedrock []string, uuids []string) {
+	java = []string{}
+	bedrock = []string{}
+	uuids = []string{}
+
+	for _, p := range sample {
+		// Filter out players with zero UUIDs (often fake/bot indicators)
+		if p.ID == "00000000-0000-0000-0000-000000000000" {
+			continue
+		}
+
+		uuids = append(uuids, p.ID)
+
+		name := p.Name.Clean
+		if name == "" {
+			continue
+		}
+
+		if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "BE_") {
+			bedrock = append(bedrock, name)
+		} else {
+			java = append(java, name)
+		}
+	}
+	return
 }
 
 func parseHostPort(addr string, defaultPort uint16) (string, uint16) {

@@ -507,6 +507,7 @@ const getAdvIconPath = (advKey: string) => {
 }
 @media (max-width: 600px) {
     .ore-content { flex-direction: column; }
+    .ore-val { display: none; }
 }
 
 .chart-container {
@@ -535,7 +536,7 @@ const getAdvIconPath = (advKey: string) => {
 
 .skill-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   gap: 1rem;
 }
 
