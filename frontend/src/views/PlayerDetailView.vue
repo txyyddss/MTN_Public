@@ -190,7 +190,13 @@ const getAdvIconPath = (advKey: string) => {
   const meta = getAdvancementMetadata(advKey)
   const category = advKey.split(':')[1]?.split('/')[0] || 'minecraft'
   const iconName = meta.icon
-  return `/src/assets/mc_icons/advancements/${category}/${iconName}.png`
+  
+  // Try to use a base path that works in both dev and prod
+  // If icons are moved to public, use /mc_icons/...
+  // For now, keep as src assets but use a relative import-friendly style if possible.
+  // Actually, standardizing on /assets/mc_icons/ might be better if they are in public.
+  // But they are in src/assets. 
+  return `/mc_icons/advancements/${category}/${iconName}.png`
 }
 </script>
 
@@ -247,7 +253,7 @@ const getAdvIconPath = (advKey: string) => {
         
         <!-- Ores Pie Chart -->
         <section class="panel glass-card" v-if="oreStats && oreStats.length > 0">
-          <h3><img src="/src/assets/icons/all_blocks.ico" class="header-icon" /> Ore Mined Statistics</h3>
+          <h3><img src="/icons/all_blocks.ico" class="header-icon" /> Ore Mined Statistics</h3>
           <div class="ore-content">
               <div class="chart-container">
                 <canvas ref="pieChartCanvas"></canvas>
@@ -264,7 +270,7 @@ const getAdvIconPath = (advKey: string) => {
         <!-- McMMO Skills -->
         <section class="panel glass-card" v-if="mcmmo">
           <div class="panel-header-simple">
-            <h3><img src="/src/assets/icons/monsters_hunted.ico" class="header-icon" /> McMMO Skills</h3>
+            <h3><img src="/icons/monsters_hunted.ico" class="header-icon" /> McMMO Skills</h3>
             <div class="rank-badge" v-if="ranks.skills">Rank #{{ ranks.skills }}</div>
             <div class="total-badge">Total {{ mcmmo.total }}</div>
           </div>
@@ -277,7 +283,7 @@ const getAdvIconPath = (advKey: string) => {
         </section>
 
         <section class="panel glass-card" v-if="advancements && advancements.length > 0">
-          <h3><img src="/src/assets/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
+          <h3><img src="/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
           
           <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
             <h4 class="category-name">{{ category }}</h4>

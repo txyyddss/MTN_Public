@@ -214,13 +214,21 @@ func (c *Client) buildConnectionInfo(stun *StunResponse, ddns *DDNSResponse) *Co
 }
 
 func containsIP(addr, ip string) bool {
-	// addr format: "1.2.3.4:port", ip format: "1.2.3.4"
-	for i := 0; i < len(addr); i++ {
-		if addr[i] == ':' {
-			return addr[:i] == ip
-		}
+	// addr can be "ip:port", "[ipv6]:port", or just "ip"
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		host = addr
 	}
-	return addr == ip
+
+	// Normalize IPs for comparison
+	parsedAddr := net.ParseIP(host)
+	parsedIP := net.ParseIP(ip)
+
+	if parsedAddr != nil && parsedIP != nil {
+		return parsedAddr.Equal(parsedIP)
+	}
+
+	return host == ip
 }
 
 func fetchJSON[T any](ctx context.Context, client *http.Client, url string) (*T, error) {

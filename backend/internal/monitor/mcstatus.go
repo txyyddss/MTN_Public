@@ -230,7 +230,20 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 
 	result, err := query.Full(ctx, host, port)
 	if err != nil {
-		if resultMod, errMod := status.Modern(ctx, host, port); errMod == nil {
+		// Fallback to TCP Ping
+		// IMPORTANT: Ping should use the original target port (usually 25565),
+		// NOT the possibly overridden Query port.
+		var targetPort uint16 = 25565
+		m.mu.RLock()
+		for _, t := range m.targets {
+			if t.Type == "java" && t.Host == host {
+				targetPort = t.Port
+				break
+			}
+		}
+		m.mu.RUnlock()
+
+		if resultMod, errMod := status.Modern(ctx, host, targetPort); errMod == nil {
 			return parseJavaResult(resultMod)
 		}
 		return &JavaStatus{Online: false}
@@ -325,19 +338,41 @@ func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 }
 
 func parseHostPort(addr string, defaultPort uint16) (string, uint16) {
-	// Handle bracketed IPv6 without port: [2001:db8::1]
-	if strings.HasPrefix(addr, "[") && strings.HasSuffix(addr, "]") {
-		return addr[1 : len(addr)-1], defaultPort
+	if addr == "" {
+		return "", defaultPort
 	}
 
-	host, portStr, err := net.SplitHostPort(addr)
-	if err != nil {
-		// No port, use default
-		return addr, defaultPort
+	// Case 1: Bracketed IPv6: [2001:db8::1] or [2001:db8::1]:port
+	if strings.HasPrefix(addr, "[") {
+		end := strings.LastIndex(addr, "]")
+		if end > 0 {
+			host := addr[1:end]
+			portPart := addr[end+1:]
+			if strings.HasPrefix(portPart, ":") {
+				if p, err := strconv.ParseUint(portPart[1:], 10, 16); err == nil {
+					return host, uint16(p)
+				}
+			}
+			return host, defaultPort
+		}
 	}
-	port, err := strconv.ParseUint(portStr, 10, 16)
-	if err != nil {
+
+	// Case 2: Standard net.SplitHostPort (handles host:port, ipv4:port)
+	host, portStr, err := net.SplitHostPort(addr)
+	if err == nil {
+		if p, err := strconv.ParseUint(portStr, 10, 16); err == nil {
+			return host, uint16(p)
+		}
 		return host, defaultPort
 	}
-	return host, uint16(port)
+
+	// Case 3: Literal IPv6 without brackets but with multiple colons
+	// We check if it looks like an IPv6 by counting colons.
+	// If it has >= 2 colons but was not handled by SplitHostPort, it's likely an IP without port.
+	if strings.Count(addr, ":") >= 2 {
+		return addr, defaultPort
+	}
+
+	// Case 4: Just a host or IPv4 address without port
+	return addr, defaultPort
 }
