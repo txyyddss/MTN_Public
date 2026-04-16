@@ -211,13 +211,28 @@ const getAdvIconPath = (advKey: string) => {
   const meta = getAdvancementMetadata(advKey)
   let category = advKey.split(':')[1]?.split('/')[0] || 'minecraft'
   
-  // Tab 'story' in Minecraft is actually the root 'minecraft' namespace in some contexts,
-  // but in the filesystem/advancements, it's often referred to as 'story'.
-  // However, the assets folder is 'minecraft'.
   if (category === 'story') category = 'minecraft'
   
   const iconName = meta.icon
   return `/mc_icons/advancements/${category}/${iconName}.png`
+}
+
+const getStatIconPath = (category: string, name: string) => {
+  const id = name.replace('minecraft:', '')
+  if (category === 'minecraft:mined') {
+    // For mined, we try to guess the block icon. 
+    // Since there are subfolders, we might need a complex check, 
+    // but many common ones are in root or we can fallback to items if not found.
+    // For simplicity and based on the file list, we'll try common items/blocks paths.
+    return `/mc_icons/items/${id}.png`
+  }
+  if (['minecraft:crafted', 'minecraft:used', 'minecraft:broken', 'minecraft:picked_up', 'minecraft:dropped'].includes(category)) {
+    return `/mc_icons/items/${id}.png`
+  }
+  if (category === 'minecraft:killed' || category === 'minecraft:killed_by') {
+    return `/mc_icons/items/${id}_spawn_egg.png`
+  }
+  return null
 }
 </script>
 
@@ -281,7 +296,7 @@ const getAdvIconPath = (advKey: string) => {
               <div class="chart-container">
                 <canvas ref="pieChartCanvas"></canvas>
               </div>
-              <div class="ore-list">
+              <div class="ore-list mobile-hide">
                 <div class="ore-item" v-for="ore in oreStats.slice(0, 10)" :key="ore.name">
                   <span class="ore-name">{{ ore.name }}</span>
                   <span class="ore-val">{{ formatNumber(ore.mined) }}</span>
@@ -320,7 +335,6 @@ const getAdvIconPath = (advKey: string) => {
                 </div>
                 <div class="adv-info">
                   <span class="adv-name">{{ getAdvancementMetadata(adv.key).name }}</span>
-                  <p class="adv-desc" v-if="getAdvancementMetadata(adv.key).description">{{ getAdvancementMetadata(adv.key).description }}</p>
                 </div>
               </div>
             </div>
@@ -358,6 +372,7 @@ const getAdvIconPath = (advKey: string) => {
               :name="String(name)"
               :value="value"
               :rank="ranks['stat:' + selectedCategory + ':' + name]"
+              :icon="getStatIconPath(selectedCategory, String(name))"
               :formatValue="formatNumber"
             />
           </div>
@@ -387,7 +402,7 @@ const getAdvIconPath = (advKey: string) => {
     align-items: flex-start;
   }
   .profile-card {
-    width: 300px;
+    width: 260px;
     flex-shrink: 0;
     position: sticky;
     top: 100px;
@@ -507,7 +522,7 @@ const getAdvIconPath = (advKey: string) => {
 }
 @media (max-width: 600px) {
     .ore-content { flex-direction: column; }
-    .ore-val { display: none; }
+    .mobile-hide { display: none !important; }
 }
 
 .chart-container {
@@ -562,41 +577,40 @@ const getAdvIconPath = (advKey: string) => {
 
 .advancements-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
 }
 
 .adv-card {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.03);
-  padding: 12px;
-  border-radius: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
   border: 1px solid var(--glass-border);
   transition: all 0.3s ease;
 }
 .adv-card:hover { border-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
 
 .adv-icon-wrap {
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(0,0,0,0.3);
-  border-radius: 8px;
-  padding: 6px;
-  position: relative;
+  border-radius: 6px;
+  padding: 4px;
 }
-.adv-icon-wrap.goal { border: 2px solid #fcd34d; box-shadow: 0 0 10px rgba(252, 211, 77, 0.3); }
-.adv-icon-wrap.challenge { border: 2px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
+.adv-icon-wrap.goal { border: 1px solid #fcd34d; }
+.adv-icon-wrap.challenge { border: 1px solid #f43f5e; }
 
-.adv-icon { width: 32px; height: 32px; image-rendering: pixelated; }
+.adv-icon { width: 20px; height: 20px; image-rendering: pixelated; }
 
 .adv-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-.adv-name { font-weight: 700; color: #fff; font-size: 0.95rem; }
-.adv-desc { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adv-name { font-weight: 700; color: #fff; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .stat-value { font-weight: 800; color: #fff; font-size: 1.1rem; font-family: var(--heading); }
 
@@ -611,20 +625,7 @@ const getAdvIconPath = (advKey: string) => {
   letter-spacing: 1px;
 }
 
-.advancements-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.adv-item {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  color: #93c5fd;
-}
+/* Duplicate class removal and consolidation */
 
 .tabs-header {
     display: flex;
@@ -671,9 +672,9 @@ const getAdvIconPath = (advKey: string) => {
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-  max-height: 450px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  max-height: 400px;
   overflow-y: auto;
   padding-right: 8px;
 }
