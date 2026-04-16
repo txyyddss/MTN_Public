@@ -49,17 +49,17 @@ func (s *Server) handleLeaderboard(c *gin.Context) {
 	case "skills":
 		entries = s.skillsLeaderboard(c.Request.Context())
 	case "playtime":
-		entries = s.statLeaderboard("minecraft:custom", "minecraft:play_time")
+		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:play_time")
 	case "mining":
-		entries = s.minedTotalLeaderboard()
+		entries = s.minedTotalLeaderboard(c.Request.Context())
 	case "killing":
-		entries = s.statLeaderboard("minecraft:custom", "minecraft:mob_kills")
+		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:mob_kills")
 	case "deaths":
-		entries = s.statLeaderboard("minecraft:custom", "minecraft:deaths")
+		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:deaths")
 	case "walking":
-		entries = s.statLeaderboard("minecraft:custom", "minecraft:walk_one_cm")
+		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:walk_one_cm")
 	case "pvp":
-		entries = s.statLeaderboard("minecraft:custom", "minecraft:player_kills")
+		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:player_kills")
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid leaderboard type"})
 		return
@@ -100,9 +100,14 @@ func (s *Server) skillsLeaderboard(ctx context.Context) []LeaderboardEntry {
 		return nil
 	}
 
+	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
+
 	var entries []LeaderboardEntry
 	for _, sk := range skills {
 		if sk.Total <= 0 {
+			continue
+		}
+		if !s.isValidPlayer(ctx, sk.UUID, mcmmoValid) {
 			continue
 		}
 		name := sk.User
@@ -120,13 +125,17 @@ func (s *Server) skillsLeaderboard(ctx context.Context) []LeaderboardEntry {
 	return rankEntries(entries)
 }
 
-func (s *Server) statLeaderboard(category, stat string) []LeaderboardEntry {
+func (s *Server) statLeaderboard(ctx context.Context, category, stat string) []LeaderboardEntry {
 	allStats := s.store.GetAllStats()
+	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
 
 	var entries []LeaderboardEntry
 	for uuid, ps := range allStats {
 		if catMap, ok := ps.Stats[category]; ok {
 			if val, ok := catMap[stat]; ok && val > 0 {
+				if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+					continue
+				}
 				name := uuid
 				if info := s.store.GetPlayer(uuid); info != nil {
 					name = info.LastKnownName
@@ -143,8 +152,9 @@ func (s *Server) statLeaderboard(category, stat string) []LeaderboardEntry {
 	return rankEntries(entries)
 }
 
-func (s *Server) minedTotalLeaderboard() []LeaderboardEntry {
+func (s *Server) minedTotalLeaderboard(ctx context.Context) []LeaderboardEntry {
 	allStats := s.store.GetAllStats()
+	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
 
 	var entries []LeaderboardEntry
 	for uuid, ps := range allStats {
@@ -154,6 +164,9 @@ func (s *Server) minedTotalLeaderboard() []LeaderboardEntry {
 				total += count
 			}
 			if total > 0 {
+				if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+					continue
+				}
 				name := uuid
 				if info := s.store.GetPlayer(uuid); info != nil {
 					name = info.LastKnownName

@@ -92,23 +92,29 @@ func (s *Server) getMcmmoValidUUIDs(ctx context.Context) map[string]bool {
 	return valid
 }
 
+func (s *Server) isValidPlayer(ctx context.Context, uuid string, mcmmoValid map[string]bool) bool {
+	ps := s.store.GetPlayerStats(uuid)
+	if ps == nil || len(ps.Stats) == 0 {
+		return false
+	}
+	pa := s.store.GetPlayerAdvancements(uuid)
+	if pa == nil || len(pa.Advancements) == 0 {
+		return false
+	}
+	if s.mcmmoDB != nil && !mcmmoValid[uuid] {
+		return false
+	}
+	return true
+}
+
 func (s *Server) filterValidPlayers(ctx context.Context, players []*data.PlayerInfo) []*data.PlayerInfo {
 	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
 
 	var valid []*data.PlayerInfo
 	for _, p := range players {
-		ps := s.store.GetPlayerStats(p.UUID)
-		if ps == nil || len(ps.Stats) == 0 {
+		if !s.isValidPlayer(ctx, p.UUID, mcmmoValid) {
 			continue
 		}
-		pa := s.store.GetPlayerAdvancements(p.UUID)
-		if pa == nil || len(pa.Advancements) == 0 {
-			continue
-		}
-		if s.mcmmoDB != nil && !mcmmoValid[p.UUID] {
-			continue
-		}
-
 		valid = append(valid, p)
 	}
 	return valid
@@ -136,7 +142,7 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	}
 
 	// Only return detail for valid users
-	if len(s.filterValidPlayers(c.Request.Context(), []*data.PlayerInfo{info})) == 0 {
+	if !s.isValidPlayer(c.Request.Context(), uuid, s.getMcmmoValidUUIDs(c.Request.Context())) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "player is not valid (missing data)"})
 		return
 	}
