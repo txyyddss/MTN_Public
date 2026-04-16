@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Chart from 'chart.js/auto'
 import { API_BASE_URL } from '@/config'
+import advancementData from '@/assets/advancements.json'
 
 const route = useRoute()
 const uuid = route.params.uuid as string
@@ -22,22 +23,33 @@ const statSearch = ref('')
 const filteredStats = computed(() => {
   if (!selectedCategory.value || !stats.value || !stats.value[selectedCategory.value]) return {}
   const pool = stats.value[selectedCategory.value]
-  if (!statSearch.value) return pool
-  const query = statSearch.value.toLowerCase()
+  
+  let entries = Object.entries(pool)
+  
+  if (statSearch.value) {
+    const query = statSearch.value.toLowerCase()
+    entries = entries.filter(([name]) => name.toLowerCase().includes(query))
+  }
+  
+  // Sort by value descending
+  entries.sort((a, b) => (b[1] as number) - (a[1] as number))
+  
   const result: Record<string, number> = {}
-  for (const [name, val] of Object.entries(pool)) {
-    if (name.toLowerCase().includes(query)) {
-      result[name] = val as number
-    }
+  for (const [name, val] of entries) {
+    result[name] = val as number
   }
   return result
 })
 
 const filteredMcmmo = computed(() => {
   if (!mcmmo.value) return {}
+  let entries = Object.entries(mcmmo.value).filter(([key]) => !['user_id', 'user', 'uuid', 'total'].includes(key))
+  
+  // Sort by level descending
+  entries.sort((a, b) => (b[1] as number) - (a[1] as number))
+  
   const result: Record<string, any> = {}
-  for (const [key, val] of Object.entries(mcmmo.value)) {
-    if (['user_id', 'user', 'uuid', 'total'].includes(key)) continue
+  for (const [key, val] of entries) {
     result[key.charAt(0).toUpperCase() + key.slice(1)] = val
   }
   return result
@@ -169,6 +181,17 @@ const categorizedAdvancements = computed(() => {
   }
   return result
 })
+
+const getAdvancementMetadata = (key: string) => {
+  return (advancementData as any)[key] || { name: key.split('/').pop(), icon: key.split('/').pop(), description: '', type: 'task' }
+}
+
+const getAdvIconPath = (advKey: string) => {
+  const meta = getAdvancementMetadata(advKey)
+  const category = advKey.split(':')[1]?.split('/')[0] || 'minecraft'
+  const iconName = meta.icon
+  return `/src/assets/mc_icons/advancements/${category}/${iconName}.png`
+}
 </script>
 
 <template>
@@ -189,7 +212,7 @@ const categorizedAdvancements = computed(() => {
       <aside class="profile-card glass-card">
         <div class="avatar-header">
             <img :src="getAvatarUrl(info)" :alt="info.last_known_name" class="detail-avatar" />
-            <h2 class="profile-name">{{ info.last_known_name }}</h2>
+            <h2 class="profile-name minecraft-font">{{ info.last_known_name }}</h2>
             <span :class="['type-tag', info.type?.toLowerCase()]">{{ info.type === 'Bedrock' ? 'Bedrock' : 'Java' }}</span>
         </div>
         
@@ -224,7 +247,7 @@ const categorizedAdvancements = computed(() => {
         
         <!-- Ores Pie Chart -->
         <section class="panel glass-card" v-if="oreStats && oreStats.length > 0">
-          <h3><span>⛏️</span> Ore Mined Statistics</h3>
+          <h3><img src="/src/assets/icons/all_blocks.ico" class="header-icon" /> Ore Mined Statistics</h3>
           <div class="ore-content">
               <div class="chart-container">
                 <canvas ref="pieChartCanvas"></canvas>
@@ -238,10 +261,10 @@ const categorizedAdvancements = computed(() => {
           </div>
         </section>
 
-        <!-- McMMO Stats -->
+        <!-- McMMO Skills -->
         <section class="panel glass-card" v-if="mcmmo">
           <div class="panel-header-simple">
-            <h3><span>⚔️</span> McMMO Skills</h3>
+            <h3><img src="/src/assets/icons/monsters_hunted.ico" class="header-icon" /> McMMO Skills</h3>
             <div class="rank-badge" v-if="ranks.skills">Rank #{{ ranks.skills }}</div>
             <div class="total-badge">Total {{ mcmmo.total }}</div>
           </div>
@@ -253,15 +276,20 @@ const categorizedAdvancements = computed(() => {
           </div>
         </section>
 
-        <!-- Advancements -->
         <section class="panel glass-card" v-if="advancements && advancements.length > 0">
-          <h3><span>🏆</span> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
+          <h3><img src="/src/assets/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
           
           <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
             <h4 class="category-name">{{ category }}</h4>
             <div class="advancements-grid">
-              <div class="adv-item" v-for="adv in items" :key="adv.key">
-                <span class="adv-name">{{ adv.key.split('/').pop()?.replace(/_/g, ' ') }}</span>
+              <div class="adv-card" v-for="adv in items" :key="adv.key">
+                <div class="adv-icon-wrap" :class="getAdvancementMetadata(adv.key).type">
+                  <img :src="getAdvIconPath(adv.key)" :alt="getAdvancementMetadata(adv.key).name" class="adv-icon" @error="(e: any) => e.target.style.display='none'" />
+                </div>
+                <div class="adv-info">
+                  <span class="adv-name">{{ getAdvancementMetadata(adv.key).name }}</span>
+                  <p class="adv-desc" v-if="getAdvancementMetadata(adv.key).description">{{ getAdvancementMetadata(adv.key).description }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -270,10 +298,10 @@ const categorizedAdvancements = computed(() => {
         <!-- Extended Statistics -->
         <section class="panel glass-card" v-if="stats && Object.keys(stats).length > 0">
           <div class="panel-header-simple">
-            <h3><span>📊</span> Extended Statistics</h3>
+            <h3><img src="/src/assets/icons/all_blocks.ico" class="header-icon" /> Extended Statistics</h3>
             <div class="rank-group">
-                <small v-if="ranks.playtime">Playtime: #{{ ranks.playtime }}</small>
-                <small v-if="ranks.mining">Mining: #{{ ranks.mining }}</small>
+                <div class="rank-badge mini" v-if="ranks.playtime">Playtime #{{ ranks.playtime }}</div>
+                <div class="rank-badge mini" v-if="ranks.mining">Mining #{{ ranks.mining }}</div>
             </div>
           </div>
           
@@ -292,9 +320,14 @@ const categorizedAdvancements = computed(() => {
           </div>
           
           <div class="stat-grid" v-if="selectedCategory && Object.keys(filteredStats).length > 0">
-            <div class="stat-item" v-for="(value, name) in filteredStats" :key="name">
-              <span class="stat-name">{{ formatStatName(name as string) }}</span>
-              <span class="stat-value">{{ formatNumber(value as number) }}</span>
+            <div class="stat-box" v-for="(value, name) in filteredStats" :key="name">
+              <div class="stat-main">
+                <span class="stat-name">{{ formatStatName(name as string) }}</span>
+                <span class="stat-value">{{ formatNumber(value as number) }}</span>
+              </div>
+              <div class="stat-rank" v-if="ranks['stat:' + selectedCategory + ':' + name]">
+                  #{{ ranks['stat:' + selectedCategory + ':' + name] }}
+              </div>
             </div>
           </div>
           <div v-else class="empty-mini">No stats matching search</div>
@@ -421,6 +454,14 @@ const categorizedAdvancements = computed(() => {
   margin-bottom: 1.5rem;
   font-size: 1.4rem;
   color: #fff;
+  font-family: var(--heading);
+  letter-spacing: -0.5px;
+}
+
+.header-icon {
+    width: 24px;
+    height: 24px;
+    image-rendering: auto;
 }
 
 .panel-header-simple {
@@ -509,6 +550,64 @@ const categorizedAdvancements = computed(() => {
     color: var(--text-muted);
 }
 
+.advancements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.adv-card {
+  display: flex;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+.adv-card:hover { border-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
+
+.adv-icon-wrap {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 6px;
+  position: relative;
+}
+.adv-icon-wrap.goal { border: 2px solid #fcd34d; box-shadow: 0 0 10px rgba(252, 211, 77, 0.3); }
+.adv-icon-wrap.challenge { border: 2px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
+
+.adv-icon { width: 32px; height: 32px; image-rendering: pixelated; }
+
+.adv-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.adv-name { font-weight: 700; color: #fff; font-size: 0.95rem; }
+.adv-desc { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 2px solid transparent;
+  transition: all 0.2s;
+}
+.stat-box:hover { border-left-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
+
+.stat-main { display: flex; flex-direction: column; }
+.stat-name { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-weight: 800; color: #fff; font-size: 1.1rem; font-family: var(--heading); }
+
+.stat-rank { font-size: 0.8rem; font-weight: 800; color: #fcd34d; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; }
+
+.rank-badge.mini { font-size: 0.7rem; padding: 2px 8px; }
+
 .adv-category { margin-bottom: 1.5rem; }
 .category-name {
   font-size: 1rem;
@@ -578,9 +677,9 @@ const categorizedAdvancements = computed(() => {
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
-  max-height: 350px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  max-height: 450px;
   overflow-y: auto;
   padding-right: 8px;
 }

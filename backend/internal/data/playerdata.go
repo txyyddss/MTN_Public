@@ -295,6 +295,7 @@ func (s *Store) loadPlayerData() error {
 			} else if strings.HasPrefix(clean, "BE_") {
 				clean = clean[3:]
 			}
+			info.LastKnownName = clean
 			info.CleanName = clean
 		} else {
 			info.Type = "Java"

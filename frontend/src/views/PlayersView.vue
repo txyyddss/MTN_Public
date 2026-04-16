@@ -149,7 +149,7 @@ onMounted(() => {
         <div class="info">
           <div class="name-row">
             <span :class="['type-tag', p.type?.toLowerCase()]">{{ p.type === 'Bedrock' ? 'BE' : 'JE' }}</span>
-            <h3 class="player-name">{{ p.last_known_name || 'Unknown' }}</h3>
+            <h3 :class="['player-name', { 'online-name': isOnline(p.uuid) }]">{{ p.last_known_name || 'Unknown' }}</h3>
           </div>
           <span class="last-seen">Seen {{ new Date(p.last_seen).toLocaleDateString() }}</span>
         </div>
@@ -314,6 +314,12 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: var(--minecraft);
+  transition: color 0.3s;
+}
+
+.player-name.online-name {
+    color: #10b981;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 .type-tag {

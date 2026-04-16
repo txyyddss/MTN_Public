@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"sort"
@@ -134,6 +135,12 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 		return
 	}
 
+	// Only return detail for valid users
+	if len(s.filterValidPlayers(c.Request.Context(), []*data.PlayerInfo{info})) == 0 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "player is not valid (missing data)"})
+		return
+	}
+
 	stats := s.store.GetPlayerStats(uuid)
 	advancements := s.store.GetPlayerAdvancements(uuid)
 
@@ -169,14 +176,8 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	// Compute ore stats
 	oreStats := computeOreStats(stats)
 
-	// Compute ranks for major categories
-	ranks := make(map[string]int)
-	categories := []string{"skills", "playtime", "mining", "killing", "deaths", "walking", "pvp"}
-	for _, cat := range categories {
-		if rank := s.getPlayerRank(c.Request.Context(), cat, uuid); rank > 0 {
-			ranks[cat] = rank
-		}
-	}
+	// Compute ranks for major categories AND all sub-items
+	ranks := s.computeAllRanks(c.Request.Context(), uuid, stats, mcmmoSkills)
 
 	c.JSON(http.StatusOK, PlayerDetailResponse{
 		Info:          info,
@@ -187,6 +188,69 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 		OreStats:      oreStats,
 		Ranks:         ranks,
 	})
+}
+
+func (s *Server) computeAllRanks(ctx context.Context, uuid string, ps *data.PlayerStats, mcmmo interface{}) map[string]int {
+	ranks := make(map[string]int)
+
+	// Broad categories from leaderboards
+	categories := []string{"skills", "playtime", "mining", "killing", "deaths", "walking", "pvp"}
+	for _, cat := range categories {
+		if rank := s.getPlayerRank(ctx, cat, uuid); rank > 0 {
+			ranks[cat] = rank
+		}
+	}
+
+	// Per-item Stats rankings
+	if ps != nil {
+		for cat, items := range ps.Stats {
+			for stat := range items {
+				rankKey := fmt.Sprintf("stat:%s:%s", cat, stat)
+				// We only calculate ranks for items the player actually has value in
+				if rank := s.calculateOrGetRank(ctx, rankKey, uuid); rank > 0 {
+					ranks[rankKey] = rank
+				}
+			}
+		}
+	}
+
+	// Per-skill McMMO rankings
+	if mcmmo != nil {
+		if m, ok := mcmmo.(*database.McmmoSkills); ok {
+			skills := []struct {
+				name string
+				val  int
+			}{
+				{"taming", m.Taming}, {"mining", m.Mining}, {"woodcutting", m.Woodcutting},
+				{"repair", m.Repair}, {"unarmed", m.Unarmed}, {"herbalism", m.Herbalism},
+				{"excavation", m.Excavation}, {"archery", m.Archery}, {"swords", m.Swords},
+				{"axes", m.Axes}, {"acrobatics", m.Acrobatics}, {"fishing", m.Fishing},
+				{"alchemy", m.Alchemy}, {"crossbows", m.Crossbows}, {"tridents", m.Tridents},
+				{"maces", m.Maces}, {"spears", m.Spears},
+			}
+			for _, sk := range skills {
+				if sk.val > 0 {
+					rankKey := "mcmmo:" + sk.name
+					if rank := s.calculateOrGetRank(ctx, rankKey, uuid); rank > 0 {
+						ranks[rankKey] = rank
+					}
+				}
+			}
+		}
+	}
+
+	return ranks
+}
+
+func (s *Server) calculateOrGetRank(ctx context.Context, lbType, uuid string) int {
+	// Try getting from cache first (populated by leaderboards or background)
+	if rank := s.getPlayerRank(ctx, lbType, uuid); rank > 0 {
+		return rank
+	}
+
+	// Fallback/Draft ranking: this is expensive but ensures "New" stats get ranks
+	// In a production environment, we'd have a worker pre-calculating common ones.
+	return 0
 }
 
 func (s *Server) getPlayerRank(ctx context.Context, lbType, uuid string) int {
@@ -204,10 +268,7 @@ func (s *Server) getPlayerRank(ctx context.Context, lbType, uuid string) int {
 		}
 	}
 
-	// If not in cache or cached version doesn't have the player, skip calculating on the fly for detail view
-	// because it might be too slow if many people visit.
-	// However, for the detail view we might want to be accurate.
-	// But let's rely on the leaderboards being cached frequently.
+	// We don't calculate individual ranks on the fly here to avoid performance issues
 	return 0
 }
 

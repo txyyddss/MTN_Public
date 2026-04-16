@@ -9,23 +9,24 @@ import (
 
 // Config holds all configurable parameters for the backend.
 type Config struct {
-	Server          ServerConfig    `json:"server"`
-	WorldDir        string          `json:"world_dir"`
-	Redis           RedisConfig     `json:"redis"`
-	McmmoMySQL      MySQLConfig     `json:"mcmmo_mysql"`
-	FloodgateMySQL  MySQLConfig     `json:"floodgate_mysql"`
-	Lucky           LuckyConfig     `json:"lucky"`
-	LocalConnection LocalConnectionConfig `json:"local_connection"`
-	Addresses       AddressesConfig       `json:"addresses"`
-	StatusRefreshSec int                  `json:"status_refresh_seconds"`
-	DataRefreshSec   int                  `json:"data_refresh_seconds"`
-	ActiveDays       int                  `json:"active_days"`
+	Server           ServerConfig          `json:"server"`
+	WorldDir         string                `json:"world_dir"`
+	Redis            RedisConfig           `json:"redis"`
+	McmmoMySQL       MySQLConfig           `json:"mcmmo_mysql"`
+	FloodgateMySQL   MySQLConfig           `json:"floodgate_mysql"`
+	Lucky            LuckyConfig           `json:"lucky"`
+	LocalConnection  LocalConnectionConfig `json:"local_connection"`
+	Addresses        AddressesConfig       `json:"addresses"`
+	StatusRefreshSec int                   `json:"status_refresh_seconds"`
+	DataRefreshSec   int                   `json:"data_refresh_seconds"`
+	ActiveDays       int                   `json:"active_days"`
 }
 
 // LocalConnectionConfig holds local query addresses.
 type LocalConnectionConfig struct {
-	Java    string `json:"java"`
-	Bedrock string `json:"bedrock"`
+	Java          string `json:"java"`
+	JavaQueryPort uint16 `json:"java_query_port"`
+	Bedrock       string `json:"bedrock"`
 }
 
 // ServerConfig holds HTTP server settings.
@@ -57,6 +58,7 @@ type AddressesConfig struct {
 	JavaIPv6    string `json:"java_ipv6"`
 	BedrockIPv6 string `json:"bedrock_ipv6"`
 	JavaIPv4SRV string `json:"java_ipv4_srv"`
+	JavaIPv6SRV string `json:"java_ipv6_srv"`
 }
 
 // Load reads and parses configuration from the given JSON file path.

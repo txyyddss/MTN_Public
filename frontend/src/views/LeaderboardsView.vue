@@ -5,7 +5,22 @@ import { API_BASE_URL } from '@/config'
 const types = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
 const currentType = ref('mining')
 const entries = ref<any[]>([])
+const onlinePlayers = ref<string[]>([])
 const loading = ref(false)
+
+const fetchOnline = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/status`)
+    if (res.ok) {
+        const json = await res.json()
+        onlinePlayers.value = json.online_players || []
+    }
+  } catch (e) {}
+}
+
+const isOnline = (uuid: string) => {
+    return onlinePlayers.value.includes(uuid)
+}
 
 const fetchLeaderboard = async (type: string) => {
   loading.value = true
@@ -20,7 +35,10 @@ const fetchLeaderboard = async (type: string) => {
   loading.value = false
 }
 
-onMounted(() => fetchLeaderboard(currentType.value))
+onMounted(() => {
+    fetchLeaderboard(currentType.value)
+    fetchOnline()
+})
 
 const formatValue = (val: number, type: string) => {
   if (type === 'playtime') return (val / 20 / 3600).toFixed(1) + ' hrs'
@@ -93,7 +111,7 @@ const getRankClass = (rank: number) => {
             <td>
               <RouterLink :to="`/player/${entry.uuid}`" class="player-link">
                 <img :src="getAvatarUrl(entry.name)" alt="avatar" class="avatar-small" loading="lazy" />
-                <span class="player-name">{{ entry.name }}</span>
+                <span :class="['player-name', 'minecraft-font', { 'online-name': isOnline(entry.uuid) }]">{{ entry.name }}</span>
               </RouterLink>
             </td>
             <td class="val-col">
@@ -262,6 +280,11 @@ const getRankClass = (rank: number) => {
 
 .player-link:hover {
   color: var(--primary);
+}
+
+.player-link .player-name.online-name {
+    color: #10b981;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 .avatar-small {

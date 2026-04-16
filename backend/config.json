@@ -23,12 +23,14 @@
     },
     "local_connection": {
         "java": "localhost:25565",
+        "java_query_port": 25565,
         "bedrock": "localhost:19132"
     },
     "addresses": {
         "java_ipv6": "mc6.1919801.xyz:11451",
-        "bedrock_ipv6": "mc6.1919801.xyz",
-        "java_ipv4_srv": "j4.1919801.xyz"
+        "bedrock_ipv6": "mc6.1919801.xyz:11451",
+        "java_ipv4_srv": "j4.1919801.xyz",
+        "java_ipv6_srv": "j6.1919801.xyz"
     },
     "status_refresh_seconds": 5,
     "data_refresh_seconds": 300,

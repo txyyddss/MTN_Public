@@ -12,6 +12,7 @@ import (
 	"github.com/mcstatus-io/mcutil/v4/query"
 	"github.com/mcstatus-io/mcutil/v4/response"
 	"github.com/mcstatus-io/mcutil/v4/status"
+	"github.com/mtn-server/backend/config"
 )
 
 // ServerStatus holds the current status and individual connection latencies.
@@ -25,8 +26,9 @@ type ServerStatus struct {
 
 // ConnectionStatus holds latency and status for a specific connection method.
 type ConnectionStatus struct {
-	Online  bool          `json:"online"`
-	Latency time.Duration `json:"latency"`
+	Online    bool          `json:"online"`
+	Latency   time.Duration `json:"latency"`
+	LatencyMs int64         `json:"latency_ms"`
 }
 
 // JavaStatus holds Java server ping result.
@@ -59,6 +61,7 @@ type MonitoredAddr struct {
 type Monitor struct {
 	targets  []MonitoredAddr
 	interval time.Duration
+	cfg      *config.Config // Keep config for query ports
 
 	mu     sync.RWMutex
 	status *ServerStatus
@@ -66,9 +69,9 @@ type Monitor struct {
 }
 
 // NewMonitor creates a new server status monitor for multiple addresses.
-func NewMonitor(javaAddr, bedrockAddr string, intervalSec int) *Monitor {
-	jh, jp := parseHostPort(javaAddr, 25565)
-	bh, bp := parseHostPort(bedrockAddr, 19132)
+func NewMonitor(cfg *config.Config) *Monitor {
+	jh, jp := parseHostPort(cfg.Addresses.JavaIPv6, 25565)
+	bh, bp := parseHostPort(cfg.Addresses.BedrockIPv6, 19132)
 
 	targets := []MonitoredAddr{
 		{Label: "java_ipv6", Host: jh, Port: jp, Type: "java"},
@@ -77,7 +80,8 @@ func NewMonitor(javaAddr, bedrockAddr string, intervalSec int) *Monitor {
 
 	return &Monitor{
 		targets:  targets,
-		interval: time.Duration(intervalSec) * time.Second,
+		interval: time.Duration(cfg.StatusRefreshSec) * time.Second,
+		cfg:      cfg,
 		status: &ServerStatus{
 			Connections: make(map[string]*ConnectionStatus),
 		},
@@ -180,9 +184,11 @@ func (m *Monitor) poll(ctx context.Context) {
 			}
 
 			m.mu.Lock()
+			lat := time.Since(start)
 			s.Connections[t.Label] = &ConnectionStatus{
-				Online:  online,
-				Latency: time.Since(start),
+				Online:    online,
+				Latency:   lat,
+				LatencyMs: lat.Milliseconds(),
 			}
 			m.mu.Unlock()
 		}(target)
@@ -210,7 +216,13 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 	var port uint16
 	for _, t := range m.targets {
 		if t.Type == "java" {
-			host, port = t.Host, t.Port
+			host = t.Host
+			// Use split query port if it's the main local address
+			if m.cfg != nil && (host == m.cfg.LocalConnection.Java || strings.Contains(m.cfg.LocalConnection.Java, host)) {
+				port = m.cfg.LocalConnection.JavaQueryPort
+			} else {
+				port = t.Port
+			}
 			break
 		}
 	}
@@ -237,7 +249,13 @@ func (m *Monitor) pollJava(ctx context.Context) *JavaStatus {
 			js.Players = i
 		}
 	}
-	js.PlayerList = result.Players
+	js.PlayerList = []string{}
+	for _, p := range result.Players {
+		if !strings.HasPrefix(p, ".") && !strings.HasPrefix(p, "BE_") {
+			js.PlayerList = append(js.PlayerList, p)
+		}
+	}
+	js.Players = len(js.PlayerList)
 
 	return js
 }
@@ -263,7 +281,8 @@ func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 	var port uint16
 	for _, t := range m.targets {
 		if t.Type == "bedrock" {
-			host, port = t.Host, t.Port
+			host = t.Host
+			port = t.Port
 			break
 		}
 	}
@@ -279,6 +298,24 @@ func (m *Monitor) pollBedrock(ctx context.Context) *BedrockStatus {
 	if result.OnlinePlayers != nil {
 		bs.Players = int(*result.OnlinePlayers)
 	}
+
+	// Bedrock online count adjustment:
+	// If it's a Geyser/Floodgate server, we should count players from the Java list with prefixes
+	if m.status != nil && m.status.Java != nil {
+		javaFull, err := query.Full(ctx, m.cfg.LocalConnection.Java, m.cfg.LocalConnection.JavaQueryPort)
+		if err == nil {
+			beCount := 0
+			for _, p := range javaFull.Players {
+				if strings.HasPrefix(p, ".") || strings.HasPrefix(p, "BE_") {
+					beCount++
+				}
+			}
+			if beCount > 0 {
+				bs.Players = beCount
+			}
+		}
+	}
+
 	if result.Version != nil {
 		bs.Version = *result.Version
 	}

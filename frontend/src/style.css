@@ -41,6 +41,10 @@
   padding: 0;
 }
 
+.minecraft-font {
+  font-family: var(--minecraft);
+}
+
 body {
   font-family: var(--sans);
   background-color: var(--bg-dark);

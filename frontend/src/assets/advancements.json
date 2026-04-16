@@ -1,0 +1,746 @@
+{
+    "minecraft:adventure/root": {
+        "name": "Adventure",
+        "description": "",
+        "icon": "adventure",
+        "type": "task"
+    },
+    "minecraft:adventure/sleep_in_bed": {
+        "name": "Sweet Dreams",
+        "description": "",
+        "icon": "sleep_in_bed",
+        "type": "task"
+    },
+    "minecraft:adventure/kill_a_mob": {
+        "name": "Monster Hunter",
+        "description": "",
+        "icon": "kill_a_mob",
+        "type": "task"
+    },
+    "minecraft:adventure/shoot_arrow": {
+        "name": "Take Aim",
+        "description": "",
+        "icon": "shoot_arrow",
+        "type": "task"
+    },
+    "minecraft:adventure/sniper_duel": {
+        "name": "Sniper Duel",
+        "description": "",
+        "icon": "sniper_duel",
+        "type": "challenge"
+    },
+    "minecraft:adventure/ol_betsy": {
+        "name": "Ol' Betsy",
+        "description": "",
+        "icon": "ol_betsy",
+        "type": "task"
+    },
+    "minecraft:adventure/whos_the_pillager_now": {
+        "name": "Who's the Pillager Now?",
+        "description": "",
+        "icon": "whos_the_pillager_now",
+        "type": "task"
+    },
+    "minecraft:adventure/trade": {
+        "name": "What a Deal!",
+        "description": "",
+        "icon": "trade",
+        "type": "task"
+    },
+    "minecraft:adventure/trade_at_world_height": {
+        "name": "Star Trader",
+        "description": "",
+        "icon": "trade",
+        "type": "task"
+    },
+    "minecraft:adventure/summon_iron_golem": {
+        "name": "Hired Help",
+        "description": "",
+        "icon": "summon_iron_golem",
+        "type": "goal"
+    },
+    "minecraft:adventure/bullseye": {
+        "name": "Bullseye",
+        "description": "",
+        "icon": "bullseye",
+        "type": "challenge"
+    },
+    "minecraft:adventure/read_power_of_chiseled_bookshelf": {
+        "name": "The Power of Books",
+        "description": "",
+        "icon": "chiseled_bookshelf",
+        "type": "task"
+    },
+    "minecraft:adventure/two_birds_one_arrow": {
+        "name": "Two Birds, One Arrow",
+        "description": "",
+        "icon": "two_birds_one_arrow",
+        "type": "challenge"
+    },
+    "minecraft:adventure/arbalistic": {
+        "name": "Arbalistic",
+        "description": "",
+        "icon": "arbalistic",
+        "type": "challenge"
+    },
+    "minecraft:adventure/fall_from_world_height": {
+        "name": "Caves and Cliffs",
+        "description": "",
+        "icon": "fall_from_world_height",
+        "type": "task"
+    },
+    "minecraft:adventure/play_jukebox_in_meadows": {
+        "name": "Sound of Music",
+        "description": "",
+        "icon": "play_jukebox_in_meadows",
+        "type": "task"
+    },
+    "minecraft:adventure/brush_armadillo": {
+        "name": "Isn't it Scute?",
+        "description": "",
+        "icon": "brush_armadillo",
+        "type": "task"
+    },
+    "minecraft:adventure/salvage_sherd": {
+        "name": "Respecting Remnants",
+        "description": "",
+        "icon": "salvage_sherd",
+        "type": "task"
+    },
+    "minecraft:adventure/craft_decorated_pot_using_only_sherds": {
+        "name": "Careful Restoration",
+        "description": "",
+        "icon": "craft_decorated_pot",
+        "type": "task"
+    },
+    "minecraft:adventure/trim_with_any_armor_pattern": {
+        "name": "Crafting a New Look",
+        "description": "",
+        "icon": "trim_dune",
+        "type": "task"
+    },
+    "minecraft:adventure/trim_with_all_exclusive_armor_patterns": {
+        "name": "Smithing With Style",
+        "description": "",
+        "icon": "trim_silence",
+        "type": "challenge"
+    },
+    "minecraft:adventure/spyglass_at_parrot": {
+        "name": "Is It a\nBird?",
+        "description": "",
+        "icon": "spyglass",
+        "type": "task"
+    },
+    "minecraft:adventure/spyglass_at_ghast": {
+        "name": "Is It a\nBalloon?",
+        "description": "",
+        "icon": "spyglass",
+        "type": "task"
+    },
+    "minecraft:adventure/spyglass_at_dragon": {
+        "name": "Is It a\nPlane?",
+        "description": "",
+        "icon": "spyglass",
+        "type": "task"
+    },
+    "minecraft:adventure/heart_transplanter": {
+        "name": "Heart Transplanter",
+        "description": "",
+        "icon": "heart_transplanter",
+        "type": "task"
+    },
+    "minecraft:adventure/avoid_vibration": {
+        "name": "Sneak 100",
+        "description": "",
+        "icon": "sculk_sensor",
+        "type": "task"
+    },
+    "minecraft:adventure/kill_mob_near_sculk_catalyst": {
+        "name": "It Spreads",
+        "description": "",
+        "icon": "sculk_catalyst",
+        "type": "challenge"
+    },
+    "minecraft:adventure/crafters_crafting_crafters": {
+        "name": "Crafters Crafting",
+        "description": "",
+        "icon": "crafters_crafting_crafters",
+        "type": "task"
+    },
+    "minecraft:adventure/minecraft_trials_edition": {
+        "name": "Trial(s) Edition",
+        "description": "",
+        "icon": "minecraft_trials_edition",
+        "type": "task"
+    },
+    "minecraft:adventure/lighten_up": {
+        "name": "Lighten Up",
+        "description": "",
+        "icon": "lighten_up",
+        "type": "task"
+    },
+    "minecraft:adventure/who_needs_rockets": {
+        "name": "Who Needs Rockets?",
+        "description": "",
+        "icon": "who_needs_rockets",
+        "type": "task"
+    },
+    "minecraft:adventure/blowback": {
+        "name": "Blowback",
+        "description": "",
+        "icon": "blowback",
+        "type": "task"
+    },
+    "minecraft:adventure/under_lock_and_key": {
+        "name": "Under Lock and Key",
+        "description": "",
+        "icon": "under_lock_and_key",
+        "type": "task"
+    },
+    "minecraft:adventure/revaulting": {
+        "name": "Revaulting",
+        "description": "",
+        "icon": "revaulting",
+        "type": "task"
+    },
+    "minecraft:adventure/overoverkill": {
+        "name": "Over-Overkill",
+        "description": "",
+        "icon": "overoverkill",
+        "type": "task"
+    },
+    "minecraft:adventure/totem_of_undying": {
+        "name": "Postmortal",
+        "description": "",
+        "icon": "totem_of_undying",
+        "type": "goal"
+    },
+    "minecraft:adventure/walk_on_powder_snow_with_leather_boots": {
+        "name": "Light as a Rabbit",
+        "description": "",
+        "icon": "leather_boots",
+        "type": "task"
+    },
+    "minecraft:adventure/honey_block_slide": {
+        "name": "Sticky Situation",
+        "description": "",
+        "icon": "honey_block_slide",
+        "type": "task"
+    },
+    "minecraft:adventure/lightning_rod_with_villager_no_fire": {
+        "name": "Surge Protector",
+        "description": "",
+        "icon": "lightning_rod",
+        "type": "task"
+    },
+    "minecraft:adventure/voluntary_exile": {
+        "name": "Voluntary Exile",
+        "description": "",
+        "icon": "pillager_banner",
+        "type": "task"
+    },
+    "minecraft:adventure/hero_of_the_village": {
+        "name": "Hero of the Village",
+        "description": "",
+        "icon": "pillager_banner",
+        "type": "challenge"
+    },
+    "minecraft:adventure/throw_trident": {
+        "name": "A Throwaway Joke",
+        "description": "",
+        "icon": "throw_trident",
+        "type": "task"
+    },
+    "minecraft:adventure/very_very_frightening": {
+        "name": "Very Very Frightening",
+        "description": "",
+        "icon": "very_very_frightening",
+        "type": "task"
+    },
+    "minecraft:adventure/adventuring_time": {
+        "name": "Adventuring Time",
+        "description": "",
+        "icon": "adventuring_time",
+        "type": "challenge"
+    },
+    "minecraft:adventure/kill_all_mobs": {
+        "name": "Monsters Hunted",
+        "description": "",
+        "icon": "kill_all_mobs",
+        "type": "challenge"
+    },
+    "minecraft:end/root": {
+        "name": "The End",
+        "description": "",
+        "icon": "end",
+        "type": "task"
+    },
+    "minecraft:end/kill_dragon": {
+        "name": " Free the  End",
+        "description": "",
+        "icon": "kill_dragon",
+        "type": "task"
+    },
+    "minecraft:end/dragon_egg": {
+        "name": "The Next Generation",
+        "description": "",
+        "icon": "dragon_egg",
+        "type": "goal"
+    },
+    "minecraft:end/enter_end_gateway": {
+        "name": "Remote Getaway",
+        "description": "",
+        "icon": "enter_end_gateway",
+        "type": "task"
+    },
+    "minecraft:end/find_end_city": {
+        "name": "City at End of the Game",
+        "description": "",
+        "icon": "find_end_city",
+        "type": "task"
+    },
+    "minecraft:end/dragon_breath": {
+        "name": "You Need a Mint",
+        "description": "",
+        "icon": "dragon_breath",
+        "type": "goal"
+    },
+    "minecraft:end/respawn_dragon": {
+        "name": "The End... Again...",
+        "description": "",
+        "icon": "respawn_dragon",
+        "type": "goal"
+    },
+    "minecraft:end/elytra": {
+        "name": "Sky's the Limit",
+        "description": "",
+        "icon": "elytra",
+        "type": "goal"
+    },
+    "minecraft:end/levitate": {
+        "name": "Great View From Here",
+        "description": "",
+        "icon": "levitate",
+        "type": "challenge"
+    },
+    "minecraft:husbandry/root": {
+        "name": "Husbandry",
+        "description": "",
+        "icon": "husbandry",
+        "type": "task"
+    },
+    "minecraft:husbandry/plant_seed": {
+        "name": "A Seedy Place",
+        "description": "",
+        "icon": "plant_seed",
+        "type": "task"
+    },
+    "minecraft:husbandry/breed_an_animal": {
+        "name": "The Parrots and the Bats",
+        "description": "",
+        "icon": "breed_an_animal",
+        "type": "task"
+    },
+    "minecraft:husbandry/tame_an_animal": {
+        "name": "Best Friends Forever",
+        "description": "",
+        "icon": "tame_an_animal",
+        "type": "task"
+    },
+    "minecraft:husbandry/fishy_business": {
+        "name": "Fishy Business",
+        "description": "",
+        "icon": "fishy_business",
+        "type": "task"
+    },
+    "minecraft:husbandry/tactical_fishing": {
+        "name": "Tactical Fishing",
+        "description": "",
+        "icon": "tactical_fishing",
+        "type": "task"
+    },
+    "minecraft:husbandry/axolotl_in_a_bucket": {
+        "name": "The Cutest Predator",
+        "description": "",
+        "icon": "axolotl_in_a_bucket",
+        "type": "task"
+    },
+    "minecraft:husbandry/kill_axolotl_target": {
+        "name": "Healing Power of Friendship",
+        "description": "",
+        "icon": "kill_axolotl_target",
+        "type": "task"
+    },
+    "minecraft:husbandry/make_a_sign_glow": {
+        "name": "Glow and Behold!",
+        "description": "",
+        "icon": "make_a_sign_glow",
+        "type": "task"
+    },
+    "minecraft:husbandry/ride_a_boat_with_a_goat": {
+        "name": "Whatev Floats Your Goat!",
+        "description": "",
+        "icon": "ride_a_boat_with_a_goat",
+        "type": "task"
+    },
+    "minecraft:husbandry/safely_harvest_honey": {
+        "name": "Bee Our Guest",
+        "description": "",
+        "icon": "safely_harvest_honey",
+        "type": "task"
+    },
+    "minecraft:husbandry/wax_on": {
+        "name": "Wax On",
+        "description": "",
+        "icon": "wax_on",
+        "type": "task"
+    },
+    "minecraft:husbandry/wax_off": {
+        "name": "Wax Off",
+        "description": "",
+        "icon": "wax_off",
+        "type": "task"
+    },
+    "minecraft:husbandry/silk_touch_nest": {
+        "name": "Total Beelocation",
+        "description": "",
+        "icon": "silk_touch_nest",
+        "type": "task"
+    },
+    "minecraft:husbandry/repair_wolf_armor": {
+        "name": "Good as New",
+        "description": "",
+        "icon": "repair_wolf_armor",
+        "type": "task"
+    },
+    "minecraft:husbandry/remove_wolf_armor": {
+        "name": "Shear Brilliance",
+        "description": "",
+        "icon": "shears",
+        "type": "task"
+    },
+    "minecraft:husbandry/allay_deliver_item_to_player": {
+        "name": "You Got a Friend in Me",
+        "description": "",
+        "icon": "cookie",
+        "type": "task"
+    },
+    "minecraft:husbandry/allay_deliver_cake_to_note_block": {
+        "name": "Birthday Song",
+        "description": "",
+        "icon": "birthday",
+        "type": "task"
+    },
+    "minecraft:husbandry/obtain_sniffer_egg": {
+        "name": "Smells Interesting",
+        "description": "",
+        "icon": "obtain_sniffer_egg",
+        "type": "task"
+    },
+    "minecraft:husbandry/feed_snifflet": {
+        "name": "Little Sniffs",
+        "description": "",
+        "icon": "feed_snifflet",
+        "type": "task"
+    },
+    "minecraft:husbandry/plant_any_sniffer_seed": {
+        "name": "Planting The Past",
+        "description": "",
+        "icon": "plant_any_sniffer_seed",
+        "type": "task"
+    },
+    "minecraft:husbandry/bred_all_animals": {
+        "name": "Two by Two",
+        "description": "",
+        "icon": "bred_all_animals",
+        "type": "challenge"
+    },
+    "minecraft:husbandry/balanced_diet": {
+        "name": "A Balanced Diet",
+        "description": "",
+        "icon": "balanced_diet",
+        "type": "challenge"
+    },
+    "minecraft:husbandry/complete_catalogue": {
+        "name": "A Complete Catalogue",
+        "description": "",
+        "icon": "complete_catalogue",
+        "type": "challenge"
+    },
+    "minecraft:husbandry/whole_pack": {
+        "name": "The Whole Pack",
+        "description": "",
+        "icon": "whole_pack",
+        "type": "challenge"
+    },
+    "minecraft:husbandry/obtain_netherite_hoe": {
+        "name": "Serious Dedication",
+        "description": "",
+        "icon": "obtain_netherite_hoe",
+        "type": "challenge"
+    },
+    "minecraft:husbandry/froglights": {
+        "name": "Our Powers Combined!",
+        "description": "",
+        "icon": "froglights",
+        "type": "challenge"
+    },
+    "minecraft:husbandry/leash_all_frog_variants": {
+        "name": "Squad Hops Into Town",
+        "description": "",
+        "icon": "tame_an_animal",
+        "type": "task"
+    },
+    "minecraft:husbandry/tadpole_in_a_bucket": {
+        "name": "Bukkit Bukkit",
+        "description": "",
+        "icon": "tadpole_in_a_bucket",
+        "type": "task"
+    },
+    "minecraft:story/mine_stone": {
+        "name": "Stone Age",
+        "description": "",
+        "icon": "mine_stone",
+        "type": "task"
+    },
+    "minecraft:story/upgrade_tools": {
+        "name": "Getting an Upgrade",
+        "description": "",
+        "icon": "upgrade_tools",
+        "type": "task"
+    },
+    "minecraft:story/iron_tools": {
+        "name": "Isn't It Iron Pick",
+        "description": "",
+        "icon": "iron_tools",
+        "type": "task"
+    },
+    "minecraft:story/smelt_iron": {
+        "name": "Acquire Hardware",
+        "description": "",
+        "icon": "smelt_iron",
+        "type": "task"
+    },
+    "minecraft:story/mine_diamond": {
+        "name": "Diamonds!",
+        "description": "",
+        "icon": "mine_diamond",
+        "type": "task"
+    },
+    "minecraft:story/lava_bucket": {
+        "name": "Hot Stuff",
+        "description": "",
+        "icon": "lava_bucket",
+        "type": "task"
+    },
+    "minecraft:story/form_obsidian": {
+        "name": "Ice Bucket Challenge",
+        "description": "",
+        "icon": "form_obsidian",
+        "type": "task"
+    },
+    "minecraft:story/enter_the_nether": {
+        "name": "We Need to Go Deeper",
+        "description": "",
+        "icon": "enter_the_nether",
+        "type": "task"
+    },
+    "minecraft:story/obtain_armor": {
+        "name": "Suit Up",
+        "description": "",
+        "icon": "obtain_armor",
+        "type": "task"
+    },
+    "minecraft:story/shiny_gear": {
+        "name": "Cover Me With Diamonds",
+        "description": "",
+        "icon": "shiny_gear",
+        "type": "task"
+    },
+    "minecraft:story/cure_zombie_villager": {
+        "name": "Zombie Doctor",
+        "description": "",
+        "icon": "cure_zombie_villager",
+        "type": "goal"
+    },
+    "minecraft:story/root": {
+        "name": "Minecraft",
+        "description": "",
+        "icon": "grass",
+        "type": "task"
+    },
+    "minecraft:story/deflect_arrow": {
+        "name": "Not Today, Thank You",
+        "description": "",
+        "icon": "deflect_arrow",
+        "type": "task"
+    },
+    "minecraft:story/follow_ender_eye": {
+        "name": "Eye Spy",
+        "description": "",
+        "icon": "follow_ender_eye",
+        "type": "task"
+    },
+    "minecraft:story/enter_the_end": {
+        "name": "The End?",
+        "description": "",
+        "icon": "end",
+        "type": "task"
+    },
+    "minecraft:story/enchant_item": {
+        "name": "Enchanter",
+        "description": "",
+        "icon": "enchant_item",
+        "type": "task"
+    },
+    "minecraft:husbandry/place_dried_ghast_in_water": {
+        "name": "Stay Hydrated!",
+        "description": "",
+        "icon": "stay_hydrated",
+        "type": "task"
+    },
+    "minecraft:nether/return_to_sender": {
+        "name": "Return to Sender",
+        "description": "",
+        "icon": "return_to_sender",
+        "type": "challenge"
+    },
+    "minecraft:adventure/use_lodestone": {
+        "name": "Country Lode, Take Me Home",
+        "description": "",
+        "icon": "use_lodestone",
+        "type": "task"
+    },
+    "minecraft:nether/charge_respawn_anchor": {
+        "name": "Not Quite \"Nine\" Lives",
+        "description": "",
+        "icon": "charge_respawn_anchor",
+        "type": "task"
+    },
+    "minecraft:nether/obtain_crying_obsidian": {
+        "name": "Who's Cutting Onions?",
+        "description": "",
+        "icon": "obtain_crying_obsidian",
+        "type": "task"
+    },
+    "minecraft:nether/loot_bastion": {
+        "name": "War Pigs",
+        "description": "",
+        "icon": "loot_bastion",
+        "type": "task"
+    },
+    "minecraft:nether/find_bastion": {
+        "name": "Those Were the Days",
+        "description": "",
+        "icon": "find_bastion",
+        "type": "task"
+    },
+    "minecraft:nether/find_fortress": {
+        "name": "A Terrible Fortress",
+        "description": "",
+        "icon": "find_fortress",
+        "type": "task"
+    },
+    "minecraft:nether/root": {
+        "name": "Nether",
+        "description": "",
+        "icon": "nether",
+        "type": "task"
+    },
+    "minecraft:nether/uneasy_alliance": {
+        "name": "Uneasy Alliance",
+        "description": "",
+        "icon": "uneasy_alliance",
+        "type": "challenge"
+    },
+    "minecraft:nether/fast_travel": {
+        "name": "Subspace Bubble",
+        "description": "",
+        "icon": "fast_travel",
+        "type": "challenge"
+    },
+    "minecraft:nether/brew_potion": {
+        "name": "Local Brewery",
+        "description": "",
+        "icon": "brew_potion",
+        "type": "task"
+    },
+    "minecraft:nether/obtain_blaze_rod": {
+        "name": "Into Fire",
+        "description": "",
+        "icon": "obtain_blaze_rod",
+        "type": "task"
+    },
+    "minecraft:nether/distract_piglin": {
+        "name": "Oh Shiny",
+        "description": "",
+        "icon": "distract_piglin",
+        "type": "task"
+    },
+    "minecraft:nether/obtain_ancient_debris": {
+        "name": "Hidden in the Depths",
+        "description": "",
+        "icon": "obtain_ancient_debris",
+        "type": "task"
+    },
+    "minecraft:nether/explore_nether": {
+        "name": "Hot Tourist Destinations",
+        "description": "",
+        "icon": "explore_nether",
+        "type": "challenge"
+    },
+    "minecraft:nether/netherite_armor": {
+        "name": "Cover Me in Debris",
+        "description": "",
+        "icon": "netherite_armor",
+        "type": "challenge"
+    },
+    "minecraft:nether/all_effects": {
+        "name": "How Did We Get Here?",
+        "description": "",
+        "icon": "all_effects",
+        "type": "challenge"
+    },
+    "minecraft:nether/all_potions": {
+        "name": "A Furious Cocktail",
+        "description": "",
+        "icon": "all_potions",
+        "type": "challenge"
+    },
+    "minecraft:nether/create_full_beacon": {
+        "name": "Beaconator",
+        "description": "",
+        "icon": "beacon",
+        "type": "goal"
+    },
+    "minecraft:nether/create_beacon": {
+        "name": "Bring Home the Beacon",
+        "description": "",
+        "icon": "beacon",
+        "type": "task"
+    },
+    "minecraft:nether/summon_wither": {
+        "name": "Withering Heights",
+        "description": "",
+        "icon": "summon_wither",
+        "type": "task"
+    },
+    "minecraft:nether/get_wither_skull": {
+        "name": "Spooky Scary Skeleton",
+        "description": "",
+        "icon": "get_wither_skull",
+        "type": "task"
+    },
+    "minecraft:nether/ride_strider_in_overworld_lava": {
+        "name": "Feels Like Home",
+        "description": "",
+        "icon": "ride_strider",
+        "type": "task"
+    },
+    "minecraft:nether/ride_strider": {
+        "name": "This Boat Has Legs",
+        "description": "",
+        "icon": "ride_strider",
+        "type": "task"
+    }
+}

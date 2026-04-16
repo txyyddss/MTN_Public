@@ -6,8 +6,6 @@ User:
 - wor114514
 Data examples:
 Under ./examples
-Fonts:
-.\icons_and_translates\fonts\*
 # Skin API
 For displaying player skin image on the web
 Full skin: https://mineskin.eu/skin/{player}
@@ -15,32 +13,12 @@ Full skin: https://mineskin.eu/skin/{player}
 # Get Server Status (mcutil)
 For getting server status at backend
 https://pkg.go.dev/github.com/mcstatus-io/mcutil
-Useful:
-- StatusBedrock
-- Status
 # Skinview 3D
 For 3D display of skin on the web, you can get the skin image from Skin API(Full skin)
 https://github.com/bs-community/skinview3d/
 # GOPSUTIL
 For getting hardware info at backend
 https://github.com/shirou/gopsutil
-Useful:
-- PlatformVersion 
-- VirtualizationSystem 
-- virtual_memory
-- cpu_percent
-- disk_io_counters
-- net_io_counters
-- ModelName 
-- Load1, Load5, Load15
-# Minecraft names & icons
-Blocks translation and icon name: .\icons_and_translates\objectives\blocks.xml
-Blocks icons: .\icons_and_translates\sprites\blocks\*
-Advancements translation and icon name: .\icons_and_translates\objectives\advancements\*
-Advancement icons: .\icons_and_translates\sprites\global\advancements
-Menu icons: .\icons_and_translates\icons
-Items icons: .\icons_and_translates\sprites\global\items
-Other icons: .\icons_and_translates\sprites\global\criteria
 # Parsing .dat
 https://github.com/Offroaders123/NBTify/
 # Stun & DDNS

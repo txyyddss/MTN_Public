@@ -5,6 +5,7 @@ import { API_BASE_URL } from '@/config'
 const status = ref<any>(null)
 const connInfo = ref<any>(null)
 const copyFeedback = ref<string | null>(null)
+const showAllJava = ref(false)
 let pollInterval: any = null
 
 const fetchStatus = async () => {
@@ -69,6 +70,11 @@ const formatBytes = (bytes: number) => {
 const formatMem = (bytes: number) => {
   return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB'
 }
+
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return 'N/A'
+  return new Date(dateStr).toLocaleString()
+}
 </script>
 
 <template>
@@ -91,15 +97,20 @@ const formatMem = (bytes: number) => {
             
             <div class="system-stats" v-if="status.system">
               <div class="stat-row">
-                <small><b>CPU:</b> {{ status.system.cpu_percent.toFixed(1) }}%</small>
-                <small><b>RAM:</b> {{ formatMem(status.system.mem_used) }} ({{ status.system.mem_percent.toFixed(0) }}%)</small>
+                <small><b>Platform:</b> {{ status.system.platform }}</small>
               </div>
               <div class="stat-row">
-                <small><b>DISK:</b> {{ formatBytes(status.system.disk_read_rate + status.system.disk_write_rate) }}</small>
+                <small><b>CPU:</b> {{ status.system.cpu_model }} ({{ status.system.cpu_percent.toFixed(1) }}%)</small>
+              </div>
+              <div class="stat-row">
+                <small><b>Load:</b> {{ status.system.load_1.toFixed(2) }} / {{ status.system.load_5.toFixed(2) }} / {{ status.system.load_15.toFixed(2) }}</small>
+              </div>
+              <div class="stat-row mt-2">
+                <small><b>RAM:</b> {{ formatMem(status.system.mem_used) }} ({{ status.system.mem_percent.toFixed(0) }}%)</small>
                 <small><b>NET:</b> {{ formatBytes(status.system.net_sent_rate + status.system.net_recv_rate) }}</small>
               </div>
             </div>
-            <p class="refresh-note">Refreshes every 5s</p>
+            <p class="refresh-note">Refreshes every 5s | Last: {{ formatDate(status.updated) }}</p>
           </div>
           <div v-else class="loading-state">Loading status...</div>
         </div>
@@ -112,12 +123,17 @@ const formatMem = (bytes: number) => {
               <span v-if="copyFeedback" class="copy-toast">{{ copyFeedback }}</span>
             </transition>
           </div>
-          <p class="suggestion">Recommended: Use IPv6 for better stability if supported by your hardware.</p>
+          <div class="panel-subheader">
+            <p class="suggestion">Recommended: Use IPv6 for better stability if supported by your hardware.</p>
+            <button v-if="connInfo?.connection" class="toggle-view-btn" @click="showAllJava = !showAllJava">
+              {{ showAllJava ? 'Simple View' : 'All Addresses' }}
+            </button>
+          </div>
           
           <div v-if="connInfo?.connection" class="conn-grid">
             <div class="conn-box">
               <h4>Java Edition</h4>
-              <ul>
+              <ul v-if="showAllJava">
                 <li v-if="connInfo.connection.java_ipv6" @click="copyToClipboard(connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip, 'Java IPv6')">
                   <div class="addr-row">
                     <span class="type-badge ipv6">IPv6</span> 
@@ -136,13 +152,24 @@ const formatMem = (bytes: number) => {
                     {{ status.connections.java_ipv4.latency_ms || '...' }}ms
                   </span>
                 </li>
-                <li v-if="connInfo.connection.java_srv" @click="copyToClipboard(connInfo.connection.java_srv.domain, 'Java SRV')">
+              </ul>
+              <ul v-else>
+                <li v-if="connInfo.addresses.java_ipv4_srv" @click="copyToClipboard(connInfo.addresses.java_ipv4_srv, 'Java SRV IPv4')">
                   <div class="addr-row">
-                    <span class="type-badge srv">SRV</span>
-                    <code>{{ connInfo.connection.java_srv.domain }}</code>
+                    <span class="type-badge srv">SRV v4</span>
+                    <code>{{ connInfo.addresses.java_ipv4_srv }}</code>
                   </div>
                   <span v-if="status?.connections?.java_ipv4_srv" :class="['latency-dot', status.connections.java_ipv4_srv.online ? 'online' : 'offline']">
                     {{ status.connections.java_ipv4_srv.latency_ms || '...' }}ms
+                  </span>
+                </li>
+                <li v-if="connInfo.addresses.java_ipv6_srv" @click="copyToClipboard(connInfo.addresses.java_ipv6_srv, 'Java SRV IPv6')">
+                  <div class="addr-row">
+                    <span class="type-badge srv">SRV v6</span>
+                    <code>{{ connInfo.addresses.java_ipv6_srv }}</code>
+                  </div>
+                  <span v-if="status?.connections?.java_ipv6_srv" :class="['latency-dot', status.connections.java_ipv6_srv.online ? 'online' : 'offline']">
+                    {{ status.connections.java_ipv6_srv.latency_ms || '...' }}ms
                   </span>
                 </li>
               </ul>
@@ -151,22 +178,23 @@ const formatMem = (bytes: number) => {
             <div class="conn-box">
               <h4>Bedrock Edition</h4>
               <ul>
-                <li v-if="connInfo.connection.bedrock_ipv6" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.domain || connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6')">
-                  <div class="addr-row">
+                <li v-if="connInfo.connection.bedrock_ipv6">
+                  <div class="addr-row flex-grow">
                     <span class="type-badge ipv6">IPv6</span> 
-                    <code>{{ connInfo.connection.bedrock_ipv6.domain || connInfo.connection.bedrock_ipv6.ip }}</code>
+                    <code @click="copyToClipboard(connInfo.connection.bedrock_ipv6.domain || connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6 Addr')">{{ connInfo.connection.bedrock_ipv6.domain || connInfo.connection.bedrock_ipv6.ip }}</code>
+                    <code class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.port, 'Bedrock IPv6 Port')">{{ connInfo.connection.bedrock_ipv6.port }}</code>
                   </div>
-                   <span v-if="status?.connections?.bedrock_ipv6" :class="['latency-dot', status.connections.bedrock_ipv6.online ? 'online' : 'offline']">
+                   <span v-if="status?.connections?.bedrock_ipv6" :class="['latency-dot', status.connections.bedrock_ipv6.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.domain || connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6')">
                     {{ status.connections.bedrock_ipv6.latency_ms || '...' }}ms
                   </span>
                 </li>
-                <li v-if="connInfo.connection.bedrock_ipv4" @click="copyToClipboard((connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip) + ' ' + connInfo.connection.bedrock_ipv4.port, 'Bedrock Addr + Port')">
-                  <div class="addr-row">
+                <li v-if="connInfo.connection.bedrock_ipv4">
+                  <div class="addr-row flex-grow">
                     <span class="type-badge ipv4">IPv4</span> 
-                    <code>{{ connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip }}</code>
-                    <code class="port-code">{{ connInfo.connection.bedrock_ipv4.port }}</code>
+                    <code @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">{{ connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip }}</code>
+                    <code class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.port, 'Bedrock Port')">{{ connInfo.connection.bedrock_ipv4.port }}</code>
                   </div>
-                  <span v-if="status?.connections?.bedrock_ipv4" :class="['latency-dot', status.connections.bedrock_ipv4.online ? 'online' : 'offline']">
+                  <span v-if="status?.connections?.bedrock_ipv4" :class="['latency-dot', status.connections.bedrock_ipv4.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">
                     {{ status.connections.bedrock_ipv4.latency_ms || '...' }}ms
                   </span>
                 </li>
@@ -205,8 +233,34 @@ const formatMem = (bytes: number) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.panel-subheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
+
+.toggle-view-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.toggle-view-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+}
+
+.flex-grow { flex: 1; }
 
 h3 {
   display: flex;

@@ -102,20 +102,14 @@ func main() {
 	}
 
 	// Start server status monitor
-	mon := monitor.NewMonitor(
-		cfg.LocalConnection.Java,
-		cfg.LocalConnection.Bedrock,
-		cfg.StatusRefreshSec,
-	)
+	mon := monitor.NewMonitor(cfg)
 
 	// Add static addresses from config
 	if cfg.Addresses.JavaIPv4SRV != "" {
 		mon.AddTarget("java_ipv4_srv", cfg.Addresses.JavaIPv4SRV, 25565, "java")
 	}
-	if cfg.Addresses.JavaIPv6 != "" {
-		// java_ipv6 is already added as the main Java target in monitor.NewMonitor
-		// but I might want to ensure it has the right label if I add it again.
-		// For now, let's just add others.
+	if cfg.Addresses.JavaIPv6SRV != "" {
+		mon.AddTarget("java_ipv6_srv", cfg.Addresses.JavaIPv6SRV, 25565, "java")
 	}
 
 	mon.Start(ctx)
