@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { API_BASE_URL } from '@/config'
-import { preloadImages } from '@/utils/preloader'
+import { preloadImages, PreloadPriority } from '@/utils/preloader'
 
 const types = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
 const currentType = ref('mining')
@@ -44,7 +44,7 @@ onMounted(() => {
 watch(entries, (newEntries) => {
   if (newEntries && newEntries.length > 0) {
     const urls = newEntries.map(e => getAvatarUrl(e.name))
-    preloadImages(urls)
+    preloadImages(urls, PreloadPriority.MEDIUM)
   }
 })
 

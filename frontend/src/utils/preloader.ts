@@ -1,47 +1,72 @@
 const preloadedUrls = new Set<string>();
 
+export const PreloadPriority = {
+    HIGH: 10,       // Player skins
+    MEDIUM_HIGH: 7, // Advancements
+    MEDIUM: 5,      // Other images (heads/avatars)
+    LOW: 3,         // Stats icons
+    BACKGROUND: 1   // Full icon pool
+} as const;
+
+interface PreloadItem {
+    url: string;
+    priority: number;
+}
+
+const queue: PreloadItem[] = [];
+let activeWorkers = 0;
+const MAX_WORKERS = 6;
+
 /**
- * Preloads images in the background to warm up the browser cache.
+ * Preloads images in the background with priority support.
  * @param urls List of image URLs to preload
- * @param concurrency Maximum number of simultaneous requests
+ * @param priority Priority of this batch (higher = sooner)
  */
-export function preloadImages(urls: (string | null | undefined)[], concurrency: number = 6) {
+export function preloadImages(urls: (string | null | undefined)[], priority: number = PreloadPriority.MEDIUM) {
     const validUrls = urls.filter((url): url is string => !!url && !preloadedUrls.has(url));
 
     if (validUrls.length === 0) return;
 
-    // Add all to set immediately to prevent duplicate triggers from other calls
-    validUrls.forEach(url => preloadedUrls.add(url));
+    // Add items to queue and sort by priority descending
+    validUrls.forEach(url => {
+        preloadedUrls.add(url);
+        queue.push({ url, priority });
+    });
 
-    let index = 0;
+    // Sort queue so highest priority items are at the front
+    queue.sort((a, b) => b.priority - a.priority);
 
-    const loadNext = () => {
-        if (index >= validUrls.length) return;
+    // Use requestIdleCallback to start processing if we aren't already processing
+    // This helps ensure preloading doesn't interfere with main thread critical tasks
+    if (typeof window !== 'undefined' && (window as any).requestIdleCallback) {
+        (window as any).requestIdleCallback(() => processQueue());
+    } else {
+        setTimeout(() => processQueue(), 1);
+    }
+}
 
-        const url = validUrls[index++];
+function processQueue() {
+    while (activeWorkers < MAX_WORKERS && queue.length > 0) {
+        const item = queue.shift();
+        if (!item) break;
+
+        activeWorkers++;
         const img = new Image();
 
-        // Using a promise-like structure but without async for simplicity in the loop
         img.onload = img.onerror = () => {
-            // Clean up to avoid memory leaks if used in a long-running app
-            // although standard <img> tags are usually fine.
-            // (img as any).onload = (img as any).onerror = null;
-            loadNext();
+            activeWorkers--;
+            processQueue();
         };
 
-        img.src = url;
-    };
-
-    const initialConcurrency = Math.min(concurrency, validUrls.length);
-    for (let i = 0; i < initialConcurrency; i++) {
-        loadNext();
+        img.src = item.url;
     }
 }
 
 /**
  * Higher-level utility to preload a specific batch and return when done (optional)
+ * Note: Uses high priority by default for explicit async waits.
  */
-export async function preloadImagesAsync(urls: (string | null | undefined)[]): Promise<void> {
+export async function preloadImagesAsync(urls: (string | null | undefined)[], _priority: number = PreloadPriority.HIGH): Promise<void> {
     return new Promise((resolve) => {
         const validUrls = urls.filter((url): url is string => !!url && !preloadedUrls.has(url));
         if (validUrls.length === 0) {
