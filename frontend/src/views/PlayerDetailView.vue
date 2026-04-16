@@ -217,21 +217,72 @@ const getAdvIconPath = (advKey: string) => {
   return `/mc_icons/advancements/${category}/${iconName}.png`
 }
 
+const customStatIcons: Record<string, string> = {
+  'play_one_minute': '/mc_icons/blocks/special/observer^32.png',
+  'jump': '/mc_icons/blocks/misc/scaffolding^32.png',
+  'damage_dealt': '/mc_icons/items/iron_sword.png',
+  'damage_taken': '/mc_icons/items/iron_sword.png', // Fallback to sword for combat
+  'deaths': '/mc_icons/items/skull_and_beacon^32.png',
+  'mob_kills': '/mc_icons/items/iron_sword.png',
+  'player_kills': '/mc_icons/items/iron_sword.png',
+  'walk_one_cm': '/mc_icons/blocks/dirt/dirt_path^32.png',
+  'sprint_one_cm': '/mc_icons/blocks/dirt/dirt_path^32.png',
+  'fly_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
+  'climb_one_cm': '/mc_icons/blocks/misc/ladder^32.png',
+  'fall_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
+  'minecart_one_cm': '/mc_icons/items/conduit^32.png', // Generic tech
+  'boat_one_cm': '/mc_icons/items/water_bucket.png',
+  'pig_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
+  'horse_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
+  'strider_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
+  'aviate_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
+  'swim_one_cm': '/mc_icons/items/water_bucket.png',
+  'walk_on_water_one_cm': '/mc_icons/items/water_bucket.png',
+  'walk_under_water_one_cm': '/mc_icons/items/water_bucket.png',
+  'time_since_death': '/mc_icons/blocks/special/observer^32.png',
+  'time_since_rest': '/mc_icons/blocks/beds/white_bed^32.png',
+  'sneak_time': '/mc_icons/blocks/dirt/dirt_path^32.png',
+  'total_world_time': '/mc_icons/blocks/special/observer^32.png',
+}
+
 const getStatIconPath = (category: string, name: string) => {
   const id = name.replace('minecraft:', '')
-  if (category === 'minecraft:mined') {
-    // For mined, we try to guess the block icon. 
-    // Since there are subfolders, we might need a complex check, 
-    // but many common ones are in root or we can fallback to items if not found.
-    // For simplicity and based on the file list, we'll try common items/blocks paths.
-    return `/mc_icons/items/${id}.png`
+  
+  if (category === 'minecraft:custom') {
+    return customStatIcons[id] || '/mc_icons/items/paper^32.png'
   }
-  if (['minecraft:crafted', 'minecraft:used', 'minecraft:broken', 'minecraft:picked_up', 'minecraft:dropped'].includes(category)) {
-    return `/mc_icons/items/${id}.png`
+
+  // Common blocks subfolder mapping
+  const blockFolders: Record<string, string> = {
+    'iron_ore': 'materials', 'gold_ore': 'materials', 'diamond_ore': 'materials', 'emerald_ore': 'materials',
+    'lapis_ore': 'materials', 'redstone_ore': 'materials', 'coal_ore': 'materials', 'copper_ore': 'materials',
+    'deepslate_iron_ore': 'materials', 'deepslate_gold_ore': 'materials', 'deepslate_diamond_ore': 'materials',
+    'deepslate_emerald_ore': 'materials', 'deepslate_lapis_ore': 'materials', 'deepslate_redstone_ore': 'materials',
+    'deepslate_coal_ore': 'materials', 'deepslate_copper_ore': 'materials',
+    'iron_block': 'materials', 'gold_block': 'materials', 'diamond_block': 'materials', 'emerald_block': 'materials',
+    'dirt': 'dirt', 'coarse_dirt': 'dirt', 'rooted_dirt': 'dirt', 'grass_block': 'dirt', 'podzol': 'dirt', 'mycelium': 'dirt',
+    'stone': 'stone', 'cobblestone': 'cobblestone', 'andesite': 'andesite', 'diorite': 'diorite', 'granite': 'granite',
+    'oak_log': 'wood', 'spruce_log': 'wood', 'birch_log': 'wood', 'jungle_log': 'wood', 'acacia_log': 'wood', 'dark_oak_log': 'wood',
+    'oak_planks': 'wood', 'spruce_planks': 'wood', 'birch_planks': 'wood', 'jungle_planks': 'wood', 'acacia_planks': 'wood', 'dark_oak_planks': 'wood',
   }
+
+  if (category === 'minecraft:mined' || category === 'minecraft:broken') {
+    const folder = blockFolders[id]
+    if (folder) return `/mc_icons/blocks/${folder}/${id}^32.png`
+    // Default to a guess in blocks root if not in mapping, but since we saw blocks has no root files, 
+    // we should probably try blocks/misc if we had one, but we'll try items first as a fallback.
+    return `/mc_icons/items/${id}^32.png`
+  }
+
+  if (['minecraft:crafted', 'minecraft:used', 'minecraft:picked_up', 'minecraft:dropped'].includes(category)) {
+      // Try items first with suffix
+      return `/mc_icons/items/${id}^32.png`
+  }
+
   if (category === 'minecraft:killed' || category === 'minecraft:killed_by') {
-    return `/mc_icons/items/${id}_spawn_egg.png`
+    return `/mc_icons/items/${id}_spawn_egg^32.png`
   }
+
   return null
 }
 </script>
