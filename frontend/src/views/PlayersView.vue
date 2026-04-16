@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { API_BASE_URL } from '@/config'
 
@@ -18,6 +18,16 @@ const searchQuery = ref('')
 const showAll = ref(false)
 const loading = ref(true)
 const onlinePlayers = ref<string[]>([])
+
+const sortedPlayers = computed(() => {
+  return [...players.value].sort((a, b) => {
+    const aOnline = onlinePlayers.value.includes(a.uuid)
+    const bOnline = onlinePlayers.value.includes(b.uuid)
+    if (aOnline && !bOnline) return -1
+    if (!aOnline && bOnline) return 1
+    return 0
+  })
+})
 
 const fetchPlayers = async () => {
   loading.value = true
@@ -135,7 +145,7 @@ onMounted(() => {
 
     <div v-else class="player-grid">
       <RouterLink 
-        v-for="(p, index) in players" 
+        v-for="(p, index) in sortedPlayers" 
         :key="p.uuid" 
         :to="`/player/${p.uuid}`"
         class="player-card glass-card animate-entry"
