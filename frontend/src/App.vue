@@ -1,13 +1,46 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
+import { API_BASE_URL } from '@/config'
+import { preloadImages } from '@/utils/preloader'
+import iconMap from '@/assets/icon_map.json'
 
 const menuOpen = ref(false)
 const toggleMenu = () => menuOpen.value = !menuOpen.value
 
 const isLoading = ref(true)
 
+const preloadGlobalAssets = async () => {
+    // 1. Preload all icons from the map immediately
+    const iconUrls = Object.values(iconMap)
+    preloadImages(iconUrls, 10)
+
+    // 2. Fetch all players and preload their skins/avatars
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/players?all=true`)
+        const json = await res.json()
+        const players = json.players || []
+        
+        const skinUrls: string[] = []
+        players.forEach((p: any) => {
+            let cleanName = p.last_known_name || 'Steve'
+            if (p.type === 'Bedrock' || cleanName.startsWith('.')) {
+                cleanName = cleanName.replace(/^\./, '').replace(/^BE_/, '')
+            }
+            // Preload both avatar and full skin
+            skinUrls.push(`https://mineskin.eu/helm/${cleanName}`)
+            skinUrls.push(`https://mineskin.eu/skin/${cleanName}`)
+        })
+        
+        preloadImages(skinUrls, 4) // Lower concurrency for skins to not block UI
+    } catch (e) {
+        console.error('Global preload failed:', e)
+    }
+}
+
 onMounted(() => {
+  preloadGlobalAssets()
+  
   // Simulate app initialization / asset loading
   setTimeout(() => {
     isLoading.value = false
