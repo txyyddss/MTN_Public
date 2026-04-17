@@ -1,7 +1,10 @@
+import { fetchWithCache } from './dataCache';
+
 const preloadedUrls = new Set<string>();
 
 export const PreloadPriority = {
     URGENT: 20,       // Scripts, critical core assets
+    DATA: 15,         // API Data (Leaderboards, specific player details)
     HIGH: 10,       // Player skins
     MEDIUM_HIGH: 7, // Advancements
     MEDIUM: 5,      // Other images (heads/avatars)
@@ -12,7 +15,7 @@ export const PreloadPriority = {
 interface PreloadItem {
     url: string;
     priority: number;
-    type?: 'image' | 'script';
+    type: 'image' | 'script' | 'data';
 }
 
 const queue: PreloadItem[] = [];
@@ -21,25 +24,39 @@ const MAX_WORKERS = 6;
 
 /**
  * Preloads images in the background with priority support.
- * @param urls List of image URLs to preload
- * @param priority Priority of this batch (higher = sooner)
  */
 export function preloadImages(urls: (string | null | undefined)[], priority: number = PreloadPriority.MEDIUM) {
     const validUrls = urls.filter((url): url is string => !!url && !preloadedUrls.has(url));
 
     if (validUrls.length === 0) return;
 
-    // Add items to queue and sort by priority descending
     validUrls.forEach(url => {
         preloadedUrls.add(url);
-        queue.push({ url, priority });
+        queue.push({ url, priority, type: 'image' });
     });
 
+    reschedule();
+}
+
+/**
+ * Preloads API data in the background with priority support.
+ */
+export function preloadData(urls: string[], priority: number = PreloadPriority.DATA) {
+    const validUrls = urls.filter(url => !preloadedUrls.has(url));
+    if (validUrls.length === 0) return;
+
+    validUrls.forEach(url => {
+        preloadedUrls.add(url);
+        queue.push({ url, priority, type: 'data' });
+    });
+
+    reschedule();
+}
+
+function reschedule() {
     // Sort queue so highest priority items are at the front
     queue.sort((a, b) => b.priority - a.priority);
 
-    // Use requestIdleCallback to start processing if we aren't already processing
-    // This helps ensure preloading doesn't interfere with main thread critical tasks
     if (typeof window !== 'undefined' && (window as any).requestIdleCallback) {
         (window as any).requestIdleCallback(() => processQueue());
     } else {
@@ -47,20 +64,32 @@ export function preloadImages(urls: (string | null | undefined)[], priority: num
     }
 }
 
-function processQueue() {
+async function processQueue() {
     while (activeWorkers < MAX_WORKERS && queue.length > 0) {
         const item = queue.shift();
         if (!item) break;
 
         activeWorkers++;
-        const img = new Image();
 
-        img.onload = img.onerror = () => {
+        if (item.type === 'data') {
+            fetchWithCache(item.url)
+                .catch(() => { })
+                .finally(() => {
+                    activeWorkers--;
+                    processQueue();
+                });
+        } else if (item.type === 'image') {
+            const img = new Image();
+            img.onload = img.onerror = () => {
+                activeWorkers--;
+                processQueue();
+            };
+            img.src = item.url;
+        } else {
+            // Script case (already handled mostly by preloadScripts, but here for completeness)
             activeWorkers--;
             processQueue();
-        };
-
-        img.src = item.url;
+        }
     }
 }
 
@@ -93,7 +122,6 @@ export async function preloadImagesAsync(urls: (string | null | undefined)[], _p
 
 /**
  * Preloads JS modules using <link rel="modulepreload">.
- * These are injected immediately as they are typically top-priority for navigation.
  */
 export function preloadScripts(urls: string[]) {
     if (typeof document === 'undefined') return;

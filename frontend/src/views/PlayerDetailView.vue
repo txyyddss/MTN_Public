@@ -95,7 +95,74 @@ const formatNumber = (num: number) => {
 }
 
 const formatStatName = (name: string) => {
-  return name.replace('minecraft:', '').replace(/_/g, ' ')
+  const id = name.replace('minecraft:', '')
+  // Translation map for custom stats
+  const translations: Record<string, string> = {
+    'play_one_minute': 'Time Played',
+    'jump': 'Jumps',
+    'damage_dealt': 'Damage Dealt',
+    'damage_taken': 'Damage Taken',
+    'deaths': 'Deaths',
+    'mob_kills': 'Mob Kills',
+    'player_kills': 'Player Kills',
+    'walk_one_cm': 'Distance Walked',
+    'sprint_one_cm': 'Distance Sprinted',
+    'fly_one_cm': 'Distance Flown',
+    'climb_one_cm': 'Distance Climbed',
+    'fall_one_cm': 'Distance Fallen',
+    'minecart_one_cm': 'Distance by Minecart',
+    'boat_one_cm': 'Distance by Boat',
+    'pig_one_cm': 'Distance by Pig',
+    'horse_one_cm': 'Distance by Horse',
+    'strider_one_cm': 'Distance by Strider',
+    'aviate_one_cm': 'Distance by Elytra',
+    'swim_one_cm': 'Distance Swum',
+    'walk_on_water_one_cm': 'Distance on Water',
+    'walk_under_water_one_cm': 'Distance Under Water',
+    'time_since_death': 'Time Since Last Death',
+    'time_since_rest': 'Time Since Last Rest',
+    'sneak_time': 'Sneak Time',
+    'total_world_time': 'Total World Time',
+    'leave_game': 'Games Quit',
+    'dropped': 'Items Dropped',
+    'interact_with_beacon': 'Beacon Interactions',
+    'inspect_hopper': 'Hopper Inspections',
+    'interact_with_blast_furnace': 'Blast Furnace Interactions',
+    'interact_with_smoker': 'Smoker Interactions',
+    'interact_with_camp_fire': 'Campfire Interactions',
+    'talked_to_villager': 'Villager Talks',
+    'traded_with_villager': 'Villager Trades',
+    'fish_caught': 'Fish Caught',
+    'sleep_in_bed': 'Times Slept',
+    'raid_win': 'Raids Won',
+    'raid_trigger': 'Raids Triggered'
+  }
+
+  if (id === 'custom') return 'Global'
+  if (translations[id]) return translations[id]
+  return id.replace(/_/g, ' ')
+}
+
+const formatStatValue = (val: number, name: string) => {
+    const id = name.replace('minecraft:', '')
+    
+    // Time stats (ticks)
+    if (id.includes('time') || id.includes('one_minute') || id.includes('since')) {
+        const hours = val / 20 / 3600
+        if (hours > 1) return hours.toFixed(1) + 'h'
+        const mins = val / 20 / 60
+        return mins.toFixed(0) + 'm'
+    }
+
+    // Distance stats (cm)
+    if (id.endsWith('_one_cm')) {
+        const km = val / 100000;
+        if (km > 1) return km.toFixed(2) + 'km'
+        const m = val / 100
+        return m.toFixed(1) + 'm'
+    }
+
+    return formatNumber(val)
 }
 
 
@@ -446,8 +513,18 @@ watch(filteredStats, (newStats) => {
             <input v-model="statSearch" placeholder="Filter stats..." class="stat-search-box" />
           </div>
           
-          <div class="stat-grid" v-if="selectedCategory && Object.keys(filteredStats).length > 0">
+          <div :class="selectedCategory === 'minecraft:custom' ? 'custom-stat-list' : 'stat-grid'" v-if="selectedCategory && Object.keys(filteredStats).length > 0">
+            <template v-if="selectedCategory === 'minecraft:custom'">
+              <div v-for="(value, name) in filteredStats" :key="name" class="custom-stat-item">
+                <span class="stat-label">{{ formatStatName(String(name)) }}</span>
+                <div class="stat-value-wrap">
+                    <span class="stat-rank" v-if="ranks['stat:' + selectedCategory + ':' + name]">#{{ ranks['stat:' + selectedCategory + ':' + name] }}</span>
+                    <span class="stat-val">{{ formatStatValue(value, String(name)) }}</span>
+                </div>
+              </div>
+            </template>
             <StatBox 
+              v-else
               v-for="(value, name) in filteredStats" 
               :key="name"
               :name="String(name)"
@@ -829,6 +906,60 @@ watch(filteredStats, (newStats) => {
 
 .stat-name { font-size: 0.8rem; color: var(--text-muted); text-transform: capitalize; }
 .stat-value { font-weight: 700; color: #fff; font-size: 0.9rem; }
+
+.custom-stat-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 12px;
+}
+
+.custom-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    transition: all 0.2s;
+}
+
+.custom-stat-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.stat-value-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-rank {
+    font-size: 0.7rem;
+    background: rgba(245, 158, 11, 0.1);
+    color: #fcd34d;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.stat-val {
+    font-weight: 700;
+    color: var(--primary);
+    font-family: var(--mono);
+    font-size: 1rem;
+}
 
 .loading-state, .empty-state { text-align: center; padding: 5rem 2rem;}
 

@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { API_BASE_URL } from '@/config'
 import { fetchWithCache } from '@/utils/dataCache'
-import { preloadImages, PreloadPriority } from '@/utils/preloader'
+import { preloadImages, preloadData, PreloadPriority } from '@/utils/preloader'
 
 const types = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
 const currentType = ref('mining')
@@ -36,12 +36,21 @@ const fetchLeaderboard = async (type: string) => {
 onMounted(() => {
     fetchLeaderboard(currentType.value)
     fetchOnline()
+    
+    // Preload other leaderboard categories in background
+    const otherTypes = types.filter(t => t !== currentType.value)
+    const preloadUrls = otherTypes.map(t => `${API_BASE_URL}/api/leaderboards/${t}`)
+    preloadData(preloadUrls, PreloadPriority.BACKGROUND)
 })
 
 watch(entries, (newEntries) => {
   if (newEntries && newEntries.length > 0) {
     const urls = newEntries.map(e => getAvatarUrl(e.name))
     preloadImages(urls, PreloadPriority.MEDIUM)
+    
+    // Preload details for top ranked players
+    const detailUrls = newEntries.slice(0, 20).map(e => `${API_BASE_URL}/api/players/${e.uuid}`)
+    preloadData(detailUrls, PreloadPriority.LOW)
   }
 })
 
