@@ -23,6 +23,80 @@ const linkedAccount = ref<any>(null)
 const oreStats = ref<any>([])
 const ranks = ref<Record<string, number>>({})
 
+const CUSTOM_STAT_TRANSLATIONS: Record<string, string> = {
+  'play_one_minute': 'Time Played',
+  'play_time': 'Time Played',
+  'jump': 'Jumps',
+  'damage_dealt': 'Damage Dealt',
+  'damage_taken': 'Damage Taken',
+  'deaths': 'Deaths',
+  'mob_kills': 'Mob Kills',
+  'player_kills': 'Player Kills',
+  'walk_one_cm': 'Distance Walked',
+  'sprint_one_cm': 'Distance Sprinted',
+  'fly_one_cm': 'Distance Flown',
+  'climb_one_cm': 'Distance Climbed',
+  'fall_one_cm': 'Distance Fallen',
+  'minecart_one_cm': 'Distance by Minecart',
+  'boat_one_cm': 'Distance by Boat',
+  'pig_one_cm': 'Distance by Pig',
+  'horse_one_cm': 'Distance by Horse',
+  'strider_one_cm': 'Distance by Strider',
+  'aviate_one_cm': 'Distance by Elytra',
+  'swim_one_cm': 'Distance Swum',
+  'walk_on_water_one_cm': 'Distance on Water',
+  'walk_under_water_one_cm': 'Distance Under Water',
+  'time_since_death': 'Time Since Last Death',
+  'time_since_rest': 'Time Since Last Rest',
+  'sneak_time': 'Sneak Time',
+  'total_world_time': 'Total World Time',
+  'leave_game': 'Games Quit',
+  'dropped': 'Items Dropped',
+  'interact_with_beacon': 'Beacon Interactions',
+  'inspect_hopper': 'Hopper Interactions',
+  'interact_with_blast_furnace': 'Blast Furnace Interactions',
+  'interact_with_smoker': 'Smoker Interactions',
+  'interact_with_camp_fire': 'Campfire Interactions',
+  'talked_to_villager': 'Villager Talks',
+  'traded_with_villager': 'Villager Trades',
+  'fish_caught': 'Fish Caught',
+  'sleep_in_bed': 'Times Slept',
+  'raid_win': 'Raids Won',
+  'raid_trigger': 'Raids Triggered',
+  'trigger_trapped_chest': 'Trapped Chests Triggered',
+  'damage_absorbed': 'Damage Absorbed',
+  'interact_with_furnace': 'Furnace Interactions',
+  'crouch_one_cm': 'Distance Crouched',
+  'interact_with_stonecutter': 'Stonecutter Interactions',
+  'damage_resisted': 'Damage Resisted',
+  'damage_blocked_by_shield': 'Damage Blocked by Shield',
+  'interact_with_crafting_table': 'Crafting Table Interactions',
+  'inspect_dropper': 'Dropper Inspections',
+  'target_hit': 'Targets Hit',
+  'fill_cauldron': 'Cauldrons Filled',
+  'interact_with_grindstone': 'Grindstone Interactions',
+  'open_shulker_box': 'Shulker Boxes Opened',
+  'open_enderchest': 'Ender Chests Opened',
+  'damage_dealt_absorbed': 'Damage Dealt (Absorbed)',
+  'interact_with_brewingstand': 'Brewing Stand Interactions',
+  'inspect_dispenser': 'Dispenser Inspections',
+  'interact_with_loom': 'Loom Interactions',
+  'play_noteblock': 'Note Blocks Played',
+  'interact_with_lectern': 'Lectern Interactions',
+  'drop': 'Items Dropped',
+  'use_cauldron': 'Cauldrons Used',
+  'bell_ring': 'Bells Rung',
+  'open_barrel': 'Barrels Opened',
+  'interact_with_cartography_table': 'Cartography Table Interactions',
+  'open_chest': 'Chests Opened',
+  'tune_noteblock': 'Note Blocks Tuned',
+  'interact_with_anvil': 'Anvil Interactions',
+  'animals_bred': 'Animals Bred',
+  'play_record': 'Music Discs Played',
+  'interact_with_smithing_table': 'Smithing Table Interactions',
+  'pot_flower': 'Flowers Potted'
+}
+
 const enlargedAdvancement = ref<string | null>(null)
 const enlargedStat = ref<string | null>(null)
 
@@ -58,6 +132,13 @@ const filteredStats = computed(() => {
   const pool = stats.value[selectedCategory.value]
   
   let entries = Object.entries(pool)
+
+  if (selectedCategory.value === 'minecraft:custom') {
+    entries = entries.filter(([name]) => {
+      const id = name.replace('minecraft:', '')
+      return !!CUSTOM_STAT_TRANSLATIONS[id]
+    })
+  }
   
   if (statSearch.value) {
     const query = statSearch.value.toLowerCase()
@@ -96,50 +177,8 @@ const formatNumber = (num: number) => {
 
 const formatStatName = (name: string) => {
   const id = name.replace('minecraft:', '')
-  // Translation map for custom stats
-  const translations: Record<string, string> = {
-    'play_one_minute': 'Time Played',
-    'jump': 'Jumps',
-    'damage_dealt': 'Damage Dealt',
-    'damage_taken': 'Damage Taken',
-    'deaths': 'Deaths',
-    'mob_kills': 'Mob Kills',
-    'player_kills': 'Player Kills',
-    'walk_one_cm': 'Distance Walked',
-    'sprint_one_cm': 'Distance Sprinted',
-    'fly_one_cm': 'Distance Flown',
-    'climb_one_cm': 'Distance Climbed',
-    'fall_one_cm': 'Distance Fallen',
-    'minecart_one_cm': 'Distance by Minecart',
-    'boat_one_cm': 'Distance by Boat',
-    'pig_one_cm': 'Distance by Pig',
-    'horse_one_cm': 'Distance by Horse',
-    'strider_one_cm': 'Distance by Strider',
-    'aviate_one_cm': 'Distance by Elytra',
-    'swim_one_cm': 'Distance Swum',
-    'walk_on_water_one_cm': 'Distance on Water',
-    'walk_under_water_one_cm': 'Distance Under Water',
-    'time_since_death': 'Time Since Last Death',
-    'time_since_rest': 'Time Since Last Rest',
-    'sneak_time': 'Sneak Time',
-    'total_world_time': 'Total World Time',
-    'leave_game': 'Games Quit',
-    'dropped': 'Items Dropped',
-    'interact_with_beacon': 'Beacon Interactions',
-    'inspect_hopper': 'Hopper Inspections',
-    'interact_with_blast_furnace': 'Blast Furnace Interactions',
-    'interact_with_smoker': 'Smoker Interactions',
-    'interact_with_camp_fire': 'Campfire Interactions',
-    'talked_to_villager': 'Villager Talks',
-    'traded_with_villager': 'Villager Trades',
-    'fish_caught': 'Fish Caught',
-    'sleep_in_bed': 'Times Slept',
-    'raid_win': 'Raids Won',
-    'raid_trigger': 'Raids Triggered'
-  }
-
   if (id === 'custom') return 'Global'
-  if (translations[id]) return translations[id]
+  if (CUSTOM_STAT_TRANSLATIONS[id]) return CUSTOM_STAT_TRANSLATIONS[id]
   return id.replace(/_/g, ' ')
 }
 
@@ -271,40 +310,10 @@ const getAdvIconPath = (advKey: string) => {
 
 import iconMap from '@/assets/icon_map.json'
 
-const customStatIcons:Record<string, string> = {
-  'play_one_minute': '/mc_icons/blocks/special/observer^32.png',
-  'jump': '/mc_icons/blocks/misc/scaffolding^32.png',
-  'damage_dealt': '/mc_icons/items/iron_sword.png',
-  'damage_taken': '/mc_icons/items/iron_sword.png', 
-  'deaths': '/mc_icons/items/skull_and_beacon^32.png',
-  'mob_kills': '/mc_icons/items/iron_sword.png',
-  'player_kills': '/mc_icons/items/iron_sword.png',
-  'walk_one_cm': '/mc_icons/blocks/dirt/dirt_path^32.png',
-  'sprint_one_cm': '/mc_icons/blocks/dirt/dirt_path^32.png',
-  'fly_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
-  'climb_one_cm': '/mc_icons/blocks/misc/ladder^32.png',
-  'fall_one_cm': '/mc_icons/blocks/misc/cobweb^32.png',
-  'minecart_one_cm': '/mc_icons/items/conduit^32.png',
-  'boat_one_cm': '/mc_icons/items/water_bucket.png',
-  'pig_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
-  'horse_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
-  'strider_one_cm': '/mc_icons/blocks/misc/armor_stand^32.png',
-  'aviate_one_cm': '/mc_icons/items/elytra.png',
-  'swim_one_cm': '/mc_icons/items/water_bucket.png',
-  'walk_on_water_one_cm': '/mc_icons/items/water_bucket.png',
-  'walk_under_water_one_cm': '/mc_icons/items/water_bucket.png',
-  'time_since_death': '/mc_icons/blocks/special/observer^32.png',
-  'time_since_rest': '/mc_icons/blocks/beds/white_bed^32.png',
-  'sneak_time': '/mc_icons/blocks/dirt/dirt_path^32.png',
-  'total_world_time': '/mc_icons/blocks/special/observer^32.png',
-}
-
 const getStatIconPath = (category: string, name: string) => {
   const id = name.replace('minecraft:', '')
   
-  if (category === 'minecraft:custom') {
-    return customStatIcons[id] || (iconMap as any)[id] || '/mc_icons/items/paper^32.png'
-  }
+  if (category === 'minecraft:custom') return null
 
   // Try exact match in icon map
   if ((iconMap as any)[id]) return (iconMap as any)[id]
@@ -342,7 +351,7 @@ const activeGroup = ref(statGroups[0])
 
 const groupCategories = computed(() => {
   if (!stats.value) return []
-  return activeGroup.value.categories.filter(cat => stats.value[cat])
+  return activeGroup.value.categories.filter(cat => stats.value[cat] && cat !== 'minecraft:custom')
 })
 
 watch(activeGroup, (newGroup) => {
@@ -500,7 +509,7 @@ watch(filteredStats, (newStats) => {
           </div>
           
           <div class="tabs-header">
-            <div class="tabs">
+            <div class="tabs" v-if="groupCategories.length > 0">
               <button 
                 v-for="category in groupCategories" 
                 :key="category"
