@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;700;800&display=swap');
 
 @font-face {
   font-family: 'Minecraft';
@@ -11,12 +11,13 @@
   --bg-lighter: #0a0a0a;
   --text-main: #f0f0f0;
   --text-muted: #8a8a8a;
-  
+
   /* Bold Accent colors */
-  --primary: #c9ff00; /* Neon Chartreuse/Lime */
-  --primary-hover: #b0e600;
-  --secondary: #ff0055;
-  --accent: #aa00ff;
+  --primary: #3B82F6;
+  /* Premium Blue */
+  --primary-hover: #5B71F6;
+  --secondary: #5B71F6;
+  --accent: #60A5FA;
   --danger: #ff3333;
 
   /* Glass/Borders */
@@ -25,10 +26,10 @@
   --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 
   /* Utilities */
-  --sans: 'Manrope', system-ui, sans-serif;
-  --heading: 'Syne', sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --heading: 'Outfit', sans-serif;
   --minecraft: 'Minecraft', sans-serif;
-  
+
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -71,13 +72,18 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background: 
-    radial-gradient(circle at 15% 50%, rgba(201, 255, 0, 0.03), transparent 40%),
-    radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.03), transparent 40%);
+  background:
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.05), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(91, 113, 246, 0.05), transparent 40%);
   pointer-events: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--heading);
   color: #fff;
   line-height: 1.1;
@@ -91,14 +97,21 @@ a {
 }
 
 a:hover {
-  text-shadow: 0 0 12px rgba(201, 255, 0, 0.6);
+  text-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
   color: var(--primary-hover);
 }
 
 /* Animations */
 @keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-entry {
@@ -106,15 +119,38 @@ a:hover {
   opacity: 0;
 }
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
 
 .container {
   width: 100%;
@@ -139,8 +175,11 @@ a:hover {
 .glass-card::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
 }
 
 .glass-card:hover {
@@ -165,7 +204,7 @@ a:hover {
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 20px rgba(201, 255, 0, 0.2);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -173,15 +212,17 @@ a:hover {
 .btn-primary::after {
   content: '';
   position: absolute;
-  top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   transition: left 0.5s ease;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 0 30px rgba(201, 255, 0, 0.5);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
   color: #000;
 }
 
@@ -215,7 +256,7 @@ a:hover {
   height: 40px;
   border-radius: 4px;
   border: 1px solid var(--glass-border);
-  background: rgba(25,25,25,0.8);
+  background: rgba(25, 25, 25, 0.8);
   animation: floatBlock 2s infinite ease-in-out alternate;
   position: relative;
 }
@@ -225,24 +266,53 @@ a:hover {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 10px rgba(201,255,0,0.5);
+  box-shadow: inset 0 0 10px rgba(201, 255, 0, 0.5);
   opacity: 0;
   animation: pulseGlow 2s infinite alternate;
 }
 
-.mtn-block:nth-child(1) { animation-delay: 0s; }
-.mtn-block:nth-child(1)::after { box-shadow: inset 0 0 10px var(--primary); }
-.mtn-block:nth-child(2) { animation-delay: 0.2s; }
-.mtn-block:nth-child(2)::after { box-shadow: inset 0 0 10px var(--secondary); animation-delay: 0.2s; }
-.mtn-block:nth-child(3) { animation-delay: 0.4s; }
-.mtn-block:nth-child(3)::after { box-shadow: inset 0 0 10px var(--accent); animation-delay: 0.4s; }
+.mtn-block:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.mtn-block:nth-child(1)::after {
+  box-shadow: inset 0 0 10px var(--primary);
+}
+
+.mtn-block:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.mtn-block:nth-child(2)::after {
+  box-shadow: inset 0 0 10px var(--secondary);
+  animation-delay: 0.2s;
+}
+
+.mtn-block:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.mtn-block:nth-child(3)::after {
+  box-shadow: inset 0 0 10px var(--accent);
+  animation-delay: 0.4s;
+}
 
 @keyframes floatBlock {
-  0% { transform: translateY(0) rotate(0deg); }
-  100% { transform: translateY(-20px) rotate(5deg); }
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(-20px) rotate(5deg);
+  }
 }
 
 @keyframes pulseGlow {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }

@@ -265,6 +265,28 @@ const getStatIconPath = (category: string, name: string) => {
   return null
 }
 
+const statGroups = [
+  { name: 'Global Statistics', categories: ['minecraft:custom'] },
+  { name: 'Items & Blocks', categories: ['minecraft:mined', 'minecraft:broken', 'minecraft:crafted', 'minecraft:used', 'minecraft:picked_up', 'minecraft:dropped'] },
+  { name: 'Combat & Mobs', categories: ['minecraft:killed', 'minecraft:killed_by'] }
+]
+
+const activeGroup = ref(statGroups[0])
+
+const groupCategories = computed(() => {
+  if (!stats.value) return []
+  return activeGroup.value.categories.filter(cat => stats.value[cat])
+})
+
+watch(activeGroup, (newGroup) => {
+    const cats = newGroup.categories.filter(cat => stats.value && stats.value[cat])
+    if (cats.length > 0) {
+        if (!cats.includes(selectedCategory.value)) {
+            selectedCategory.value = cats[0]
+        }
+    }
+})
+
 // REALTIME PRELOAD LOGIC
 // Preload skin when info is fetched
 watch(info, (newInfo) => {
@@ -398,11 +420,22 @@ watch(filteredStats, (newStats) => {
                 <div class="rank-badge mini" v-if="ranks.mining">Mining #{{ ranks.mining }}</div>
             </div>
           </div>
+
+          <div class="group-tabs">
+            <button 
+              v-for="group in statGroups" 
+              :key="group.name"
+              :class="['group-btn', { active: activeGroup.name === group.name }]"
+              @click="activeGroup = group"
+            >
+              {{ group.name }}
+            </button>
+          </div>
           
           <div class="tabs-header">
             <div class="tabs">
               <button 
-                v-for="(_, category) in stats" 
+                v-for="category in groupCategories" 
                 :key="category"
                 :class="['tab-btn', { active: selectedCategory === category }]"
                 @click="selectedCategory = category as string"
@@ -728,6 +761,33 @@ watch(filteredStats, (newStats) => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.group-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(0,0,0,0.2);
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    width: fit-content;
+}
+
+.group-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.group-btn.active {
+    background: var(--primary);
+    color: #000;
 }
 
 .tab-btn {

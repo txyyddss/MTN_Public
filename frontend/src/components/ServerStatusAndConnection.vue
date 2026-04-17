@@ -260,7 +260,7 @@ h3 {
   letter-spacing: 0.5px;
 }
 .java-badge { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
-.bedrock-badge { background: rgba(79, 70, 229, 0.2); color: #c7d2fe; }
+.bedrock-badge { background: rgba(91, 113, 246, 0.2); color: #c0ccff; }
 
 .count {
   font-weight: 700;
@@ -355,9 +355,9 @@ h3 {
   font-weight: bold;
   flex-shrink: 0;
 }
-.ipv6 { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; }
-.ipv4 { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
-.srv  { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.ipv6 { background: rgba(91, 113, 246, 0.2); color: #c0ccff; }
+.ipv4 { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.srv  { background: rgba(96, 165, 250, 0.2); color: #bfdbfe; }
 
 code {
   background: rgba(0,0,0,0.3);
