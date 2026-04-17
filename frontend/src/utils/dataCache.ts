@@ -30,6 +30,13 @@ export async function fetchWithCache<T = any>(url: string, ttl: number = 60000):
                 triggerBackgroundRefresh(url, ttl);
             }
             return entry.data;
+        } else {
+            // Serve expired cache but trigger background refresh (stale-while-revalidate)
+            if (!inFlight.has(url)) {
+                console.log(`[DataCache] Serving expired data and refreshing: ${url}`);
+                triggerBackgroundRefresh(url, ttl);
+            }
+            return entry.data;
         }
     }
 

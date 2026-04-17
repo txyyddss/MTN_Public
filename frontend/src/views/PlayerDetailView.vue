@@ -136,6 +136,15 @@ const toggleStat = (key: string) => {
 const selectedCategory = ref<string>('minecraft:custom')
 const statSearch = ref('')
 
+const fuzzyMatch = (text: string, query: string) => {
+  let i = 0, j = 0;
+  while (i < text.length && j < query.length) {
+    if (text[i] === query[j]) j++;
+    i++;
+  }
+  return j === query.length;
+}
+
 const filteredStats = computed(() => {
   if (!selectedCategory.value || !stats.value || !stats.value[selectedCategory.value]) return {}
   const pool = stats.value[selectedCategory.value]
@@ -150,8 +159,16 @@ const filteredStats = computed(() => {
   }
   
   if (statSearch.value) {
-    const query = statSearch.value.toLowerCase()
-    entries = entries.filter(([name]) => name.toLowerCase().includes(query))
+    const query = statSearch.value.toLowerCase().trim()
+    entries = entries.filter(([name]) => {
+      // Use formatStatName if it is defined, else fallback to name
+      // since formatStatName is initialized after this computed property in the file
+      // we can safely call it inside the closure, but just to be safe we check
+      const id = name.replace('minecraft:', '')
+      const displayName = ((id === 'custom' ? 'Global' : (CUSTOM_STAT_TRANSLATIONS[id] || id.replace(/_/g, ' ')))).toLowerCase()
+      const rawName = name.toLowerCase()
+      return fuzzyMatch(displayName, query) || fuzzyMatch(rawName, query)
+    })
   }
   
   // Sort by value descending
@@ -518,7 +535,13 @@ watch(categorizedAdvancements, (categories) => {
                 {{ formatStatName(category as string) }}
               </button>
             </div>
-            <input v-model="statSearch" placeholder="Filter stats..." class="stat-search-box" />
+            <div class="search-wrapper">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input v-model="statSearch" placeholder="Search stats..." class="stat-search-box" />
+            </div>
           </div>
           
           <div :class="selectedCategory === 'minecraft:custom' ? 'custom-stat-list' : 'stat-grid'" v-if="selectedCategory && Object.keys(filteredStats).length > 0">
@@ -832,14 +855,47 @@ watch(categorizedAdvancements, (categories) => {
     flex-wrap: wrap;
 }
 
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 250px;
+    min-width: 150px;
+}
+
+@media (max-width: 600px) {
+    .search-wrapper {
+        min-width: 100%;
+        max-width: none;
+    }
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
 .stat-search-box {
     background: rgba(0,0,0,0.2);
     border: 1px solid var(--glass-border);
-    padding: 6px 12px;
+    padding: 8px 16px 8px 36px;
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: #fff;
-    min-width: 150px;
+    width: 100%;
+    transition: all 0.3s;
+}
+
+.stat-search-box:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(0,0,0,0.4);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .tabs {

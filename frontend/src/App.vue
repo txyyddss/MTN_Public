@@ -29,6 +29,9 @@ const preloadGlobalAssets = async () => {
         preloadData([`${API_BASE_URL}/api/leaderboards/${type}`], PreloadPriority.BACKGROUND)
     })
 
+    // Preload server status (for online players list in /players)
+    preloadData([`${API_BASE_URL}/api/status`], PreloadPriority.DATA)
+
     // 3. Preload players (default view = recent, same URL PlayersView uses on mount)
     //    Also preload all=true so toggling "Show All" is instant
     try {
