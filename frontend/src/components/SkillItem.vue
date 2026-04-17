@@ -42,9 +42,7 @@ const progress = Math.min((props.level / MAX_LEVEL) * 100, 100)
 .skill-name {
   font-size: 0.78rem;
   color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .skill-bar-wrap {

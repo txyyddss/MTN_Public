@@ -80,6 +80,7 @@ async function processQueue() {
                 });
         } else if (item.type === 'image') {
             const img = new Image();
+            img.crossOrigin = 'anonymous'; // Ensure preloaded images are stored with CORS headers for WebGL/Canvas use
             img.onload = img.onerror = () => {
                 activeWorkers--;
                 processQueue();

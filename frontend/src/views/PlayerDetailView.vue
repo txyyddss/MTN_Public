@@ -1,27 +1,42 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { watch } from 'vue'
 import { API_BASE_URL } from '@/config'
 import advancementData from '@/assets/advancements.json'
+import iconMap from '@/assets/icon_map.json'
 import StatBox from '@/components/StatBox.vue'
 import SkillItem from '@/components/SkillItem.vue'
 import SkinViewer from '@/components/SkinViewer.vue'
 import PlayerPieChart from '@/components/PlayerPieChart.vue'
 import { fetchWithCache } from '@/utils/dataCache'
 import { preloadImages, PreloadPriority } from '@/utils/preloader'
+import { useServerStatus } from '@/composables/useServerStatus'
 
 const route = useRoute()
+const { status } = useServerStatus()
 const uuid = computed(() => route.params.uuid as string)
 const loading = ref(true)
 
-const info = ref<any>(null)
+interface PlayerInfo {
+    uuid: string
+    last_known_name: string
+    first_played: number
+    last_seen: number
+    ticks_lived: number
+    xp_level: number
+    type: string
+}
+
+const info = ref<PlayerInfo | null>(null)
 const stats = ref<any>(null)
-const advancements = ref<any>(null)
+const advancements = ref<any[] | null>(null)
 const mcmmo = ref<any>(null)
 const linkedAccount = ref<any>(null)
-const oreStats = ref<any>([])
+const oreStats = ref<any[]>([])
 const ranks = ref<Record<string, number>>({})
+
+const onlinePlayers = computed<string[]>(() => status.value?.online_players || [])
+const isOnline = computed(() => onlinePlayers.value.includes(uuid.value))
 
 const CUSTOM_STAT_TRANSLATIONS: Record<string, string> = {
   'play_one_minute': 'Time Played',
@@ -104,33 +119,6 @@ const CUSTOM_STAT_TRANSLATIONS: Record<string, string> = {
   'interact_with_beehive': 'Beehive Interactions',
   'interact_with_lodestone': 'Lodestone Interactions',
   'interact_with_respawn_anchor': 'Respawn Anchor Interactions'
-}
-
-const enlargedAdvancement = ref<string | null>(null)
-const enlargedStat = ref<string | null>(null)
-
-const toggleAdvancement = (key: string, e: Event) => {
-  e.stopPropagation()
-  if (enlargedAdvancement.value === key) {
-    enlargedAdvancement.value = null
-  } else {
-    resetAllEnlarged()
-    enlargedAdvancement.value = key
-  }
-}
-
-const resetAllEnlarged = () => {
-  enlargedAdvancement.value = null
-  enlargedStat.value = null
-}
-
-const toggleStat = (key: string) => {
-  if (enlargedStat.value === key) {
-    enlargedStat.value = null
-  } else {
-    resetAllEnlarged()
-    enlargedStat.value = key
-  }
 }
 
 const selectedCategory = ref<string>('minecraft:custom')
@@ -243,12 +231,6 @@ const fetchDetail = async () => {
     oreStats.value = json.ore_stats
     ranks.value = json.ranks || {}
     
-    console.log('Player detail fetched:', {
-      hasStats: !!stats.value,
-      oreStatsCount: oreStats.value?.length,
-      oreStats: oreStats.value
-    })
-    
     if (stats.value && Object.keys(stats.value).length > 0) {
       const keys = Object.keys(stats.value)
       if (keys.includes('minecraft:custom')) selectedCategory.value = 'minecraft:custom'
@@ -272,19 +254,12 @@ const getSkinUrl = (p: any) => {
 
 onMounted(() => {
   fetchDetail()
-  window.addEventListener('click', resetAllEnlarged)
-  window.addEventListener('scroll', resetAllEnlarged, { capture: true, passive: true })
 })
 
 watch(uuid, (newUuid) => {
   if (newUuid) {
     fetchDetail()
   }
-})
-
-onUnmounted(() => {
-  window.removeEventListener('click', resetAllEnlarged)
-  window.removeEventListener('scroll', resetAllEnlarged, { capture: true })
 })
 
 const formatDate = (ms: number) => {
@@ -333,8 +308,6 @@ const getAdvIconPath = (advKey: string) => {
   const iconName = meta.icon
   return `/mc_icons/advancements/${category}/${iconName}.png`
 }
-
-import iconMap from '@/assets/icon_map.json'
 
 const getStatIconPath = (category: string, name: string) => {
   const id = name.replace('minecraft:', '')
@@ -412,7 +385,7 @@ watch(categorizedAdvancements, (categories) => {
 </script>
 
 <template>
-  <div class="player-detail container animate-entry" @click="resetAllEnlarged">
+  <div class="player-detail container animate-entry">
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Loading player data...</p>
@@ -431,7 +404,9 @@ watch(categorizedAdvancements, (categories) => {
             <div class="skin-wrapper">
               <SkinViewer :skin-url="getSkinUrl(info)" />
             </div>
-            <h2 class="profile-name minecraft-font">{{ info.last_known_name }}</h2>
+            <h2 :class="['profile-name', 'minecraft-font', { online: isOnline }]">
+              {{ info.last_known_name }}
+            </h2>
             <span :class="['type-tag', info.type?.toLowerCase()]">{{ info.type === 'Bedrock' ? 'Bedrock' : 'Java' }}</span>
         </div>
         
@@ -465,11 +440,11 @@ watch(categorizedAdvancements, (categories) => {
       <div class="details-section">
         
         <!-- Ores Pie Chart -->
-        <PlayerPieChart :oreStats="oreStats" @resetEnlarged="resetAllEnlarged" />
+        <PlayerPieChart :oreStats="oreStats" />
 
         <!-- McMMO Skills -->
         <section class="panel glass-card" v-if="mcmmo">
-          <div class="panel-header-simple" @click.stop="resetAllEnlarged">
+          <div class="panel-header-simple">
             <h3><img src="/icons/monsters_hunted.ico" class="header-icon" /> McMMO Skills</h3>
             <div class="rank-badge" v-if="ranks.skills">Rank #{{ ranks.skills }}</div>
             <div class="total-badge">Total {{ mcmmo.total }}</div>
@@ -486,14 +461,14 @@ watch(categorizedAdvancements, (categories) => {
         </section>
 
         <section class="panel glass-card" v-if="advancements && advancements.length > 0">
-          <h3 @click.stop="resetAllEnlarged"><img src="/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
+          <h3><img src="/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
           
           <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
             <h4 class="category-name">{{ category }}</h4>
             <div class="advancements-grid">
-              <div class="adv-card" v-for="adv in items" :key="adv.key" :class="{ enlarged: enlargedAdvancement === adv.key }" @click="toggleAdvancement(adv.key, $event)">
+              <div class="adv-card" v-for="adv in items" :key="adv.key">
                 <div class="adv-icon-wrap" :class="getAdvancementMetadata(adv.key).type">
-                  <img :src="getAdvIconPath(adv.key)" :alt="getAdvancementMetadata(adv.key).name" class="adv-icon" @error="(e: any) => e.target.style.display='none'" />
+                  <img :src="getAdvIconPath(adv.key)" :alt="getAdvancementMetadata(adv.key).name" class="adv-icon" @error="($event: Event) => ($event.target as HTMLImageElement).style.display='none'" />
                 </div>
                 <div class="adv-info">
                   <span class="adv-name">{{ getAdvancementMetadata(adv.key).name }}</span>
@@ -505,7 +480,7 @@ watch(categorizedAdvancements, (categories) => {
 
         <!-- Extended Statistics -->
         <section class="panel glass-card" v-if="stats && Object.keys(stats).length > 0">
-          <div class="panel-header-simple" @click.stop="resetAllEnlarged">
+          <div class="panel-header-simple">
             <h3><img src="/icons/all_blocks.ico" class="header-icon" /> Extended Statistics</h3>
             <div class="rank-group">
                 <div class="rank-badge mini" v-if="ranks.playtime">Playtime #{{ ranks.playtime }}</div>
@@ -560,8 +535,6 @@ watch(categorizedAdvancements, (categories) => {
               :key="name"
               :name="String(name)"
               :value="value"
-              :isEnlarged="enlargedStat === name"
-              @toggle="toggleStat(String(name))"
               :rank="ranks['stat:' + selectedCategory + ':' + name]"
               :icon="getStatIconPath(selectedCategory, String(name))"
               :formatValue="formatNumber"
@@ -623,6 +596,15 @@ watch(categorizedAdvancements, (categories) => {
   color: #fff;
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.profile-name.online {
+  color: #10b981;
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
 }
 
 .type-tag {
@@ -772,29 +754,7 @@ watch(categorizedAdvancements, (categories) => {
   gap: 0.5rem;
 }
 
-.adv-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--glass-border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
-}
 .adv-card:hover { border-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
-
-.adv-card.enlarged {
-  transform: scale(1.1);
-  z-index: 10;
-  background: rgba(30, 41, 59, 0.95);
-  border-color: var(--primary);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-}
 
 .adv-icon-wrap {
   width: 32px;
@@ -806,29 +766,20 @@ watch(categorizedAdvancements, (categories) => {
   background: rgba(0,0,0,0.3);
   border-radius: 6px;
   padding: 4px;
-  transition: transform 0.3s ease;
 }
-.adv-card.enlarged .adv-icon-wrap { transform: scale(1.2); }
 .adv-icon-wrap.goal { border: 1px solid #fcd34d; }
 .adv-icon-wrap.challenge { border: 1px solid #f43f5e; }
 
 .adv-icon { width: 20px; height: 20px; image-rendering: pixelated; }
 
-.adv-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.adv-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; flex: 1; }
 .adv-name { 
   font-weight: 700; 
   color: #fff; 
-  font-size: 0.8rem; 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  transition: all 0.3s ease;
-}
-
-.adv-card.enlarged .adv-name {
+  font-size: 0.8rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
 }
 
 .stat-value { font-weight: 800; color: #fff; font-size: 1.1rem; font-family: var(--heading); }

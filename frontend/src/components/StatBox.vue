@@ -1,21 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-
 const props = defineProps<{
   name: string
   value: number | string
-  isEnlarged: boolean
   rank?: number
   icon?: string
   formatValue?: (val: any) => string
 }>()
-
-const emit = defineEmits(['toggle'])
-
-const toggleEnlarge = (e: Event) => {
-  e.stopPropagation()
-  emit('toggle')
-}
 
 const displayValue = computed(() => {
   if (props.formatValue) return props.formatValue(props.value)
@@ -28,7 +19,7 @@ const formatName = (name: string) => {
 </script>
 
 <template>
-  <div :class="['stat-box', { enlarged: isEnlarged }]" @click="toggleEnlarge">
+  <div class="stat-box">
     <div class="stat-icon-wrap" v-if="icon">
         <img :src="icon" class="stat-icon" @error="(e: any) => e.target.style.display='none'" />
     </div>
@@ -51,8 +42,6 @@ const formatName = (name: string) => {
   gap: 10px;
   align-items: center;
   border: 1px solid rgba(255,255,255,0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
   position: relative;
   z-index: 1;
 }
@@ -62,21 +51,6 @@ const formatName = (name: string) => {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.stat-box.enlarged {
-  transform: scale(1.1);
-  z-index: 10;
-  background: rgba(30, 41, 59, 0.95);
-  border-color: var(--primary);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-}
-
-.stat-box.enlarged .stat-name {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-}
-
 .stat-icon-wrap {
     width: 24px;
     height: 24px;
@@ -84,11 +58,6 @@ const formatName = (name: string) => {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: transform 0.3s ease;
-}
-
-.stat-box.enlarged .stat-icon-wrap {
-  transform: scale(1.2);
 }
 
 .stat-icon {
@@ -109,10 +78,6 @@ const formatName = (name: string) => {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: all 0.3s ease;
 }
 
 .stat-value {
