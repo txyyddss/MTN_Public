@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { API_BASE_URL } from '@/config'
+import { resolveSRV } from '@/utils/dns'
+import { tcpPing, udpPing } from '@/utils/ping'
 
 const status = ref<any>(null)
 const connInfo = ref<any>(null)
+const localLatencies = ref<Record<string, { latency: number | null, online: boolean }>>({})
 const copyFeedback = ref<string | null>(null)
 const showAllJava = ref(false)
 let pollInterval: any = null
@@ -39,14 +42,65 @@ const copyToClipboard = (text: string, label: string) => {
   })
 }
 
+const performLocalPings = async () => {
+  if (!connInfo.value) return
+
+  const targets: { key: string, host: string, port: number, type: 'tcp' | 'udp', isSrv?: boolean }[] = []
+
+  // Collect targets from connInfo
+  if (connInfo.value.connection) {
+    const c = connInfo.value.connection
+    if (c.java_ipv4) targets.push({ key: 'java_ipv4', host: c.java_ipv4.domain || c.java_ipv4.ip, port: c.java_ipv4.port, type: 'tcp' })
+    if (c.java_ipv6) targets.push({ key: 'java_ipv6', host: c.java_ipv6.domain || c.java_ipv6.ip, port: c.java_ipv6.port, type: 'tcp' })
+    if (c.bedrock_ipv4) targets.push({ key: 'bedrock_ipv4', host: c.bedrock_ipv4.domain || c.bedrock_ipv4.ip, port: c.bedrock_ipv4.port, type: 'udp' })
+    if (c.bedrock_ipv6) targets.push({ key: 'bedrock_ipv6', host: c.bedrock_ipv6.ip, port: c.bedrock_ipv6.port, type: 'udp' })
+  }
+
+  // Handle SRV
+  if (connInfo.value.addresses) {
+    const a = connInfo.value.addresses
+    if (a.java_ipv4_srv) targets.push({ key: 'java_ipv4_srv', host: a.java_ipv4_srv, port: 25565, type: 'tcp', isSrv: true })
+    if (a.java_ipv6_srv) targets.push({ key: 'java_ipv6_srv', host: a.java_ipv6_srv, port: 25565, type: 'tcp', isSrv: true })
+  }
+
+  for (const target of targets) {
+    let host = target.host
+    let port = target.port
+
+    if (target.isSrv) {
+      const srvs = await resolveSRV(host)
+      if (srvs.length > 0) {
+        host = srvs[0].target
+        port = srvs[0].port
+      }
+    }
+
+    const pingFn = target.type === 'tcp' ? tcpPing : udpPing
+    const latency = await pingFn(host, port)
+    
+    localLatencies.value[target.key] = {
+      latency: latency,
+      online: latency !== null
+    }
+  }
+}
+
+watch(connInfo, () => {
+  if (connInfo.value) performLocalPings()
+}, { immediate: true })
+
+let pingInterval: any = null
+
 onMounted(() => {
   fetchStatus()
   fetchConnection()
   pollInterval = setInterval(fetchStatus, 5000)
+  pingInterval = setInterval(performLocalPings, 10000)
 })
 
 onUnmounted(() => {
   if (pollInterval) clearInterval(pollInterval)
+  if (pingInterval) clearInterval(pingInterval)
 })
 
 const getJavaTotal = () => {
@@ -141,8 +195,8 @@ const formatDate = (dateStr: string) => {
                     <span class="type-badge ipv4">IPv4</span> 
                     <code>{{ connInfo.connection.java_ipv4.domain || connInfo.connection.java_ipv4.ip }}:{{ connInfo.connection.java_ipv4.port }}</code>
                   </div>
-                  <span v-if="status?.connections?.java_ipv4" :class="['latency-dot', status.connections.java_ipv4.online ? 'online' : 'offline']">
-                    {{ status.connections.java_ipv4.latency_ms || '...' }}ms
+                  <span v-if="localLatencies.java_ipv4" :class="['latency-dot', localLatencies.java_ipv4.online ? 'online' : 'offline']">
+                    {{ localLatencies.java_ipv4.latency || '...' }}ms
                   </span>
                 </li>
                 <li v-if="connInfo.connection.java_ipv6" @click="copyToClipboard(connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip, 'Java IPv6')">
@@ -150,8 +204,8 @@ const formatDate = (dateStr: string) => {
                     <span class="type-badge ipv6">IPv6</span> 
                     <code>{{ connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip }}</code>
                   </div>
-                  <span v-if="status?.connections?.java_ipv6" :class="['latency-dot', status.connections.java_ipv6.online ? 'online' : 'offline']">
-                    {{ status.connections.java_ipv6.latency_ms || '...' }}ms
+                  <span v-if="localLatencies.java_ipv6" :class="['latency-dot', localLatencies.java_ipv6.online ? 'online' : 'offline']">
+                    {{ localLatencies.java_ipv6.latency || '...' }}ms
                   </span>
                 </li>
               </ul>
@@ -161,8 +215,8 @@ const formatDate = (dateStr: string) => {
                     <span class="type-badge srv">SRV v4</span>
                     <code>{{ connInfo.addresses.java_ipv4_srv }}</code>
                   </div>
-                  <span v-if="status?.connections?.java_ipv4_srv" :class="['latency-dot', status.connections.java_ipv4_srv.online ? 'online' : 'offline']">
-                    {{ status.connections.java_ipv4_srv.latency_ms || '...' }}ms
+                  <span v-if="localLatencies.java_ipv4_srv" :class="['latency-dot', localLatencies.java_ipv4_srv.online ? 'online' : 'offline']">
+                    {{ localLatencies.java_ipv4_srv.latency || '...' }}ms
                   </span>
                 </li>
                 <li v-if="connInfo.addresses.java_ipv6_srv" @click="copyToClipboard(connInfo.addresses.java_ipv6_srv, 'Java SRV IPv6')">
@@ -170,8 +224,8 @@ const formatDate = (dateStr: string) => {
                     <span class="type-badge srv">SRV v6</span>
                     <code>{{ connInfo.addresses.java_ipv6_srv }}</code>
                   </div>
-                  <span v-if="status?.connections?.java_ipv6_srv" :class="['latency-dot', status.connections.java_ipv6_srv.online ? 'online' : 'offline']">
-                    {{ status.connections.java_ipv6_srv.latency_ms || '...' }}ms
+                  <span v-if="localLatencies.java_ipv6_srv" :class="['latency-dot', localLatencies.java_ipv6_srv.online ? 'online' : 'offline']">
+                    {{ localLatencies.java_ipv6_srv.latency || '...' }}ms
                   </span>
                 </li>
               </ul>
@@ -186,8 +240,8 @@ const formatDate = (dateStr: string) => {
                     <code @click="copyToClipboard(connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6 Addr')">{{ connInfo.connection.bedrock_ipv6.ip }}</code>
                     <code v-if="connInfo.connection.bedrock_ipv6.port" class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.port.toString(), 'Bedrock IPv6 Port')">{{ connInfo.connection.bedrock_ipv6.port }}</code>
                   </div>
-                   <span v-if="status?.connections?.bedrock_ipv6" :class="['latency-dot', status.connections.bedrock_ipv6.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6')">
-                    {{ status.connections.bedrock_ipv6.latency_ms || '...' }}ms
+                   <span v-if="localLatencies.bedrock_ipv6" :class="['latency-dot', localLatencies.bedrock_ipv6.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6')">
+                    {{ localLatencies.bedrock_ipv6.latency || '...' }}ms
                   </span>
                 </li>
                 <li v-if="connInfo.connection.bedrock_ipv4">
@@ -196,8 +250,8 @@ const formatDate = (dateStr: string) => {
                     <code @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">{{ connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip }}</code>
                     <code v-if="connInfo.connection.bedrock_ipv4.port" class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.port.toString(), 'Bedrock Port')">{{ connInfo.connection.bedrock_ipv4.port }}</code>
                   </div>
-                  <span v-if="status?.connections?.bedrock_ipv4" :class="['latency-dot', status.connections.bedrock_ipv4.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">
-                    {{ status.connections.bedrock_ipv4.latency_ms || '...' }}ms
+                  <span v-if="localLatencies.bedrock_ipv4" :class="['latency-dot', localLatencies.bedrock_ipv4.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">
+                    {{ localLatencies.bedrock_ipv4.latency || '...' }}ms
                   </span>
                 </li>
               </ul>
