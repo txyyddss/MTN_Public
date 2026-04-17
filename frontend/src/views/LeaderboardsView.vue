@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { API_BASE_URL } from '@/config'
+import { fetchWithCache } from '@/utils/dataCache'
 import { preloadImages, PreloadPriority } from '@/utils/preloader'
 
 const types = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
@@ -11,11 +12,8 @@ const loading = ref(false)
 
 const fetchOnline = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/status`)
-    if (res.ok) {
-        const json = await res.json()
-        onlinePlayers.value = json.online_players || []
-    }
+    const json = await fetchWithCache(`${API_BASE_URL}/api/status`)
+    onlinePlayers.value = json.online_players || []
   } catch (e) {}
 }
 
@@ -27,8 +25,7 @@ const fetchLeaderboard = async (type: string) => {
   loading.value = true
   currentType.value = type
   try {
-    const res = await fetch(`${API_BASE_URL}/api/leaderboards/${type}`)
-    const json = await res.json()
+    const json = await fetchWithCache(`${API_BASE_URL}/api/leaderboards/${type}`)
     entries.value = json.entries || []
   } catch(e) {
     console.error('Failed', e)

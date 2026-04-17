@@ -1,35 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { API_BASE_URL } from '@/config'
-import { tcpPing, udpPing } from '@/utils/ping'
+import { ref } from 'vue'
+import { useServerStatus } from '@/composables/useServerStatus'
 
-const status = ref<any>(null)
-const connInfo = ref<any>(null)
-const localLatencies = ref<Record<string, { latency: number | null, online: boolean }>>({})
+const { status, connInfo } = useServerStatus()
 const copyFeedback = ref<string | null>(null)
-let pollInterval: any = null
-
-const fetchStatus = async () => {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/status`)
-    if (res.ok) {
-      status.value = await res.json()
-    }
-  } catch (err) {
-    console.error('Failed to fetch status', err)
-  }
-}
-
-const fetchConnection = async () => {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/connection`)
-    if (res.ok) {
-      connInfo.value = await res.json()
-    }
-  } catch (err) {
-    console.error('Failed to fetch connection info', err)
-  }
-}
+const showAllJava = ref(false)
 
 const copyToClipboard = (text: string, label: string) => {
   navigator.clipboard.writeText(text).then(() => {
@@ -40,48 +15,6 @@ const copyToClipboard = (text: string, label: string) => {
   })
 }
 
-const performLocalPings = async () => {
-  if (!connInfo.value) return
-
-  const targets: { key: string, host: string, port: number, type: 'tcp' | 'udp' }[] = []
-
-  // Collect targets from connInfo
-  if (connInfo.value.connection) {
-    const c = connInfo.value.connection
-    if (c.java_ipv4) targets.push({ key: 'java_ipv4', host: c.java_ipv4.domain || c.java_ipv4.ip, port: c.java_ipv4.port, type: 'tcp' })
-    if (c.java_ipv6) targets.push({ key: 'java_ipv6', host: c.java_ipv6.domain || c.java_ipv6.ip, port: c.java_ipv6.port, type: 'tcp' })
-    if (c.bedrock_ipv4) targets.push({ key: 'bedrock_ipv4', host: c.bedrock_ipv4.domain || c.bedrock_ipv4.ip, port: c.bedrock_ipv4.port, type: 'udp' })
-    if (c.bedrock_ipv6) targets.push({ key: 'bedrock_ipv6', host: c.bedrock_ipv6.ip, port: c.bedrock_ipv6.port, type: 'udp' })
-  }
-
-  for (const target of targets) {
-    const pingFn = target.type === 'tcp' ? tcpPing : udpPing
-    const latency = await pingFn(target.host, target.port)
-    
-    localLatencies.value[target.key] = {
-      latency: latency,
-      online: latency !== null
-    }
-  }
-}
-
-watch(connInfo, () => {
-  if (connInfo.value) performLocalPings()
-}, { immediate: true })
-
-let pingInterval: any = null
-
-onMounted(() => {
-  fetchStatus()
-  fetchConnection()
-  pollInterval = setInterval(fetchStatus, 5000)
-  pingInterval = setInterval(performLocalPings, 10000)
-})
-
-onUnmounted(() => {
-  if (pollInterval) clearInterval(pollInterval)
-  if (pingInterval) clearInterval(pingInterval)
-})
 
 const getJavaTotal = () => {
   if (!status.value?.java?.online) return 'Offline'
@@ -159,29 +92,46 @@ const formatDate = (dateStr: string) => {
               <span v-if="copyFeedback" class="copy-toast">{{ copyFeedback }}</span>
             </transition>
           </div>
-          <p class="suggestion">Recommended: Use IPv6 for better stability if supported by your hardware.</p>
+          <div class="panel-subheader">
+            <p class="suggestion">Recommended: Use IPv6 for better stability if supported by your hardware.</p>
+            <button v-if="connInfo?.connection" class="toggle-view-btn" @click="showAllJava = !showAllJava">
+              {{ showAllJava ? 'Simple View' : 'All Addresses' }}
+            </button>
+          </div>
           
           <div v-if="connInfo?.connection" class="conn-grid">
             <div class="conn-box">
               <h4>Java Edition</h4>
-              <ul>
-                <li v-if="connInfo.connection.java_ipv4" @click="copyToClipboard(connInfo.connection.java_ipv4.domain || (connInfo.connection.java_ipv4.ip + ':' + connInfo.connection.java_ipv4.port), 'Java IPv4')">
+              <ul v-if="showAllJava">
+                <li v-if="connInfo.connection.java_ipv4" @click="copyToClipboard(connInfo.connection.java_ipv4.domain || connInfo.connection.java_ipv4.ip + ':' + connInfo.connection.java_ipv4.port, 'Java IPv4')">
                    <div class="addr-row">
                     <span class="type-badge ipv4">IPv4</span> 
                     <code>{{ connInfo.connection.java_ipv4.domain || connInfo.connection.java_ipv4.ip }}:{{ connInfo.connection.java_ipv4.port }}</code>
                   </div>
-                  <span v-if="localLatencies.java_ipv4" :class="['latency-dot', localLatencies.java_ipv4.online ? 'online' : 'offline']">
-                    {{ localLatencies.java_ipv4.latency || '...' }}
-                  </span>
+
                 </li>
                 <li v-if="connInfo.connection.java_ipv6" @click="copyToClipboard(connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip, 'Java IPv6')">
                   <div class="addr-row">
                     <span class="type-badge ipv6">IPv6</span> 
                     <code>{{ connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip }}</code>
                   </div>
-                  <span v-if="localLatencies.java_ipv6" :class="['latency-dot', localLatencies.java_ipv6.online ? 'online' : 'offline']">
-                    {{ localLatencies.java_ipv6.latency || '...' }}
-                  </span>
+
+                </li>
+              </ul>
+              <ul v-else>
+                <li v-if="connInfo.addresses.java_ipv4_srv" @click="copyToClipboard(connInfo.addresses.java_ipv4_srv, 'Java SRV IPv4')">
+                  <div class="addr-row">
+                    <span class="type-badge srv">SRV v4</span>
+                    <code>{{ connInfo.addresses.java_ipv4_srv }}</code>
+                  </div>
+
+                </li>
+                <li v-if="connInfo.addresses.java_ipv6_srv" @click="copyToClipboard(connInfo.addresses.java_ipv6_srv, 'Java SRV IPv6')">
+                  <div class="addr-row">
+                    <span class="type-badge srv">SRV v6</span>
+                    <code>{{ connInfo.addresses.java_ipv6_srv }}</code>
+                  </div>
+
                 </li>
               </ul>
             </div>
@@ -195,9 +145,7 @@ const formatDate = (dateStr: string) => {
                     <code @click="copyToClipboard(connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6 Addr')">{{ connInfo.connection.bedrock_ipv6.ip }}</code>
                     <code v-if="connInfo.connection.bedrock_ipv6.port" class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.port.toString(), 'Bedrock IPv6 Port')">{{ connInfo.connection.bedrock_ipv6.port }}</code>
                   </div>
-                   <span v-if="localLatencies.bedrock_ipv6" :class="['latency-dot', localLatencies.bedrock_ipv6.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6')">
-                    {{ localLatencies.bedrock_ipv6.latency || '...' }}
-                  </span>
+
                 </li>
                 <li v-if="connInfo.connection.bedrock_ipv4">
                   <div class="addr-row flex-grow">
@@ -205,9 +153,7 @@ const formatDate = (dateStr: string) => {
                     <code @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">{{ connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip }}</code>
                     <code v-if="connInfo.connection.bedrock_ipv4.port" class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.port.toString(), 'Bedrock Port')">{{ connInfo.connection.bedrock_ipv4.port }}</code>
                   </div>
-                  <span v-if="localLatencies.bedrock_ipv4" :class="['latency-dot', localLatencies.bedrock_ipv4.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">
-                    {{ localLatencies.bedrock_ipv4.latency || '...' }}
-                  </span>
+
                 </li>
               </ul>
             </div>
@@ -429,14 +375,15 @@ code {
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-.latency-dot {
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.4);
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
 }
-.latency-dot.online { border-left: 3px solid #10b981; color: #6ee7b7; }
-.latency-dot.offline { border-left: 3px solid #ef4444; color: #fca5a5; }
+.status-indicator.online { background: #10b981; box-shadow: 0 0 8px #10b98144; }
+.status-indicator.offline { background: #ef4444; box-shadow: 0 0 8px #ef444444; }
 
 .copy-toast {
   font-size: 0.8rem;

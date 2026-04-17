@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import { API_BASE_URL } from '@/config'
 import { preloadImages, PreloadPriority, preloadScripts } from '@/utils/preloader'
+import { fetchWithCache } from '@/utils/dataCache'
 import iconMap from '@/assets/icon_map.json'
 
 const menuOpen = ref(false)
@@ -22,10 +23,15 @@ const preloadGlobalAssets = async () => {
     const iconUrls = Object.values(iconMap)
     preloadImages(iconUrls, PreloadPriority.BACKGROUND)
 
-    // 2. Fetch all players and preload their skins/avatars
+    // 2. Preload leaderboard data (1 min TTL)
+    const lbTypes = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
+    lbTypes.forEach(type => {
+        fetchWithCache(`${API_BASE_URL}/api/leaderboards/${type}`).catch(() => {})
+    })
+
+    // 3. Preload all players and their skins/avatars
     try {
-        const res = await fetch(`${API_BASE_URL}/api/players?all=true`)
-        const json = await res.json()
+        const json = await fetchWithCache(`${API_BASE_URL}/api/players?all=true`)
         const players = json.players || []
         
         const avatarUrls: string[] = []

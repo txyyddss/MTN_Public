@@ -8,6 +8,7 @@ import advancementData from '@/assets/advancements.json'
 import StatBox from '@/components/StatBox.vue'
 import SkillItem from '@/components/SkillItem.vue'
 import SkinViewer from '@/components/SkinViewer.vue'
+import { fetchWithCache } from '@/utils/dataCache'
 import { preloadImages, PreloadPriority } from '@/utils/preloader'
 
 const route = useRoute()
@@ -144,8 +145,7 @@ const initPieChart = () => {
 const fetchDetail = async () => {
   loading.value = true
   try {
-    const res = await fetch(`${API_BASE_URL}/api/players/${uuid.value}`)
-    const json = await res.json()
+    const json = await fetchWithCache(`${API_BASE_URL}/api/players/${uuid.value}`)
     info.value = json.info
     stats.value = json.stats?.stats || null
     advancements.value = json.advancements?.advancements || []

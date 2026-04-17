@@ -1,71 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { API_BASE_URL } from '@/config'
-
-interface PlayerInfo {
-  uuid: string
-  last_known_name: string
-  last_seen: number
-  type: string
-}
+import { usePlayers, type PlayerInfo } from '@/composables/usePlayers'
 
 const router = useRouter()
-const players = ref<PlayerInfo[]>([])
-const count = ref(0)
-const activeDays = ref(0)
-const searchQuery = ref('')
-const showAll = ref(false)
-const loading = ref(true)
-const onlinePlayers = ref<string[]>([])
+const {
+  players, count, activeDays, searchQuery, showAll, loading, onlinePlayers, sortedPlayers,
+  fetchPlayers, fetchOnline
+} = usePlayers()
 
-const sortedPlayers = computed(() => {
-  return [...players.value].sort((a, b) => {
-    const aOnline = onlinePlayers.value.includes(a.uuid)
-    const bOnline = onlinePlayers.value.includes(b.uuid)
-    if (aOnline && !bOnline) return -1
-    if (!aOnline && bOnline) return 1
-    return 0
-  })
-})
-
-const fetchPlayers = async () => {
-  loading.value = true
-  try {
-    const params = new URLSearchParams()
-    if (searchQuery.value) params.append('search', searchQuery.value)
-    if (showAll.value) params.append('all', 'true')
-    
-    const url = `${API_BASE_URL}/api/players?${params.toString()}`
-    const res = await fetch(url)
-    const json = await res.json()
-    players.value = json.players || []
-    count.value = json.count || 0
-    activeDays.value = json.active_days || 0
-  } catch (e) {
-    console.error('Failed to fetch players:', e)
-  } finally {
-    loading.value = false
-  }
-}
-
-const fetchOnline = async () => {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/status`)
-    if (res.ok) {
-        const json = await res.json()
-        onlinePlayers.value = json.online_players || []
-    }
-  } catch (e) {}
-}
-
-let searchTimeout: any = null
-watch(searchQuery, () => {
-  if (searchTimeout) clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(fetchPlayers, 300)
-})
-
-watch(showAll, fetchPlayers)
 
 const handleRandom = async () => {
   try {
