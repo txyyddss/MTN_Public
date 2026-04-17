@@ -719,8 +719,8 @@ watch(categorizedAdvancements, (categories) => {
 
 .skill-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 4px;
 }
 
 .total-badge {
