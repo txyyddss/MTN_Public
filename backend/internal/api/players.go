@@ -52,7 +52,7 @@ func (s *Server) handlePlayers(c *gin.Context) {
 		return players[i].LastSeen > players[j].LastSeen
 	})
 
-	validPlayers := s.filterValidPlayers(c.Request.Context(), players)
+	validPlayers := s.filterValidPlayers(players)
 
 	c.JSON(http.StatusOK, PlayerListResponse{
 		Players:    validPlayers,
@@ -93,7 +93,7 @@ func (s *Server) getMcmmoValidUUIDs(ctx context.Context) map[string]bool {
 	return valid
 }
 
-func (s *Server) isValidPlayer(ctx context.Context, uuid string, mcmmoValid map[string]bool) bool {
+func (s *Server) isValidPlayer(uuid string) bool {
 	ps := s.store.GetPlayerStats(uuid)
 	if ps == nil || len(ps.Stats) == 0 {
 		return false
@@ -102,18 +102,13 @@ func (s *Server) isValidPlayer(ctx context.Context, uuid string, mcmmoValid map[
 	if pa == nil || len(pa.Advancements) == 0 {
 		return false
 	}
-	if s.mcmmoDB != nil && !mcmmoValid[uuid] {
-		return false
-	}
 	return true
 }
 
-func (s *Server) filterValidPlayers(ctx context.Context, players []*data.PlayerInfo) []*data.PlayerInfo {
-	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
-
+func (s *Server) filterValidPlayers(players []*data.PlayerInfo) []*data.PlayerInfo {
 	var valid []*data.PlayerInfo
 	for _, p := range players {
-		if !s.isValidPlayer(ctx, p.UUID, mcmmoValid) {
+		if !s.isValidPlayer(p.UUID) {
 			continue
 		}
 		valid = append(valid, p)
@@ -143,7 +138,7 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	}
 
 	// Only return detail for valid users
-	if !s.isValidPlayer(c.Request.Context(), uuid, s.getMcmmoValidUUIDs(c.Request.Context())) {
+	if !s.isValidPlayer(uuid) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "player is not valid (missing data)"})
 		return
 	}
@@ -397,8 +392,6 @@ func (s *Server) RefreshAllMcmmoRanks(ctx context.Context) error {
 		return fmt.Errorf("get all skills: %w", err)
 	}
 
-	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
-
 	skillNames := []string{
 		"taming", "mining", "woodcutting", "repair", "unarmed",
 		"herbalism", "excavation", "archery", "swords", "axes",
@@ -409,7 +402,7 @@ func (s *Server) RefreshAllMcmmoRanks(ctx context.Context) error {
 	for _, skillName := range skillNames {
 		var entries []LeaderboardEntry
 		for _, sk := range skills {
-			if !s.isValidPlayer(ctx, sk.UUID, mcmmoValid) {
+			if !s.isValidPlayer(sk.UUID) {
 				continue
 			}
 
@@ -483,13 +476,12 @@ func (s *Server) RefreshAllStatRanks(ctx context.Context) error {
 	}
 
 	allStats := s.store.GetAllStats()
-	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
 
 	// Collect all unique (category, stat) pairs that have any player with value > 0
 	uniqueStats := make(map[string]map[string]bool)
 	for uuid, ps := range allStats {
 		// Only consider stats from valid players
-		if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+		if !s.isValidPlayer(uuid) {
 			continue
 		}
 
@@ -510,7 +502,7 @@ func (s *Server) RefreshAllStatRanks(ctx context.Context) error {
 		for stat := range stats {
 			var entries []LeaderboardEntry
 			for uuid, ps := range allStats {
-				if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+				if !s.isValidPlayer(uuid) {
 					continue
 				}
 
