@@ -193,10 +193,10 @@ const formatDate = (dateStr: string) => {
                 <li v-if="connInfo.connection.bedrock_ipv4">
                   <div class="addr-row flex-grow">
                     <span class="type-badge ipv4">IPv4</span> 
-                    <code @click="copyToClipboard(connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">{{ connInfo.connection.bedrock_ipv4.ip }}</code>
+                    <code @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">{{ connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip }}</code>
                     <code v-if="connInfo.connection.bedrock_ipv4.port" class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.port.toString(), 'Bedrock Port')">{{ connInfo.connection.bedrock_ipv4.port }}</code>
                   </div>
-                  <span v-if="status?.connections?.bedrock_ipv4" :class="['latency-dot', status.connections.bedrock_ipv4.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">
+                  <span v-if="status?.connections?.bedrock_ipv4" :class="['latency-dot', status.connections.bedrock_ipv4.online ? 'online' : 'offline']" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">
                     {{ status.connections.bedrock_ipv4.latency_ms || '...' }}ms
                   </span>
                 </li>
