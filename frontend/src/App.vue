@@ -29,11 +29,19 @@ const preloadGlobalAssets = async () => {
         preloadData([`${API_BASE_URL}/api/leaderboards/${type}`], PreloadPriority.BACKGROUND)
     })
 
-    // 3. Preload all players and their skins/avatars
+    // 3. Preload players (default view = recent, same URL PlayersView uses on mount)
+    //    Also preload all=true so toggling "Show All" is instant
     try {
-        const json = await fetchWithCache(`${API_BASE_URL}/api/players?all=true`)
+        const defaultUrl = `${API_BASE_URL}/api/players?`
+        const allUrl = `${API_BASE_URL}/api/players?all=true`
+
+        // Fetch default (recent) list first — this is what the user sees on /players
+        const json = await fetchWithCache(defaultUrl)
+        // Also warm the all=true cache in background
+        fetchWithCache(allUrl).catch(() => {})
+
         const players = json.players || []
-        
+
         const avatarUrls: string[] = []
         const skinUrls: string[] = []
 
@@ -45,7 +53,7 @@ const preloadGlobalAssets = async () => {
             avatarUrls.push(`https://mineskin.eu/helm/${cleanName}`)
             skinUrls.push(`https://mineskin.eu/skin/${cleanName}`)
         })
-        
+
         // Heads are medium priority, skins are high priority
         preloadImages(avatarUrls, PreloadPriority.MEDIUM)
         preloadImages(skinUrls, PreloadPriority.HIGH)

@@ -6,7 +6,8 @@ interface CacheEntry {
 }
 
 const cache = new Map<string, CacheEntry>();
-const refreshing = new Set<string>();
+// Maps in-flight URLs to their Promise so concurrent callers can await the same fetch
+const inFlight = new Map<string, Promise<any>>();
 
 // Maximum idle time before we stop auto-refreshing (5 minutes)
 const MAX_IDLE_TIME = 300000;
@@ -24,7 +25,7 @@ export async function fetchWithCache<T = any>(url: string, ttl: number = 60000):
 
         if (remaining > 0) {
             // Proactive refresh: if less than 30% of TTL remains, refresh in background
-            if (remaining < ttl * 0.3 && !refreshing.has(url)) {
+            if (remaining < ttl * 0.3 && !inFlight.has(url)) {
                 console.log(`[DataCache] Proactive refresh: ${url}`);
                 triggerBackgroundRefresh(url, ttl);
             }
@@ -32,35 +33,40 @@ export async function fetchWithCache<T = any>(url: string, ttl: number = 60000):
         }
     }
 
+    // If a fetch is already in flight for this URL, await the same promise
+    if (inFlight.has(url)) {
+        console.log(`[DataCache] Awaiting in-flight: ${url}`);
+        return inFlight.get(url)!;
+    }
+
     console.log(`[DataCache] Cache miss/expire: ${url}`);
     return performFetch(url, ttl);
 }
 
-async function performFetch(url: string, ttl: number) {
-    if (refreshing.has(url)) {
-        const entry = cache.get(url);
-        if (entry) return entry.data;
-    }
+async function performFetch(url: string, ttl: number): Promise<any> {
+    const promise = (async () => {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
+            const data = await response.json();
 
-    refreshing.add(url);
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
-        const data = await response.json();
+            cache.set(url, {
+                data,
+                expiry: Date.now() + ttl,
+                ttl,
+                lastAccessed: Date.now()
+            });
+            return data;
+        } catch (error) {
+            console.error(`[DataCache] Fetch error for ${url}:`, error);
+            throw error;
+        } finally {
+            inFlight.delete(url);
+        }
+    })();
 
-        cache.set(url, {
-            data,
-            expiry: Date.now() + ttl,
-            ttl,
-            lastAccessed: Date.now()
-        });
-        return data;
-    } catch (error) {
-        console.error(`[DataCache] Fetch error for ${url}:`, error);
-        throw error;
-    } finally {
-        refreshing.delete(url);
-    }
+    inFlight.set(url, promise);
+    return promise;
 }
 
 function triggerBackgroundRefresh(url: string, ttl: number) {
@@ -79,7 +85,7 @@ setInterval(() => {
             // Refresh if less than 15 seconds remain or 25% of TTL
             const threshold = Math.min(15000, entry.ttl * 0.25);
 
-            if (remaining < threshold && !refreshing.has(url)) {
+            if (remaining < threshold && !inFlight.has(url)) {
                 console.log(`[DataCache] Background auto-refresh: ${url}`);
                 triggerBackgroundRefresh(url, entry.ttl);
             }
