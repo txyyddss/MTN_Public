@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { watch } from 'vue'
-import Chart from 'chart.js/auto'
 import { API_BASE_URL } from '@/config'
 import advancementData from '@/assets/advancements.json'
 import StatBox from '@/components/StatBox.vue'
 import SkillItem from '@/components/SkillItem.vue'
 import SkinViewer from '@/components/SkinViewer.vue'
+import PlayerPieChart from '@/components/PlayerPieChart.vue'
 import { fetchWithCache } from '@/utils/dataCache'
 import { preloadImages, PreloadPriority } from '@/utils/preloader'
 
@@ -98,49 +98,6 @@ const formatStatName = (name: string) => {
   return name.replace('minecraft:', '').replace(/_/g, ' ')
 }
 
-const pieChartCanvas = ref<HTMLCanvasElement | null>(null)
-let chartInstance: Chart | null = null
-
-const initPieChart = () => {
-  console.log('Initializing pie chart with oreStats:', oreStats.value)
-  if (!pieChartCanvas.value || oreStats.value.length === 0) {
-    console.warn('Cannot init pie chart: canvas missing or no oreStats')
-    return
-  }
-  
-  if (chartInstance) chartInstance.destroy()
-
-  const labels = oreStats.value.map((o: any) => o.name)
-  const minedData = oreStats.value.map((o: any) => o.mined)
-  console.log('Chart labels:', labels, 'Chart data:', minedData)
-
-  chartInstance = new Chart(pieChartCanvas.value, {
-    type: 'pie',
-    data: {
-      labels,
-      datasets: [
-        {
-          data: minedData,
-          backgroundColor: [
-            '#3B82F6', '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', 
-            '#f59e0b', '#10b981', '#14b8a6', '#64748b', '#475569'
-          ],
-          borderWidth: 0
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: { color: '#94a3b8', font: { family: 'Noto Sans SC' } }
-        }
-      }
-    }
-  })
-}
 
 const fetchDetail = async () => {
   loading.value = true
@@ -169,9 +126,6 @@ const fetchDetail = async () => {
     console.error('Failed to load player detail', e)
   } finally {
     loading.value = false
-    nextTick(() => {
-      initPieChart()
-    })
   }
 }
 
@@ -197,7 +151,6 @@ watch(uuid, (newUuid) => {
 })
 
 onUnmounted(() => {
-  if (chartInstance) chartInstance.destroy()
   window.removeEventListener('click', resetAllEnlarged)
   window.removeEventListener('scroll', resetAllEnlarged, { capture: true })
 })
@@ -398,20 +351,7 @@ watch(filteredStats, (newStats) => {
       <div class="details-section">
         
         <!-- Ores Pie Chart -->
-        <section class="panel glass-card" v-if="oreStats && oreStats.length > 0">
-          <h3 @click.stop="resetAllEnlarged"><img src="/icons/all_blocks.ico" class="header-icon" /> Ore Mined Statistics</h3>
-          <div class="ore-content">
-              <div class="chart-container">
-                <canvas ref="pieChartCanvas"></canvas>
-              </div>
-              <div class="ore-list mobile-hide">
-                <div class="ore-item" v-for="ore in oreStats.slice(0, 10)" :key="ore.name">
-                  <span class="ore-name">{{ ore.name }}</span>
-                  <span class="ore-val">{{ formatNumber(ore.mined) }}</span>
-                </div>
-              </div>
-          </div>
-        </section>
+        <PlayerPieChart :oreStats="oreStats" @resetEnlarged="resetAllEnlarged" />
 
         <!-- McMMO Skills -->
         <section class="panel glass-card" v-if="mcmmo">
