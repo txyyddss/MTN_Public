@@ -53,10 +53,11 @@ const CUSTOM_STAT_TRANSLATIONS: Record<string, string> = {
   'leave_game': 'Games Quit',
   'dropped': 'Items Dropped',
   'interact_with_beacon': 'Beacon Interactions',
-  'inspect_hopper': 'Hopper Interactions',
+  'inspect_hopper': 'Hopper Inspections',
   'interact_with_blast_furnace': 'Blast Furnace Interactions',
   'interact_with_smoker': 'Smoker Interactions',
   'interact_with_camp_fire': 'Campfire Interactions',
+  'interact_with_campfire': 'Campfire Interactions',
   'talked_to_villager': 'Villager Talks',
   'traded_with_villager': 'Villager Trades',
   'fish_caught': 'Fish Caught',
@@ -94,7 +95,15 @@ const CUSTOM_STAT_TRANSLATIONS: Record<string, string> = {
   'animals_bred': 'Animals Bred',
   'play_record': 'Music Discs Played',
   'interact_with_smithing_table': 'Smithing Table Interactions',
-  'pot_flower': 'Flowers Potted'
+  'pot_flower': 'Flowers Potted',
+  'clean_banner': 'Banners Cleaned',
+  'enchant_item': 'Items Enchanted',
+  'clean_armor': 'Armor Pieces Cleaned',
+  'clean_shulker_box': 'Shulker Boxes Cleaned',
+  'eat_cake_slice': 'Cake Slices Eaten',
+  'interact_with_beehive': 'Beehive Interactions',
+  'interact_with_lodestone': 'Lodestone Interactions',
+  'interact_with_respawn_anchor': 'Respawn Anchor Interactions'
 }
 
 const enlargedAdvancement = ref<string | null>(null)
@@ -363,7 +372,7 @@ watch(activeGroup, (newGroup) => {
     }
 })
 
-// REALTIME PRELOAD LOGIC
+// REALTIME PRELOAD LOGIC - Specific to current player
 // Preload skin when info is fetched
 watch(info, (newInfo) => {
   if (newInfo) {
@@ -381,16 +390,6 @@ watch(categorizedAdvancements, (categories) => {
       })
     })
     preloadImages(urls, PreloadPriority.MEDIUM_HIGH)
-  }
-}, { immediate: true })
-
-// Preload stat icons when category or search changes
-watch(filteredStats, (newStats) => {
-  if (newStats) {
-      const urls = Object.keys(newStats)
-        .map(name => getStatIconPath(selectedCategory.value, name))
-        .filter((url): url is string => !!url)
-      preloadImages(urls, PreloadPriority.LOW)
   }
 }, { immediate: true })
 </script>

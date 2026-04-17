@@ -36,11 +36,6 @@ const fetchLeaderboard = async (type: string) => {
 onMounted(() => {
     fetchLeaderboard(currentType.value)
     fetchOnline()
-    
-    // Preload other leaderboard categories in background
-    const otherTypes = types.filter(t => t !== currentType.value)
-    const preloadUrls = otherTypes.map(t => `${API_BASE_URL}/api/leaderboards/${t}`)
-    preloadData(preloadUrls, PreloadPriority.BACKGROUND)
 })
 
 watch(entries, (newEntries) => {

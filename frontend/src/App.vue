@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import { API_BASE_URL } from '@/config'
-import { preloadImages, PreloadPriority, preloadScripts } from '@/utils/preloader'
+import { preloadImages, PreloadPriority, preloadScripts, preloadData } from '@/utils/preloader'
 import { fetchWithCache } from '@/utils/dataCache'
 import iconMap from '@/assets/icon_map.json'
 
@@ -26,7 +26,7 @@ const preloadGlobalAssets = async () => {
     // 2. Preload leaderboard data (1 min TTL)
     const lbTypes = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
     lbTypes.forEach(type => {
-        fetchWithCache(`${API_BASE_URL}/api/leaderboards/${type}`).catch(() => {})
+        preloadData([`${API_BASE_URL}/api/leaderboards/${type}`], PreloadPriority.BACKGROUND)
     })
 
     // 3. Preload all players and their skins/avatars
@@ -46,9 +46,8 @@ const preloadGlobalAssets = async () => {
             skinUrls.push(`https://mineskin.eu/skin/${cleanName}`)
         })
         
-        // Heads are medium priority
+        // Heads are medium priority, skins are high priority
         preloadImages(avatarUrls, PreloadPriority.MEDIUM)
-        // Skins are high priority
         preloadImages(skinUrls, PreloadPriority.HIGH)
     } catch (e) {
         console.error('Global preload failed:', e)
