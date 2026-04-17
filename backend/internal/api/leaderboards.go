@@ -100,14 +100,12 @@ func (s *Server) skillsLeaderboard(ctx context.Context) []LeaderboardEntry {
 		return nil
 	}
 
-	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
-
 	var entries []LeaderboardEntry
 	for _, sk := range skills {
 		if sk.Total <= 0 {
 			continue
 		}
-		if !s.isValidPlayer(ctx, sk.UUID, mcmmoValid) {
+		if !s.isValidPlayer(sk.UUID) {
 			continue
 		}
 		name := sk.User
@@ -127,13 +125,11 @@ func (s *Server) skillsLeaderboard(ctx context.Context) []LeaderboardEntry {
 
 func (s *Server) statLeaderboard(ctx context.Context, category, stat string) []LeaderboardEntry {
 	allStats := s.store.GetAllStats()
-	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
-
 	var entries []LeaderboardEntry
 	for uuid, ps := range allStats {
 		if catMap, ok := ps.Stats[category]; ok {
 			if val, ok := catMap[stat]; ok && val > 0 {
-				if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+				if !s.isValidPlayer(uuid) {
 					continue
 				}
 				name := uuid
@@ -154,8 +150,6 @@ func (s *Server) statLeaderboard(ctx context.Context, category, stat string) []L
 
 func (s *Server) minedTotalLeaderboard(ctx context.Context) []LeaderboardEntry {
 	allStats := s.store.GetAllStats()
-	mcmmoValid := s.getMcmmoValidUUIDs(ctx)
-
 	var entries []LeaderboardEntry
 	for uuid, ps := range allStats {
 		if minedMap, ok := ps.Stats["minecraft:mined"]; ok {
@@ -164,7 +158,7 @@ func (s *Server) minedTotalLeaderboard(ctx context.Context) []LeaderboardEntry {
 				total += count
 			}
 			if total > 0 {
-				if !s.isValidPlayer(ctx, uuid, mcmmoValid) {
+				if !s.isValidPlayer(uuid) {
 					continue
 				}
 				name := uuid
