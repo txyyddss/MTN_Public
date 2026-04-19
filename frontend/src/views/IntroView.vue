@@ -203,8 +203,8 @@
 
 .qr-wrap {
   margin: 1.5rem auto;
-  width: 180px;
-  height: 180px;
+  width: 280px;
+  height: 280px;
   background: #fff;
   padding: 10px;
   border-radius: var(--radius-md);

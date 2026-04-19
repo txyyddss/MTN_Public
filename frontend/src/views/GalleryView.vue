@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 
 const imageModules = import.meta.glob('/public/gallary/*.{png,jpg,jpeg,webp}', { eager: true })
 const images = Object.keys(imageModules)
@@ -18,6 +18,10 @@ const closeLightbox = () => {
   selectedImage.value = null
   document.body.style.overflow = ''
 }
+
+onUnmounted(() => {
+  document.body.style.overflow = ''
+})
 </script>
 
 <template>
@@ -172,18 +176,20 @@ const closeLightbox = () => {
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  overflow-y: auto;
 }
 
 .lightbox-img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 95vw;
+  max-height: 90vh;
   object-fit: contain;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
   border-radius: var(--radius-md);
+  margin: auto;
 }
 
 .close-btn {
-  position: absolute;
+  position: fixed;
   top: 2rem;
   right: 2rem;
   background: none;
