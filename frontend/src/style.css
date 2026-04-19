@@ -8,30 +8,30 @@
 :root {
   color-scheme: dark;
 
-  --bg-dark: #13100c;
-  --bg-lighter: #1d1812;
-  --bg-elevated: #241e16;
-  --bg-card: rgba(36, 30, 22, 0.86);
-  --bg-card-strong: rgba(41, 33, 24, 0.95);
+  --bg-dark: #05070d;
+  --bg-lighter: #0b1020;
+  --bg-elevated: #11182b;
+  --bg-card: rgba(11, 16, 32, 0.82);
+  --bg-card-strong: rgba(14, 21, 38, 0.94);
 
-  --text-main: #f2ead8;
-  --text-muted: #c4b69d;
-  --text-dim: #8d7d67;
-  --text-strong: #fff8ea;
+  --text-main: #e5ecff;
+  --text-muted: #a8b5d8;
+  --text-dim: #7280a5;
+  --text-strong: #f8fbff;
 
-  --primary: #c47a42;
-  --primary-glow: rgba(196, 122, 66, 0.22);
-  --secondary: #78825b;
-  --accent: #ba4d37;
-  --success: #7ea567;
-  --danger: #cb5d45;
+  --primary: #5b71f6;
+  --primary-glow: rgba(91, 113, 246, 0.28);
+  --secondary: #3b82f6;
+  --accent: #7dd3fc;
+  --success: #42d392;
+  --danger: #f87171;
 
   --glass-bg:
-    linear-gradient(180deg, rgba(255, 248, 234, 0.04), transparent 35%),
-    linear-gradient(135deg, rgba(196, 122, 66, 0.08), rgba(19, 16, 12, 0.86));
-  --glass-border: rgba(227, 203, 168, 0.12);
-  --glass-border-bright: rgba(227, 203, 168, 0.24);
-  --glass-shadow: 0 30px 90px rgba(0, 0, 0, 0.32);
+    linear-gradient(180deg, rgba(248, 251, 255, 0.05), transparent 35%),
+    linear-gradient(135deg, rgba(91, 113, 246, 0.12), rgba(5, 7, 13, 0.9));
+  --glass-border: rgba(168, 181, 216, 0.16);
+  --glass-border-bright: rgba(141, 158, 255, 0.3);
+  --glass-shadow: 0 32px 96px rgba(0, 0, 0, 0.42);
 
   --sans: 'Instrument Sans', sans-serif;
   --heading: 'Instrument Sans', sans-serif;
@@ -65,8 +65,8 @@ body {
   font-family: var(--sans);
   color: var(--text-main);
   background:
-    radial-gradient(circle at top, rgba(196, 122, 66, 0.12), transparent 28%),
-    linear-gradient(180deg, #17120d 0%, #0f0d0a 100%);
+    radial-gradient(circle at top, rgba(91, 113, 246, 0.18), transparent 28%),
+    linear-gradient(180deg, #090d16 0%, #04060b 100%);
   line-height: 1.65;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -93,9 +93,9 @@ body::before {
 body::after {
   z-index: -1;
   background:
-    radial-gradient(circle at 15% 20%, rgba(120, 130, 91, 0.12), transparent 20%),
-    radial-gradient(circle at 80% 15%, rgba(196, 122, 66, 0.1), transparent 24%),
-    radial-gradient(circle at 60% 80%, rgba(186, 77, 55, 0.09), transparent 18%),
+    radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.12), transparent 20%),
+    radial-gradient(circle at 80% 15%, rgba(91, 113, 246, 0.14), transparent 24%),
+    radial-gradient(circle at 60% 80%, rgba(125, 211, 252, 0.1), transparent 18%),
     repeating-radial-gradient(
       circle at center,
       rgba(255, 255, 255, 0.022) 0,
@@ -146,7 +146,7 @@ code {
 }
 
 ::selection {
-  background: rgba(196, 122, 66, 0.28);
+  background: rgba(91, 113, 246, 0.34);
 }
 
 ::-webkit-scrollbar {
@@ -158,12 +158,12 @@ code {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(196, 122, 66, 0.45);
+  background: rgba(91, 113, 246, 0.5);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(196, 122, 66, 0.65);
+  background: rgba(59, 130, 246, 0.72);
 }
 
 #app {
@@ -249,7 +249,7 @@ code {
   inset: 0;
   background:
     linear-gradient(120deg, rgba(255, 255, 255, 0.03), transparent 40%),
-    linear-gradient(0deg, rgba(196, 122, 66, 0.08), transparent 35%);
+    linear-gradient(0deg, rgba(91, 113, 246, 0.12), transparent 35%);
   pointer-events: none;
 }
 
@@ -291,9 +291,9 @@ code {
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, #d89258 0%, var(--primary) 100%);
-  color: #1f140d;
-  box-shadow: 0 16px 34px rgba(196, 122, 66, 0.22);
+  background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%);
+  color: #f8fbff;
+  box-shadow: 0 18px 36px rgba(91, 113, 246, 0.28);
 }
 
 .btn-primary:hover {
@@ -302,13 +302,13 @@ code {
 
 .btn-secondary {
   border-color: var(--glass-border-bright);
-  background: rgba(255, 248, 234, 0.035);
+  background: rgba(248, 251, 255, 0.04);
   color: var(--text-main);
 }
 
 .btn-secondary:hover {
-  border-color: rgba(255, 248, 234, 0.42);
-  background: rgba(255, 248, 234, 0.06);
+  border-color: rgba(168, 181, 216, 0.42);
+  background: rgba(248, 251, 255, 0.08);
 }
 
 .badge-pill {
@@ -317,8 +317,8 @@ code {
   gap: 0.55rem;
   padding: 0.45rem 0.8rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 248, 234, 0.12);
-  background: rgba(255, 248, 234, 0.04);
+  border: 1px solid rgba(168, 181, 216, 0.16);
+  background: rgba(248, 251, 255, 0.04);
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.78rem;

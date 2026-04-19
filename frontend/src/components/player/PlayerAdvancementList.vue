@@ -106,15 +106,15 @@ function handleImageError(event: Event): void {
 }
 
 .icon-wrap.task {
-  border-color: rgba(120, 130, 91, 0.35);
+  border-color: rgba(59, 130, 246, 0.35);
 }
 
 .icon-wrap.goal {
-  border-color: rgba(196, 122, 66, 0.35);
+  border-color: rgba(91, 113, 246, 0.38);
 }
 
 .icon-wrap.challenge {
-  border-color: rgba(186, 77, 55, 0.35);
+  border-color: rgba(125, 211, 252, 0.34);
 }
 
 .icon-wrap img {

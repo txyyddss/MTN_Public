@@ -124,7 +124,7 @@ function rankForStat(name: string): number | undefined {
 
 .group-tab.active,
 .category-tab.active {
-  border-color: rgba(196, 122, 66, 0.4);
+  border-color: rgba(91, 113, 246, 0.42);
   color: var(--text-strong);
 }
 

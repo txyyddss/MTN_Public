@@ -49,8 +49,9 @@ onUnmounted(() => {
     <header class="top-bar">
       <nav class="container nav-frame">
         <RouterLink class="brand-lockup" to="/" @click="closeMenu">
-          <span class="brand-mark">MT</span>
-          <span class="brand-text">{{ siteContent.app.brand }}</span>
+          <span class="brand-text">
+            <span class="brand-text-mtn">MTN</span><span class="brand-text-etwork">etwork</span>
+          </span>
         </RouterLink>
 
         <button class="menu-toggle" type="button" aria-label="Toggle navigation" @click="toggleMenu">
@@ -86,7 +87,7 @@ onUnmounted(() => {
           <p class="footer-brand">{{ siteContent.app.brand }}</p>
           <p class="footer-copy">{{ siteContent.app.footer }}</p>
         </div>
-        <p class="footer-meta">(c) 2026 MT Network</p>
+        <p class="footer-meta">(c) 2026 MTNetwork</p>
       </div>
     </footer>
   </div>
@@ -106,8 +107,8 @@ onUnmounted(() => {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at top, rgba(196, 122, 66, 0.18), transparent 30%),
-    linear-gradient(180deg, rgba(14, 12, 9, 0.98), rgba(14, 12, 9, 1));
+    radial-gradient(circle at top, rgba(91, 113, 246, 0.22), transparent 30%),
+    linear-gradient(180deg, rgba(5, 7, 13, 0.98), rgba(5, 7, 13, 1));
   transition: opacity 0.45s ease;
 }
 
@@ -178,35 +179,31 @@ onUnmounted(() => {
   padding: 1rem 1.25rem;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(22, 18, 13, 0.84);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.25);
+  background: rgba(7, 10, 18, 0.86);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.34);
 }
 
 .brand-lockup {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
   min-width: 0;
 }
 
-.brand-mark {
+.brand-text {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #d89258 0%, var(--primary) 100%);
-  color: #23150d;
-  font-family: var(--mono);
-  font-size: 0.82rem;
+  font-family: var(--display);
+  font-size: clamp(1.2rem, 2vw, 1.42rem);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
 
-.brand-text {
-  font-family: var(--display);
-  font-size: 1.2rem;
+.brand-text-mtn {
+  color: var(--primary);
+}
+
+.brand-text-etwork {
   color: var(--text-strong);
 }
 
@@ -227,7 +224,7 @@ onUnmounted(() => {
 .nav-link:hover,
 .nav-link.router-link-active {
   color: var(--text-strong);
-  background: rgba(255, 248, 234, 0.06);
+  background: rgba(248, 251, 255, 0.06);
 }
 
 .nav-link-external {
@@ -310,7 +307,7 @@ onUnmounted(() => {
   to {
     transform: translateY(-6px);
     opacity: 1;
-    box-shadow: 0 10px 18px rgba(196, 122, 66, 0.2);
+    box-shadow: 0 10px 18px rgba(91, 113, 246, 0.24);
   }
 }
 
@@ -329,7 +326,7 @@ onUnmounted(() => {
     padding: 1rem;
     border: 1px solid var(--glass-border);
     border-radius: 24px;
-    background: rgba(19, 16, 12, 0.96);
+    background: rgba(7, 10, 18, 0.96);
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.34);
     opacity: 0;
     pointer-events: none;

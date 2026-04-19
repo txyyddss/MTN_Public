@@ -1,20 +1,15 @@
 <script setup lang="ts">
-import HeroSection from '@/components/home/HeroSection.vue'
-import FeatureGrid from '@/components/home/FeatureGrid.vue'
 import CTASection from '@/components/home/CTASection.vue'
+import FeatureGrid from '@/components/home/FeatureGrid.vue'
+import HeroSection from '@/components/home/HeroSection.vue'
 import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vue'
 </script>
 
 <template>
   <div class="home-view page-shell">
     <HeroSection />
-
-    <div class="container status-reveal">
-      <ServerStatusAndConnection />
-    </div>
-
+    <ServerStatusAndConnection class="status-reveal" />
     <FeatureGrid />
-
     <CTASection />
   </div>
 </template>
@@ -23,7 +18,7 @@ import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vu
 .home-view {
   display: flex;
   flex-direction: column;
-  gap: 0; /* Components have their own padding/margins */
+  gap: 0;
   padding-bottom: 0;
 }
 

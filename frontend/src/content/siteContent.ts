@@ -51,7 +51,7 @@ export const playerStatGroups: StatGroup[] = [
 
 export const siteContent = {
   app: {
-    brand: 'MT Network',
+    brand: 'MTNetwork',
     loader: {
       kicker: 'SURVIVAL ATLAS',
       title: 'Mapping the world...'
@@ -66,14 +66,14 @@ export const siteContent = {
       { label: 'Wiki', to: '/wiki', external: true }
     ] satisfies NavItem[],
     footer:
-      'MT Network is a community-run Minecraft survival server founded in 2024. It focuses on fair play, cross-play access, and long-term building.'
+      'MTNetwork is a community-run Minecraft survival server founded in 2024. It focuses on fair play, cross-play access, and long-term building.'
   },
   home: {
     hero: {
       eyebrow: 'Community-run survival server, founded in 2024',
       title: 'A long-horizon survival world built for fair play.',
       body:
-        'MT Network pairs a vanilla-first ruleset with Java and Bedrock access, a dedicated node in Shenzhen, and a public-facing archive of players, rankings, and world moments.',
+        'MTNetwork pairs a vanilla-first ruleset with Java and Bedrock access, a dedicated node in Shenzhen, and a public-facing archive of players, rankings, and world moments.',
       primaryCta: 'Explore Players',
       secondaryCta: 'Read The Server Story',
       facts: [
@@ -129,7 +129,7 @@ export const siteContent = {
     cta: {
       title: 'Join the world, then leave a trace worth keeping.',
       body:
-        'If you want a survival server with fair rules, visible history, and room for large-scale building, MT Network is built for that pace.',
+        'If you want a survival server with fair rules, visible history, and room for large-scale building, MTNetwork is built for that pace.',
       primaryCta: 'Open Server Intro',
       note: 'Connection details for both editions are listed below.'
     }
@@ -145,7 +145,7 @@ export const siteContent = {
       {
         heading: 'Where it started',
         paragraphs: [
-          'MT Network began in October 2024 on a homeserver in Shenzhen. The early core was small: hardware specialist mc9957, veteran player wor114514, and later txrog, who helped reshape the software architecture.',
+          'MTNetwork began in October 2024 on a homeserver in Shenzhen. The early core was small: hardware specialist mc9957, veteran player wor114514, and later txrog, who helped reshape the software architecture.',
           'At first it was only a private space for a few friends. As the stack matured, the server moved from a closed Bedrock setup toward a more capable Java-oriented architecture and then opened itself to a wider community.'
         ]
       },
@@ -153,7 +153,7 @@ export const siteContent = {
         heading: 'How it changed',
         paragraphs: [
           'Railway builder HEHAWellgood became part of that next phase, bringing a strong infrastructure mindset to the world itself. The identity of the server shifted from a private save into a shared place with public systems, routes, and records.',
-          'That arc still defines MT Network today: survival first, large projects welcomed, and technical work in service of a stable long-term world.'
+          'That arc still defines MTNetwork today: survival first, large projects welcomed, and technical work in service of a stable long-term world.'
         ]
       }
     ] satisfies IntroStoryBlock[],
@@ -188,7 +188,7 @@ export const siteContent = {
       title: 'Official community group',
       body:
         'The QR code on this page links to the official QQ group. It is the clearest verified entry point for announcements, coordination, and questions.',
-      caption: 'Scan to join the official MT Network community group.'
+      caption: 'Scan to join the official MTNetwork community group.'
     }
   },
   serverPanels: {
@@ -280,7 +280,7 @@ export const siteContent = {
     eyebrow: 'Core members',
     title: 'The member index is still being prepared.',
     body:
-      'The server story already names several of the people who shaped MT Network, but a dedicated member archive has not been compiled yet.',
+      'The server story already names several of the people who shaped MTNetwork, but a dedicated member archive has not been compiled yet.',
     primaryCta: 'Read The Server Intro',
     secondaryCta: 'Open The Community Panel',
     note:
