@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import { siteContent } from '@/content/siteContent'
 import type { AdvancementMetadata, PlayerAdvancement } from '@/types/api'
 
@@ -20,11 +21,14 @@ function handleImageError(event: Event): void {
 </script>
 
 <template>
-  <section v-if="advancements && advancements.length > 0" class="glass-card panel-card">
-    <div class="panel-head">
-      <h3>{{ siteContent.playerDetail.sections.advancements }}</h3>
+  <PlayerCollapsiblePanel
+    v-if="advancements && advancements.length > 0"
+    class="panel-card"
+    :title="siteContent.playerDetail.sections.advancements"
+  >
+    <template #summary>
       <span class="meta-chip">{{ completedAdvancements }}/{{ totalAdvancements }}</span>
-    </div>
+    </template>
 
     <div v-for="(items, category) in categorizedAdvancements" :key="category" class="advancement-section">
       <h4>{{ category }}</h4>
@@ -40,7 +44,7 @@ function handleImageError(event: Event): void {
         </article>
       </div>
     </div>
-  </section>
+  </PlayerCollapsiblePanel>
 </template>
 
 <style scoped>
@@ -49,24 +53,13 @@ function handleImageError(event: Event): void {
   gap: 1rem;
 }
 
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-}
-
-.panel-head h3 {
-  font-size: 1.8rem;
-}
-
 .meta-chip {
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.74rem;
-  border: 1px solid rgba(255, 248, 234, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .advancement-section {
@@ -89,8 +82,8 @@ function handleImageError(event: Event): void {
   gap: 0.85rem;
   padding: 0.9rem 1rem;
   border-radius: 18px;
-  background: rgba(255, 248, 234, 0.04);
-  border: 1px solid rgba(255, 248, 234, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   align-items: center;
 }
 
@@ -100,8 +93,8 @@ function handleImageError(event: Event): void {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: rgba(255, 248, 234, 0.05);
-  border: 1px solid rgba(255, 248, 234, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 

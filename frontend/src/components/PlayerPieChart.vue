@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onUnmounted, ref, watch } from 'vue'
 
+import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import { siteContent } from '@/content/siteContent'
 import type { OreStat } from '@/types/api'
 
@@ -27,7 +28,7 @@ async function initPieChart(): Promise<void> {
       datasets: [
         {
           data: props.oreStats.map((ore) => ore.mined),
-          backgroundColor: ['#5b71f6', '#3b82f6', '#7dd3fc', '#8b5cf6', '#38bdf8', '#1d4ed8'],
+          backgroundColor: ['#3d78ff', '#1d4ed8', '#5b8cff', '#102d7a', '#6cb4ff', '#0a1637'],
           borderWidth: 0
         }
       ]
@@ -39,7 +40,7 @@ async function initPieChart(): Promise<void> {
         legend: {
           position: 'right',
           labels: {
-            color: '#c4b69d',
+            color: '#d6e4ff',
             font: { family: 'Instrument Sans' }
           }
         }
@@ -75,10 +76,11 @@ function formatNumber(value: number): string {
 </script>
 
 <template>
-  <section v-if="oreStats.length > 0" class="glass-card panel-card">
-    <div class="panel-head">
-      <h3>{{ siteContent.playerDetail.sections.ores }}</h3>
-    </div>
+  <PlayerCollapsiblePanel v-if="oreStats.length > 0" class="panel-card" :title="siteContent.playerDetail.sections.ores">
+    <template #summary>
+      <span class="meta-chip">Top {{ Math.min(oreStats.length, 8) }}</span>
+    </template>
+
     <div class="ore-layout">
       <div class="chart-wrap">
         <canvas ref="pieChartCanvas"></canvas>
@@ -90,17 +92,13 @@ function formatNumber(value: number): string {
         </div>
       </div>
     </div>
-  </section>
+  </PlayerCollapsiblePanel>
 </template>
 
 <style scoped>
 .panel-card {
   display: grid;
   gap: 1rem;
-}
-
-.panel-head h3 {
-  font-size: 1.8rem;
 }
 
 .ore-layout {
@@ -126,8 +124,8 @@ function formatNumber(value: number): string {
   gap: 1rem;
   padding: 0.9rem 1rem;
   border-radius: 16px;
-  background: rgba(255, 248, 234, 0.04);
-  border: 1px solid rgba(255, 248, 234, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .ore-row span {
@@ -136,6 +134,15 @@ function formatNumber(value: number): string {
 
 .ore-row strong {
   color: var(--text-strong);
+}
+
+.meta-chip {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 860px) {

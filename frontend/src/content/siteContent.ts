@@ -66,16 +66,16 @@ export const siteContent = {
       { label: 'Wiki', to: '/wiki', external: true }
     ] satisfies NavItem[],
     footer:
-      'MTNetwork is a community-run Minecraft survival server founded in 2024. It focuses on fair play, cross-play access, and long-term building.'
+      'Community-run survival since 2024. Fair rules, cross-play access, long-term builds.'
   },
   home: {
     hero: {
-      eyebrow: 'Community-run survival server, founded in 2024',
-      title: 'A long-horizon survival world built for fair play.',
+      eyebrow: 'Community-run survival, founded in 2024',
+      title: 'Long-term survival. No shortcut economy.',
       body:
-        'MTNetwork pairs a vanilla-first ruleset with Java and Bedrock access, a dedicated node in Shenzhen, and a public-facing archive of players, rankings, and world moments.',
+        'Java and Bedrock share one world, one history, and one public record.',
       primaryCta: 'Explore Players',
-      secondaryCta: 'Read The Server Story',
+      secondaryCta: 'Read The Story',
       facts: [
         { label: 'Operations', value: 'Non-profit community run' },
         { label: 'Access', value: 'Java and Bedrock' },
@@ -86,74 +86,74 @@ export const siteContent = {
       {
         title: 'Community-run operations',
         description:
-          'The project is maintained as a non-profit community server. The ruleset is built around equal footing rather than paid shortcuts.',
+          'Non-profit, community-run, and built around equal footing.',
         icon: '01',
         accent: 'copper'
       },
       {
         title: 'Vanilla-first survival',
         description:
-          'The core Minecraft survival loop stays intact. Tweaks are there to support fairness, clarity, and long-term play rather than replace the game.',
+          'Core survival stays intact. Tweaks support fairness, not replacement gameplay.',
         icon: '02',
         accent: 'moss'
       },
       {
         title: 'Cross-play access',
         description:
-          'Java and Bedrock players can enter the same world, with linked identity data supporting shared progress where the backend exposes it.',
+          'Java and Bedrock join the same world with shared public records.',
         icon: '03',
         accent: 'redstone'
       },
       {
         title: 'Dedicated infrastructure',
         description:
-          'The live node information surfaced by the site points to Shenzhen, China Mobile connectivity, and dedicated hardware rather than a disposable host.',
+          'Dedicated hardware in Shenzhen, surfaced live by the site.',
         icon: '04',
         accent: 'copper'
       },
       {
         title: 'Builders with range',
         description:
-          'The server story is tied to city building, railway work, survival automation, and large shared projects instead of short-cycle resets.',
+          'Railways, cities, farms, and large shared builds over resets.',
         icon: '05',
         accent: 'moss'
       },
       {
         title: 'Public records',
         description:
-          'Players, leaderboards, advancements, statistics, and screenshots are surfaced through the site so the world has a visible memory.',
+          'Players, rankings, stats, and screenshots stay public.',
         icon: '06',
         accent: 'redstone'
       }
     ] satisfies FeatureCardContent[],
     cta: {
-      title: 'Join the world, then leave a trace worth keeping.',
+      title: 'Join, build, leave a mark.',
       body:
-        'If you want a survival server with fair rules, visible history, and room for large-scale building, MTNetwork is built for that pace.',
-      primaryCta: 'Open Server Intro',
-      note: 'Connection details for both editions are listed below.'
+        'If you want fair survival with visible history, this is the pace.',
+      primaryCta: 'Open Intro',
+      note: 'Connection details sit below.'
     }
   },
   intro: {
     hero: {
       eyebrow: 'Server introduction',
-      title: 'From a private homeserver to a public survival world.',
+      title: 'From private homeserver to public world.',
       body:
-        'The project started small and became public through iteration: better software architecture, stronger infrastructure, and a clearer community identity.'
+        'The stack grew, the hardware improved, and the server opened up.'
     },
     story: [
       {
         heading: 'Where it started',
         paragraphs: [
-          'MTNetwork began in October 2024 on a homeserver in Shenzhen. The early core was small: hardware specialist mc9957, veteran player wor114514, and later txrog, who helped reshape the software architecture.',
-          'At first it was only a private space for a few friends. As the stack matured, the server moved from a closed Bedrock setup toward a more capable Java-oriented architecture and then opened itself to a wider community.'
+          'MTNetwork began in October 2024 on a homeserver in Shenzhen. The early core was small: mc9957, wor114514, and later txrog.',
+          'It started as a private space for friends, then moved toward a stronger Java-oriented stack and a public community.'
         ]
       },
       {
         heading: 'How it changed',
         paragraphs: [
-          'Railway builder HEHAWellgood became part of that next phase, bringing a strong infrastructure mindset to the world itself. The identity of the server shifted from a private save into a shared place with public systems, routes, and records.',
-          'That arc still defines MTNetwork today: survival first, large projects welcomed, and technical work in service of a stable long-term world.'
+          'Railway builder HEHAWellgood helped push the world toward public systems, routes, and larger projects.',
+          'That arc still defines MTNetwork: survival first, large work welcomed, and technical effort in service of stability.'
         ]
       }
     ] satisfies IntroStoryBlock[],
@@ -161,34 +161,34 @@ export const siteContent = {
       {
         title: 'Fair by default',
         description:
-          'The server presents itself as non-profit and non-pay-to-win. Players are meant to enter on equal footing, without paid privilege tiers.'
+          'Non-profit and non-pay-to-win. Everyone starts on equal footing.'
       },
       {
         title: 'Vanilla at the center',
         description:
-          'The goal is not to replace Minecraft with a custom minigame stack. The world stays rooted in survival play, exploration, and building.'
+          'The world stays rooted in survival, exploration, and building.'
       },
       {
         title: 'Cross-play where it matters',
         description:
-          'Java and Bedrock access are both part of the operating model, with linked account data available in the backend when present.'
+          'Java and Bedrock both remain part of the operating model.'
       },
       {
         title: 'Automation friendly',
         description:
-          'The project explicitly positions itself as friendly to technical play, including high-frequency contraptions and larger infrastructure builds.'
+          'Technical play, automation, and infrastructure builds are welcome.'
       }
     ] satisfies PrincipleContent[],
     infrastructure: {
       title: 'Live operating context',
       body:
-        'The site exposes live status, connection records, and system telemetry so players can see how the world is running instead of treating the server as a black box.'
+        'Status, addresses, and node load stay visible.'
     },
     community: {
       title: 'Official community group',
       body:
-        'The QR code on this page links to the official QQ group. It is the clearest verified entry point for announcements, coordination, and questions.',
-      caption: 'Scan to join the official MTNetwork community group.'
+        'The QR code links to the official QQ group for announcements and questions.',
+      caption: 'Scan to join the MTNetwork QQ group.'
     }
   },
   serverPanels: {
@@ -198,9 +198,9 @@ export const siteContent = {
     connectionTitle: 'Connection guide',
     connectionLoading: 'Loading connection records...',
     connectionHint:
-      'If your device and network support IPv6, use it first. Keep the wiki link in the navigation for external documentation if it exists outside this repo.',
-    simpleView: 'Condensed View',
-    fullView: 'Detailed View',
+      'Prefer IPv6 when your device and network support it.',
+    simpleView: 'Compact',
+    fullView: 'Detailed',
     javaTitle: 'Java Edition',
     bedrockTitle: 'Bedrock Edition',
     copyPrefix: 'Copied',
@@ -209,14 +209,13 @@ export const siteContent = {
       cpu: 'CPU',
       load: 'Load',
       ram: 'RAM',
-      network: 'Network',
       offline: 'Offline'
     }
   },
   players: {
     title: 'Player Directory',
     body:
-      'Search the active roster, browse the full archive, or jump directly to a random player record.',
+      'Search the roster, browse the archive, or jump to a random record.',
     loading: 'Loading the latest player records...',
     emptyTitle: 'No players matched this search',
     emptyBody: 'Try a different name fragment or return to the recent-player view.',
@@ -256,7 +255,7 @@ export const siteContent = {
   leaderboards: {
     title: 'Leaderboards',
     body:
-      'Rankings are generated from live backend data, covering McMMO totals and major survival statistics.',
+      'Rankings generated from live backend data.',
     loading: 'Refreshing leaderboard data...',
     emptyTitle: 'No leaderboard data yet',
     emptyBody: 'This category does not have enough public data to rank players right now.',
@@ -270,7 +269,7 @@ export const siteContent = {
     eyebrow: 'World archive',
     title: 'Captured moments from the server',
     body:
-      'The gallery is a visual log of the world as it changes, using timestamped screenshots stored directly in the repo.',
+      'A timestamped visual log of the world.',
     capturesLabel: 'captures',
     action: 'Open Frame',
     close: 'Close',

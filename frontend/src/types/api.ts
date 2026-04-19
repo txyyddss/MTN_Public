@@ -4,7 +4,6 @@ export interface EditionStatus {
   online: boolean
   players: number
   player_list: string[]
-  version: string
   motd: string
 }
 
@@ -28,8 +27,6 @@ export interface SystemStats {
   disk_write_rate: number
   net_sent: number
   net_recv: number
-  net_sent_rate: number
-  net_recv_rate: number
   load_1: number
   load_5: number
   load_15: number

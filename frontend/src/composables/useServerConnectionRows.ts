@@ -19,7 +19,8 @@ function buildDirectRow(label: string, badge: string, entry?: ConnectionAddress)
   }
 
   const host = entry.domain || entry.ip
-  const value = entry.port ? `${host}:${entry.port}` : host
+  const hostWithPort = entry.port && host.endsWith(`:${entry.port}`)
+  const value = entry.port && !hostWithPort ? `${host}:${entry.port}` : host
 
   return {
     label,

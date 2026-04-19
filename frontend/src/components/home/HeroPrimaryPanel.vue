@@ -4,7 +4,6 @@ import { siteContent } from '@/content/siteContent'
 interface Props {
   content: typeof siteContent.home.hero
   onlineCount: number
-  javaVersion: string
   updatedLabel: string
 }
 
@@ -20,9 +19,8 @@ const props = defineProps<Props>()
     <div class="hero-badges">
       <span class="badge-pill">
         <span class="live-dot"></span>
-        {{ props.onlineCount }} players visible right now
+        {{ props.onlineCount }} online
       </span>
-      <span class="badge-pill">Java version: {{ props.javaVersion }}</span>
       <span class="badge-pill">Updated {{ props.updatedLabel }}</span>
     </div>
 
@@ -41,19 +39,19 @@ const props = defineProps<Props>()
 .hero-copy {
   display: grid;
   align-content: center;
-  gap: 1.35rem;
-  padding: 1.5rem 0;
+  gap: 1rem;
+  padding: 0.75rem 0;
 }
 
 .hero-title {
-  font-size: clamp(3.8rem, 8vw, 7rem);
-  max-width: 12ch;
+  font-size: clamp(3.2rem, 7vw, 6rem);
+  max-width: 11ch;
 }
 
 .hero-body {
-  max-width: 60ch;
+  max-width: 54ch;
   color: var(--text-muted);
-  font-size: 1.08rem;
+  font-size: 0.98rem;
 }
 
 .hero-badges {
@@ -73,8 +71,8 @@ const props = defineProps<Props>()
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding-top: 0.4rem;
+  gap: 0.85rem;
+  padding-top: 0.25rem;
 }
 
 @media (max-width: 640px) {

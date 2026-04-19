@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
+import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import StatBox from '@/components/StatBox.vue'
 import { siteContent } from '@/content/siteContent'
 import type { PlayerStatBuckets, StatGroup } from '@/types/api'
@@ -26,12 +29,17 @@ const emit = defineEmits<{
 function rankForStat(name: string): number | undefined {
   return props.ranks[`stat:${props.selectedCategory}:${name}`]
 }
+
+const activeCategoryLabel = computed(() => props.selectedCategory.replace('minecraft:', '').replace(/_/g, ' '))
 </script>
 
 <template>
-  <section v-if="stats" class="glass-card panel-card">
+  <PlayerCollapsiblePanel v-if="stats" class="panel-card" :title="siteContent.playerDetail.sections.extendedStats">
+    <template #summary>
+      <span class="meta-chip">{{ activeCategoryLabel }}</span>
+    </template>
+
     <div class="panel-head">
-      <h3>{{ siteContent.playerDetail.sections.extendedStats }}</h3>
       <input
         :value="statSearch"
         :placeholder="siteContent.playerDetail.sections.searchPlaceholder"
@@ -75,7 +83,7 @@ function rankForStat(name: string): number | undefined {
       />
     </div>
     <p v-else class="empty-copy">{{ siteContent.playerDetail.sections.emptyStats }}</p>
-  </section>
+  </PlayerCollapsiblePanel>
 </template>
 
 <style scoped>
@@ -86,13 +94,7 @@ function rankForStat(name: string): number | undefined {
 
 .panel-head {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-}
-
-.panel-head h3 {
-  font-size: 1.8rem;
+  justify-content: flex-end;
 }
 
 .search-input {
@@ -101,7 +103,7 @@ function rankForStat(name: string): number | undefined {
   padding: 0 1rem;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(255, 248, 234, 0.03);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-main);
 }
 
@@ -116,7 +118,7 @@ function rankForStat(name: string): number | undefined {
 .category-tab {
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(255, 248, 234, 0.03);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
   padding: 0.65rem 0.9rem;
   text-transform: capitalize;
@@ -136,6 +138,16 @@ function rankForStat(name: string): number | undefined {
 
 .empty-copy {
   color: var(--text-muted);
+}
+
+.meta-chip {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-transform: capitalize;
 }
 
 @media (max-width: 980px) {

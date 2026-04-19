@@ -27,8 +27,6 @@ type SystemStats struct {
 	DiskWriteRate  uint64  `json:"disk_write_rate"` // bytes per second
 	NetSent        uint64  `json:"net_sent"`
 	NetRecv        uint64  `json:"net_recv"`
-	NetSentRate    uint64  `json:"net_sent_rate"` // bytes per second
-	NetRecvRate    uint64  `json:"net_recv_rate"` // bytes per second
 	Load1          float64 `json:"load_1"`
 	Load5          float64 `json:"load_5"`
 	Load15         float64 `json:"load_15"`
@@ -87,12 +85,6 @@ func getSystemStats() *SystemStats {
 			}
 			if stats.DiskWrite >= prevStats.DiskWrite {
 				stats.DiskWriteRate = uint64(float64(stats.DiskWrite-prevStats.DiskWrite) / duration)
-			}
-			if stats.NetSent >= prevStats.NetSent {
-				stats.NetSentRate = uint64(float64(stats.NetSent-prevStats.NetSent) / duration)
-			}
-			if stats.NetRecv >= prevStats.NetRecv {
-				stats.NetRecvRate = uint64(float64(stats.NetRecv-prevStats.NetRecv) / duration)
 			}
 		}
 	}

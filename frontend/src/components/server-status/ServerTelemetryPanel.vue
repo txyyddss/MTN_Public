@@ -18,16 +18,6 @@ function formatEditionTotal(count: number | undefined, online: boolean | undefin
   return `${count ?? 0} ${count === 1 ? 'player' : 'players'}`
 }
 
-function formatBytes(bytes: number): string {
-  if (bytes <= 0) {
-    return '0 B/s'
-  }
-
-  const units = ['B/s', 'KB/s', 'MB/s', 'GB/s']
-  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
-  return `${(bytes / Math.pow(1024, index)).toFixed(1)} ${units[index]}`
-}
-
 function formatMemory(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
@@ -59,10 +49,6 @@ const systemRows = computed(() => {
     {
       label: siteContent.serverPanels.labels.ram,
       value: `${formatMemory(system.mem_used)} / ${system.mem_percent.toFixed(0)}%`
-    },
-    {
-      label: siteContent.serverPanels.labels.network,
-      value: formatBytes(system.net_sent_rate + system.net_recv_rate)
     }
   ]
 })
@@ -81,7 +67,7 @@ const updatedLabel = computed(() => {
     <div class="panel-head">
       <div class="panel-heading">
         <span class="section-kicker">{{ siteContent.serverPanels.liveStatusTitle }}</span>
-        <h3 class="panel-title">Telemetry and system load</h3>
+        <h3 class="panel-title">Node load</h3>
       </div>
     </div>
 
@@ -111,7 +97,7 @@ const updatedLabel = computed(() => {
 <style scoped>
 .panel-block {
   display: grid;
-  gap: 1.35rem;
+  gap: 1rem;
 }
 
 .panel-head {
@@ -127,12 +113,12 @@ const updatedLabel = computed(() => {
 }
 
 .panel-title {
-  font-size: 2rem;
+  font-size: 1.55rem;
 }
 
 .status-stack {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.7rem;
 }
 
 .status-row {
@@ -140,11 +126,10 @@ const updatedLabel = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  width: 100%;
-  padding: 0.95rem 1rem;
-  border: 1px solid rgba(255, 248, 234, 0.08);
-  border-radius: 18px;
-  background: rgba(255, 248, 234, 0.035);
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .status-label {
@@ -160,16 +145,16 @@ const updatedLabel = computed(() => {
 .system-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  gap: 0.7rem;
 }
 
 .system-card {
   display: grid;
   gap: 0.25rem;
-  padding: 0.9rem 1rem;
-  border-radius: 18px;
-  background: rgba(255, 248, 234, 0.03);
-  border: 1px solid rgba(255, 248, 234, 0.05);
+  padding: 0.8rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .system-label {

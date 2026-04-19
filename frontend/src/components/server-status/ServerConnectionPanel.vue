@@ -62,10 +62,10 @@ onUnmounted(() => {
     <div class="panel-head panel-head-spread">
       <div class="panel-heading">
         <span class="section-kicker">{{ siteContent.serverPanels.connectionTitle }}</span>
-        <h3 class="panel-title">Verified addresses</h3>
+        <h3 class="panel-title">Addresses</h3>
       </div>
 
-      <button v-if="canToggleDetailedView" class="toggle-view-btn" @click="showAllJava = !showAllJava">
+      <button v-if="canToggleDetailedView" type="button" class="toggle-view-btn" @click="showAllJava = !showAllJava">
         {{ showAllJava ? siteContent.serverPanels.simpleView : siteContent.serverPanels.fullView }}
       </button>
     </div>
@@ -99,7 +99,7 @@ onUnmounted(() => {
 <style scoped>
 .panel-block {
   display: grid;
-  gap: 1.35rem;
+  gap: 1rem;
 }
 
 .panel-head {
@@ -119,15 +119,15 @@ onUnmounted(() => {
 }
 
 .panel-title {
-  font-size: 2rem;
+  font-size: 1.55rem;
 }
 
 .toggle-view-btn {
   border: 1px solid var(--glass-border-bright);
   border-radius: 999px;
-  background: rgba(255, 248, 234, 0.03);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-main);
-  padding: 0.65rem 0.95rem;
+  padding: 0.58rem 0.86rem;
 }
 
 .connection-hint,
@@ -139,16 +139,16 @@ onUnmounted(() => {
 .connection-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .connection-block {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .connection-block-title {
-  font-size: 1.45rem;
+  font-size: 1.15rem;
 }
 
 .address-row {
@@ -157,10 +157,10 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  padding: 0.95rem 1rem;
-  border: 1px solid rgba(255, 248, 234, 0.08);
-  border-radius: 18px;
-  background: rgba(255, 248, 234, 0.035);
+  padding: 0.82rem 0.92rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
   cursor: pointer;
   text-align: left;
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import SkillItem from '@/components/SkillItem.vue'
 import { siteContent } from '@/content/siteContent'
 import type { FormattedSkillEntry, McMMOSkills } from '@/types/api'
@@ -11,14 +12,13 @@ defineProps<{
 </script>
 
 <template>
-  <section v-if="mcmmo" class="glass-card panel-card">
-    <div class="panel-head">
-      <h3>{{ siteContent.playerDetail.sections.skills }}</h3>
+  <PlayerCollapsiblePanel v-if="mcmmo" class="panel-card" :title="siteContent.playerDetail.sections.skills">
+    <template #summary>
       <div class="meta-cluster">
         <span v-if="ranks.skills" class="meta-chip">#{{ ranks.skills }}</span>
         <span class="meta-chip">{{ siteContent.playerDetail.sections.total }} {{ mcmmo.total }}</span>
       </div>
-    </div>
+    </template>
 
     <div class="skill-grid">
       <SkillItem
@@ -29,24 +29,13 @@ defineProps<{
         :rank="ranks[`mcmmo:${entry.key}`]"
       />
     </div>
-  </section>
+  </PlayerCollapsiblePanel>
 </template>
 
 <style scoped>
 .panel-card {
   display: grid;
   gap: 1rem;
-}
-
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-}
-
-.panel-head h3 {
-  font-size: 1.8rem;
 }
 
 .meta-cluster {
@@ -61,7 +50,7 @@ defineProps<{
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.74rem;
-  border: 1px solid rgba(255, 248, 234, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .skill-grid {

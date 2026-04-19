@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
+import { useMediaQuery } from '@/composables/useMediaQuery'
 import { siteContent } from '@/content/siteContent'
 
 const imageModules = import.meta.glob('/public/gallery-images/*.{png,jpg,jpeg,webp}', { eager: true })
@@ -9,6 +10,7 @@ const images = Object.keys(imageModules)
   .filter((image): image is string => image.length > 0)
   .sort((left, right) => right.localeCompare(left))
 
+const { matches: isPhone } = useMediaQuery('(max-width: 720px)')
 const selectedIndex = ref<number | null>(null)
 const selectedImage = computed(() => (selectedIndex.value === null ? null : images[selectedIndex.value]))
 const selectedLabel = computed(() =>
@@ -16,6 +18,10 @@ const selectedLabel = computed(() =>
 )
 
 function openLightbox(index: number): void {
+  if (isPhone.value) {
+    return
+  }
+
   selectedIndex.value = index
   document.body.style.overflow = 'hidden'
 }
@@ -79,14 +85,15 @@ onUnmounted(() => {
         v-for="(image, index) in images"
         :key="image"
         type="button"
-        class="gallery-card glass-card animate-entry"
+        :class="['gallery-card', 'glass-card', 'animate-entry', { passive: isPhone }]"
+        :aria-disabled="isPhone"
+        :tabindex="isPhone ? -1 : 0"
         :style="{ animationDelay: `${(index % 18) * 0.04}s` }"
         @click="openLightbox(index)"
       >
         <img :src="`/gallery-images/${image}`" :alt="`${siteContent.gallery.frameLabel} ${index + 1}`" loading="lazy" />
         <div class="gallery-meta">
           <strong>{{ images.length - index }}</strong>
-          <span>{{ siteContent.gallery.action }}</span>
         </div>
       </button>
     </div>
@@ -94,12 +101,12 @@ onUnmounted(() => {
     <Transition name="lightbox-fade">
       <div v-if="selectedImage" class="lightbox-overlay" @click="closeLightbox">
         <div class="lightbox-shell" @click.stop>
-          <button class="lightbox-nav" type="button" aria-label="Previous image" @click="previousImage">‹</button>
+          <button class="lightbox-nav" type="button" aria-label="Previous image" @click="previousImage">&lt;</button>
           <div class="lightbox-image-wrap">
             <p class="lightbox-label">{{ selectedLabel }}</p>
             <img :src="`/gallery-images/${selectedImage}`" :alt="selectedLabel" class="lightbox-image" />
           </div>
-          <button class="lightbox-nav" type="button" aria-label="Next image" @click="nextImage">›</button>
+          <button class="lightbox-nav" type="button" aria-label="Next image" @click="nextImage">&gt;</button>
         </div>
         <button class="lightbox-close" type="button" @click="closeLightbox">
           {{ siteContent.gallery.close }}
@@ -136,6 +143,10 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
+.gallery-card.passive {
+  cursor: default;
+}
+
 .gallery-card img {
   width: 100%;
   border-radius: calc(var(--radius-lg) - 10px);
@@ -144,7 +155,7 @@ onUnmounted(() => {
 .gallery-meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
   margin-top: 0.9rem;
 }
@@ -152,13 +163,6 @@ onUnmounted(() => {
 .gallery-meta strong {
   font-family: var(--mono);
   color: var(--text-strong);
-}
-
-.gallery-meta span {
-  color: var(--text-dim);
-  font-size: 0.86rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
 .lightbox-overlay {
@@ -203,7 +207,7 @@ onUnmounted(() => {
 .lightbox-close {
   border: 1px solid var(--glass-border-bright);
   border-radius: 999px;
-  background: rgba(255, 248, 234, 0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
 }
 
@@ -239,6 +243,10 @@ onUnmounted(() => {
 
   .lightbox-nav {
     display: none;
+  }
+
+  .gallery-card:hover {
+    transform: none;
   }
 }
 </style>

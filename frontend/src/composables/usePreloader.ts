@@ -2,7 +2,6 @@ import { API_BASE_URL } from '@/config'
 import { preloadImages, PreloadPriority, preloadScripts, preloadData } from '@/utils/preloader'
 import { fetchWithCache } from '@/utils/dataCache'
 import iconMap from '@/assets/icon_map.json'
-import heroArt from '@/assets/hero.png'
 import { shallowRef } from 'vue'
 import type { PlayerListResponse } from '@/types/api'
 
@@ -48,14 +47,7 @@ export function usePreloader() {
             }
         }
 
-        await Promise.allSettled([
-            fetchPlayersAndSkins(),
-            new Promise<void>((resolve) => {
-                const img = new Image()
-                img.onload = img.onerror = () => resolve()
-                img.src = heroArt
-            })
-        ])
+        await Promise.allSettled([fetchPlayersAndSkins()])
 
         const iconUrls = Object.values(iconMap)
         preloadImages(iconUrls, PreloadPriority.BACKGROUND)

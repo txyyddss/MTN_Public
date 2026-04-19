@@ -36,7 +36,6 @@ type JavaStatus struct {
 	Online     bool     `json:"online"`
 	Players    int      `json:"players"`
 	PlayerList []string `json:"player_list"`
-	Version    string   `json:"version"`
 	MOTD       string   `json:"motd"`
 }
 
@@ -45,7 +44,6 @@ type BedrockStatus struct {
 	Online     bool     `json:"online"`
 	Players    int      `json:"players"`
 	PlayerList []string `json:"player_list"`
-	Version    string   `json:"version"`
 	MOTD       string   `json:"motd"`
 }
 
@@ -243,7 +241,6 @@ func (m *Monitor) pollJava(ctx context.Context) (*JavaStatus, *response.StatusMo
 func parseJavaResult(r *response.StatusModern) *JavaStatus {
 	js := &JavaStatus{Online: true}
 
-	js.Version = r.Version.Name.Clean
 	js.MOTD = r.MOTD.Clean
 
 	return js
@@ -283,9 +280,6 @@ func (m *Monitor) pollBedrock(ctx context.Context, javaResult *response.StatusMo
 		bs.Players = int(*result.OnlinePlayers)
 	}
 
-	if result.Version != nil {
-		bs.Version = *result.Version
-	}
 	bs.MOTD = result.MOTD.Clean
 
 	return bs
