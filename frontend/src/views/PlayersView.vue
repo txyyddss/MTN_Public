@@ -1,39 +1,46 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+
 import { API_BASE_URL } from '@/config'
+import { siteContent } from '@/content/siteContent'
 import { usePlayers } from '@/composables/usePlayers'
+import { useServerStatusStore } from '@/stores/serverStatus'
+import type { RandomPlayerResponse } from '@/types/api'
+import { getAvatarUrl } from '@/utils/minecraft'
 
 const router = useRouter()
-const {
-  players, count, activeDays, searchQuery, showAll, loading, onlinePlayers, sortedPlayers,
-  fetchPlayers, fetchOnline, startAutoRefresh, stopAutoRefresh
-} = usePlayers()
+const statusStore = useServerStatusStore()
+const { status } = storeToRefs(statusStore)
 
+const onlinePlayers = computed(() => status.value?.online_players ?? [])
+const { players, count, activeDays, searchQuery, showAll, loading, sortedPlayers, fetchPlayers, startAutoRefresh, stopAutoRefresh } =
+  usePlayers(onlinePlayers)
 
-const handleRandom = async () => {
+async function handleRandom(): Promise<void> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/players/random`)
-    if (!res.ok) return
-    const json = await res.json()
-    if (json.uuid) {
-      router.push(`/player/${json.uuid}`)
+    const response = await fetch(`${API_BASE_URL}/api/players/random`)
+    if (!response.ok) {
+      return
     }
-  } catch (e) {
-    console.error('Failed to fetch random player', e)
+
+    const json = (await response.json()) as RandomPlayerResponse
+    if (json.uuid) {
+      await router.push(`/player/${json.uuid}`)
+    }
+  } catch (error) {
+    console.error('Failed to open a random player', error)
   }
 }
 
-const isOnline = (uuid: string) => {
-    return onlinePlayers.value.includes(uuid)
+function isOnline(uuid: string): boolean {
+  return onlinePlayers.value.includes(uuid)
 }
 
-import { getAvatarUrl } from '@/utils/minecraft'
-
 onMounted(() => {
-  fetchPlayers()
-  fetchOnline()
-  startAutoRefresh(5000)
+  void fetchPlayers()
+  startAutoRefresh()
 })
 
 onUnmounted(() => {
@@ -42,368 +49,212 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="players-view container">
-    <!-- Sophisticated Header -->
-    <header class="view-header animate-entry">
-      <div class="title-area">
-        <h1>DIRECTORY</h1>
-        <div class="stats-pills">
-           <span class="pill" v-if="loading">Searching...</span>
-           <span class="pill" v-else>
-             {{ count }} {{ count === 1 ? 'Player' : 'Players' }} 
-             <span v-if="!searchQuery && !showAll">in last {{ activeDays }} days</span>
-             <span v-else-if="searchQuery">matching "{{ searchQuery }}"</span>
-           </span>
-        </div>
-      </div>
-
-      <div class="controls-panel glass-card">
-        <div class="search-input-wrap">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input 
-            v-model="searchQuery" 
-            placeholder="Search by username or UUID..." 
-            class="prime-search"
-          />
-        </div>
-        
-        <div class="action-group">
-            <button @click="showAll = !showAll" :class="['btn-toggle', { active: showAll }]">
-                {{ showAll ? 'ALL' : 'ACTIVE' }}
-            </button>
-            <button @click="handleRandom" class="btn-hero-action" title="Random Player">
-              <span class="icon">🎲</span>
-            </button>
-        </div>
-      </div>
+  <div class="players-view container page-shell">
+    <header class="page-header animate-entry">
+      <span class="page-kicker">Public player records</span>
+      <h1>{{ siteContent.players.title }}</h1>
+      <p class="page-lede">{{ siteContent.players.body }}</p>
     </header>
 
-    <!-- Content States -->
-    <div v-if="loading && players.length === 0" class="loading-state">
-      <div class="loader"></div>
-      <p>Consulting the archives...</p>
+    <section class="controls-row glass-card animate-entry delay-100">
+      <label class="search-field">
+        <span>Search</span>
+        <input v-model="searchQuery" :placeholder="siteContent.players.searchPlaceholder" />
+      </label>
+
+      <div class="control-actions">
+        <button :class="['toggle-chip', { active: !showAll }]" type="button" @click="showAll = false">
+          {{ siteContent.players.recentLabel }}
+          <small v-if="!showAll">last {{ activeDays }} days</small>
+        </button>
+        <button :class="['toggle-chip', { active: showAll }]" type="button" @click="showAll = true">
+          {{ siteContent.players.allLabel }}
+        </button>
+        <button class="btn-secondary random-button" type="button" :title="siteContent.players.randomTitle" @click="handleRandom">
+          Random
+        </button>
+      </div>
+    </section>
+
+    <p class="results-line animate-entry delay-200">
+      <span class="badge-pill">{{ count }} {{ count === 1 ? 'player' : 'players' }}</span>
+      <span v-if="searchQuery">matching “{{ searchQuery }}”</span>
+      <span v-else-if="!showAll">active within the last {{ activeDays }} days</span>
+      <span v-else>in the full archive</span>
+    </p>
+
+    <div v-if="loading && players.length === 0" class="glass-card state-card">
+      {{ siteContent.players.loading }}
     </div>
 
-    <div v-else-if="players.length === 0" class="empty-state glass-card animate-entry">
-      <div class="empty-icon">📂</div>
-      <h3>No matches found</h3>
-      <p>We couldn't find any players matching your criteria.</p>
-      <button @click="() => { searchQuery = ''; showAll = false; }" class="btn-primary mt-4">Reset Search</button>
+    <div v-else-if="players.length === 0" class="glass-card state-card">
+      <h2>{{ siteContent.players.emptyTitle }}</h2>
+      <p>{{ siteContent.players.emptyBody }}</p>
+      <button class="btn-primary" type="button" @click="() => { searchQuery = ''; showAll = false }">
+        {{ siteContent.players.reset }}
+      </button>
     </div>
 
-    <!-- Players Grid -->
     <div v-else class="player-grid">
-      <RouterLink 
-        v-for="(p, index) in sortedPlayers" 
-        :key="p.uuid" 
-        :to="`/player/${p.uuid}`"
+      <RouterLink
+        v-for="(player, index) in sortedPlayers"
+        :key="player.uuid"
+        :to="`/player/${player.uuid}`"
         class="player-card glass-card animate-entry"
-        :style="{ animationDelay: `${(index % 30) * 40}ms` }"
+        :style="{ animationDelay: `${(index % 18) * 0.03}s` }"
       >
-        <div class="card-bg-glow"></div>
-        <div class="avatar-container">
-          <img :src="getAvatarUrl(p.last_known_name, p.type)" :alt="p.last_known_name" class="avatar" loading="lazy" />
-          <div v-if="isOnline(p.uuid)" class="status-indicator online" title="Online now"></div>
-        </div>
-        
-        <div class="player-info">
-          <div class="name-box">
-            <h3 :class="['player-name', 'minecraft-font', { online: isOnline(p.uuid) }]">
-              {{ p.last_known_name || 'Anonymous' }}
-            </h3>
-            <span :class="['platform-badge', p.type?.toLowerCase()]">{{ p.type === 'Bedrock' ? 'BE' : 'JE' }}</span>
-          </div>
-          <div class="metadata">
-            <span class="label">LAST SEEN</span>
-            <span class="value">{{ new Date(p.last_seen).toLocaleDateString() }}</span>
+        <div class="player-head">
+          <img
+            :src="getAvatarUrl(player.last_known_name, player.type)"
+            :alt="player.last_known_name || siteContent.players.firstSeenFallback"
+            class="player-avatar"
+            loading="lazy"
+          />
+          <div>
+            <h2 :class="['player-name', 'minecraft-font', { online: isOnline(player.uuid) }]">
+              {{ player.last_known_name || siteContent.players.firstSeenFallback }}
+            </h2>
+            <p class="player-meta">
+              {{ player.type }} · {{ isOnline(player.uuid) ? siteContent.players.onlineNow : 'Last seen ' + new Date(player.last_seen).toLocaleDateString() }}
+            </p>
           </div>
         </div>
-        
-        <div class="card-action">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
+        <span class="player-arrow">Open record</span>
       </RouterLink>
     </div>
   </div>
 </template>
 
 <style scoped>
-.players-view {
-  padding-top: 4rem;
-  padding-bottom: 8rem;
-}
-
-/* Header Refinement */
-.view-header {
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
-  margin-bottom: 5rem;
-}
-
-@media (min-width: 1024px) {
-  .view-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-}
-
-.title-area h1 {
-  font-size: 4rem;
-  font-weight: 800;
-  letter-spacing: -2px;
-  line-height: 0.9;
+.controls-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.stats-pills {
-  display: flex;
-  gap: 8px;
+.search-field {
+  display: grid;
+  gap: 0.55rem;
 }
 
-.pill {
+.search-field span {
+  color: var(--text-dim);
+  font-family: var(--mono);
   font-size: 0.75rem;
-  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--primary);
-  background: rgba(59, 130, 246, 0.1);
-  padding: 4px 12px;
-  border-radius: 100px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  letter-spacing: 0.12em;
 }
 
-/* Controls Panel */
-.controls-panel {
-  display: flex;
-  padding: 12px 12px 12px 24px !important;
-  border-radius: 100px !important;
-  background: rgba(10, 10, 10, 0.6) !important;
-  align-items: center;
-  gap: 1.5rem;
-  min-width: 450px;
-}
-
-@media (max-width: 600px) {
-  .controls-panel {
-    min-width: 100%;
-    border-radius: 20px !important;
-    padding: 16px !important;
-    flex-direction: column;
-  }
-}
-
-.search-input-wrap {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  width: 18px;
-  height: 18px;
-  color: var(--text-muted);
-  margin-right: 12px;
-}
-
-.prime-search {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 1rem;
-  outline: none;
+.search-field input {
   width: 100%;
-}
-
-.action-group {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-toggle {
-  background: rgba(255, 255, 255, 0.03);
+  min-height: 3.2rem;
+  padding: 0 1rem;
   border: 1px solid var(--glass-border);
-  color: #fff;
-  font-family: var(--heading);
-  font-weight: 800;
-  font-size: 0.75rem;
-  padding: 8px 20px;
-  border-radius: 100px;
-  cursor: pointer;
-  transition: all 0.3s;
+  border-radius: 999px;
+  background: rgba(255, 248, 234, 0.03);
+  color: var(--text-main);
 }
 
-.btn-toggle.active {
-  background: var(--primary);
-  color: #000;
-  border-color: var(--primary);
-}
-
-.btn-hero-action {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  cursor: pointer;
+.control-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.toggle-chip {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 1rem;
+  border-radius: 18px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 248, 234, 0.03);
+  color: var(--text-muted);
+}
+
+.toggle-chip.active {
+  border-color: rgba(196, 122, 66, 0.4);
+  color: var(--text-strong);
+}
+
+.toggle-chip small {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+.random-button {
+  min-width: 120px;
+}
+
+.results-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  transition: all 0.3s;
+  margin-bottom: 1rem;
+  color: var(--text-muted);
 }
 
-.btn-hero-action:hover {
-  transform: rotate(15deg) scale(1.1);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--primary);
+.state-card {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
 }
 
-/* Player Grid */
 .player-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .player-card {
-  padding: 24px !important;
+  display: grid;
+  gap: 1.4rem;
+}
+
+.player-head {
   display: flex;
+  gap: 1rem;
   align-items: center;
-  gap: 1.5rem;
-  transition: all 0.4s var(--transition-slow);
 }
 
-.card-bg-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 100% 0%, var(--primary-glow), transparent 40%);
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-.player-card:hover .card-bg-glow {
-  opacity: 1;
-}
-
-.avatar-container {
-  width: 64px;
-  height: 64px;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.avatar {
-  width: 100%;
-  height: 100%;
-  background: #111;
-  border-radius: 12px;
+.player-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 248, 234, 0.08);
   image-rendering: pixelated;
-  border: 1px solid var(--glass-border);
-}
-
-.status-indicator {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 3px solid #050505;
-}
-
-.status-indicator.online {
-  background: #10B981;
-  box-shadow: 0 0 10px #10B981;
-  animation: pulse-simple 2s infinite;
-}
-
-@keyframes pulse-simple {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-.player-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.name-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
 }
 
 .player-name {
-  font-size: 1.25rem;
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1;
+  font-size: 1.2rem;
 }
 
 .player-name.online {
-  color: #10B981;
+  color: #a9d08e;
 }
 
-.platform-badge {
-  font-size: 0.65rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.platform-badge.java { color: #93c5fd; }
-.platform-badge.bedrock { color: #c4b5fd; }
-
-.metadata {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metadata .label {
-  font-size: 0.65rem;
-  font-weight: 800;
+.player-meta,
+.player-arrow {
   color: var(--text-muted);
-  letter-spacing: 1px;
+  font-size: 0.92rem;
 }
 
-.metadata .value {
-  font-size: 0.85rem;
-  color: #fff;
-  font-weight: 500;
+.player-arrow {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.card-action {
-  color: var(--text-muted);
-  opacity: 0.2;
-  transition: all 0.3s;
-}
+@media (max-width: 980px) {
+  .controls-row,
+  .player-grid {
+    grid-template-columns: 1fr;
+  }
 
-.player-card:hover .card-action {
-  opacity: 1;
-  color: var(--primary);
-  transform: translateX(5px);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 6rem 2rem !important;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 2rem;
-  opacity: 0.5;
+  .control-actions {
+    justify-content: flex-start;
+  }
 }
 </style>

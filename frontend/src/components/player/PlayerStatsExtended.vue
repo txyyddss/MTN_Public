@@ -1,182 +1,158 @@
 <script setup lang="ts">
 import StatBox from '@/components/StatBox.vue'
+import { siteContent } from '@/content/siteContent'
+import type { PlayerStatBuckets, StatGroup } from '@/types/api'
 
-defineProps<{
-  stats: any
-  statGroups: any[]
-  activeGroup: any
+const props = defineProps<{
+  stats: PlayerStatBuckets | null
+  statGroups: StatGroup[]
+  activeGroup: StatGroup
   groupCategories: string[]
   selectedCategory: string
   statSearch: string
   filteredStats: Record<string, number>
+  ranks: Record<string, number>
   formatStatName: (name: string) => string
-  formatStatValue: (val: number, name: string) => string
+  formatStatValue: (value: number, name: string) => string
   getStatIconPath: (category: string, name: string) => string | undefined
 }>()
 
-const emit = defineEmits(['update:activeGroup', 'update:selectedCategory', 'update:statSearch'])
+const emit = defineEmits<{
+  (event: 'update:activeGroup', value: StatGroup): void
+  (event: 'update:selectedCategory', value: string): void
+  (event: 'update:statSearch', value: string): void
+}>()
+
+function rankForStat(name: string): number | undefined {
+  return props.ranks[`stat:${props.selectedCategory}:${name}`]
+}
 </script>
 
 <template>
-  <section class="panel glass-card extended-stats" v-if="stats">
-    <div class="stats-header">
-      <h3><img src="/mc_icons/blocks/special/bookshelf^48.png" class="header-icon" /> Extended Statistics</h3>
-      <div class="search-wrap">
-        <input 
-          type="text" 
-          :value="statSearch" 
-          @input="emit('update:statSearch', ($event.target as HTMLInputElement).value)"
-          placeholder="Search stats... (e.g. 'diamond')" 
-          class="stat-search-input"
-        />
-      </div>
+  <section v-if="stats" class="glass-card panel-card">
+    <div class="panel-head">
+      <h3>{{ siteContent.playerDetail.sections.extendedStats }}</h3>
+      <input
+        :value="statSearch"
+        :placeholder="siteContent.playerDetail.sections.searchPlaceholder"
+        class="search-input"
+        @input="emit('update:statSearch', ($event.target as HTMLInputElement).value)"
+      />
     </div>
 
-    <!-- Category Groups Tabs -->
-    <div class="stat-groups">
-      <button 
-        v-for="group in statGroups" 
+    <div class="group-tabs">
+      <button
+        v-for="group in statGroups"
         :key="group.name"
         :class="['group-tab', { active: activeGroup.name === group.name }]"
+        type="button"
         @click="emit('update:activeGroup', group)"
       >
         {{ group.name }}
       </button>
     </div>
 
-    <!-- Secondary Category Pills -->
-    <div class="category-pills" v-if="groupCategories.length > 0">
-      <button 
-        v-for="cat in groupCategories" 
-        :key="cat"
-        :class="['pill', { active: selectedCategory === cat }]"
-        @click="emit('update:selectedCategory', cat)"
+    <div v-if="groupCategories.length > 0" class="category-tabs">
+      <button
+        v-for="category in groupCategories"
+        :key="category"
+        :class="['category-tab', { active: selectedCategory === category }]"
+        type="button"
+        @click="emit('update:selectedCategory', category)"
       >
-        {{ cat.replace('minecraft:', '').replace(/_/g, ' ') }}
+        {{ category.replace('minecraft:', '').replace(/_/g, ' ') }}
       </button>
     </div>
 
-    <!-- Stats Display Area -->
-    <div class="stats-viewport">
-        <div v-if="Object.keys(filteredStats).length > 0" class="stat-grid">
-            <StatBox 
-                v-for="(val, name) in filteredStats" 
-                :key="name"
-                :name="formatStatName(String(name))"
-                :value="formatStatValue(Number(val), String(name))"
-                :icon="getStatIconPath(selectedCategory, String(name))"
-            />
-        </div>
-        <div v-else class="no-results">
-            <p>No statistics found in this category matching your search.</p>
-        </div>
+    <div v-if="Object.keys(filteredStats).length > 0" class="stat-grid">
+      <StatBox
+        v-for="(value, name) in filteredStats"
+        :key="name"
+        :name="formatStatName(name)"
+        :value="formatStatValue(value, name)"
+        :icon="getStatIconPath(selectedCategory, name)"
+        :rank="rankForStat(name)"
+      />
     </div>
+    <p v-else class="empty-copy">{{ siteContent.playerDetail.sections.emptyStats }}</p>
   </section>
 </template>
 
 <style scoped>
-.stats-header {
+.panel-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.panel-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stats-header h3 {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0;
 }
 
-.header-icon {
-  width: 24px;
-  height: 24px;
+.panel-head h3 {
+  font-size: 1.8rem;
 }
 
-.stat-search-input {
-  background: rgba(255, 255, 255, 0.05);
+.search-input {
+  width: min(360px, 100%);
+  min-height: 3rem;
+  padding: 0 1rem;
   border: 1px solid var(--glass-border);
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 100px;
-  width: 100%;
-  min-width: 280px;
-  outline: none;
-  transition: all 0.3s;
+  border-radius: 999px;
+  background: rgba(255, 248, 234, 0.03);
+  color: var(--text-main);
 }
 
-.stat-search-input:focus {
-  border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
-}
-
-.stat-groups {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 5px;
-}
-
-.group-tab {
-  padding: 10px 20px;
-  background: transparent;
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  color: var(--text-muted);
-  font-family: var(--heading);
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.3s;
-}
-
-.group-tab.active {
-  background: var(--primary);
-  color: #000;
-  border-color: var(--primary);
-}
-
-.category-pills {
+.group-tabs,
+.category-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
+  gap: 0.6rem;
 }
 
-.pill {
-  padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.03);
+.group-tab,
+.category-tab {
   border: 1px solid var(--glass-border);
-  border-radius: 100px;
+  border-radius: 999px;
+  background: rgba(255, 248, 234, 0.03);
   color: var(--text-muted);
-  font-size: 0.85rem;
-  cursor: pointer;
+  padding: 0.65rem 0.9rem;
   text-transform: capitalize;
-  transition: all 0.3s;
 }
 
-.pill.active {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--primary);
-  border-color: var(--primary);
+.group-tab.active,
+.category-tab.active {
+  border-color: rgba(196, 122, 66, 0.4);
+  color: var(--text-strong);
 }
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.no-results {
-  text-align: center;
-  padding: 4rem 2rem;
+.empty-copy {
   color: var(--text-muted);
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 980px) {
+  .panel-head,
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

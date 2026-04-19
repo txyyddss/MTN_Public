@@ -1,37 +1,33 @@
 <script setup lang="ts">
-import { ref, onUnmounted, nextTick, watch } from 'vue'
-import Chart from 'chart.js/auto'
+import { nextTick, onUnmounted, ref, watch } from 'vue'
+
+import { siteContent } from '@/content/siteContent'
+import type { OreStat } from '@/types/api'
 
 const props = defineProps<{
-  oreStats: any[]
+  oreStats: OreStat[]
 }>()
 
-const emit = defineEmits(['resetEnlarged'])
-
 const pieChartCanvas = ref<HTMLCanvasElement | null>(null)
-let chartInstance: Chart | null = null
+let chartInstance: import('chart.js').Chart | null = null
 
-const initPieChart = () => {
-  if (!pieChartCanvas.value || !props.oreStats || props.oreStats.length === 0) {
+async function initPieChart(): Promise<void> {
+  if (!pieChartCanvas.value || props.oreStats.length === 0) {
     return
   }
-  
-  if (chartInstance) chartInstance.destroy()
 
-  const labels = props.oreStats.map((o: any) => o.name)
-  const minedData = props.oreStats.map((o: any) => o.mined)
+  const { default: Chart } = await import('chart.js/auto')
+
+  chartInstance?.destroy()
 
   chartInstance = new Chart(pieChartCanvas.value, {
     type: 'pie',
     data: {
-      labels,
+      labels: props.oreStats.map((ore) => ore.name),
       datasets: [
         {
-          data: minedData,
-          backgroundColor: [
-            '#c9ff00', '#2563EB', '#8b5cf6', '#ec4899', '#f43f5e', 
-            '#f59e0b', '#10b981', '#14b8a6', '#64748b', '#ffffff'
-          ],
+          data: props.oreStats.map((ore) => ore.mined),
+          backgroundColor: ['#c47a42', '#78825b', '#ba4d37', '#d6b16b', '#8da7bf', '#9b7b58'],
           borderWidth: 0
         }
       ]
@@ -42,41 +38,55 @@ const initPieChart = () => {
       plugins: {
         legend: {
           position: 'right',
-          labels: { color: '#8a8a8a', font: { family: 'Manrope' } }
+          labels: {
+            color: '#c4b69d',
+            font: { family: 'Instrument Sans' }
+          }
         }
       }
     }
   })
 }
 
-watch(() => props.oreStats, () => {
-  nextTick(initPieChart)
-}, { deep: true, immediate: true })
+watch(
+  () => props.oreStats,
+  async () => {
+    await nextTick()
+    await initPieChart()
+  },
+  { deep: true, immediate: true }
+)
 
 onUnmounted(() => {
-  if (chartInstance) chartInstance.destroy()
+  chartInstance?.destroy()
 })
 
-const formatNumber = (num: number) => {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-  return num.toLocaleString()
+function formatNumber(value: number): string {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1)}M`
+  }
+
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(1)}K`
+  }
+
+  return value.toLocaleString()
 }
 </script>
 
 <template>
-  <section class="panel glass-card" v-if="oreStats && oreStats.length > 0">
-    <h3 @click.stop="emit('resetEnlarged')">
-      <img src="/icons/all_blocks.ico" class="header-icon" /> Ore Mined Statistics
-    </h3>
-    <div class="ore-content">
-      <div class="chart-container">
+  <section v-if="oreStats.length > 0" class="glass-card panel-card">
+    <div class="panel-head">
+      <h3>{{ siteContent.playerDetail.sections.ores }}</h3>
+    </div>
+    <div class="ore-layout">
+      <div class="chart-wrap">
         <canvas ref="pieChartCanvas"></canvas>
       </div>
-      <div class="ore-list mobile-hide">
-        <div class="ore-item" v-for="ore in oreStats.slice(0, 10)" :key="ore.name">
-          <span class="ore-name">{{ ore.name }}</span>
-          <span class="ore-val">{{ formatNumber(ore.mined) }}</span>
+      <div class="ore-list">
+        <div v-for="ore in oreStats.slice(0, 8)" :key="ore.name" class="ore-row">
+          <span>{{ ore.name }}</span>
+          <strong>{{ formatNumber(ore.mined) }}</strong>
         </div>
       </div>
     </div>
@@ -84,55 +94,54 @@ const formatNumber = (num: number) => {
 </template>
 
 <style scoped>
-.panel h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 1.5rem;
-  font-size: 1.4rem;
-  color: #fff;
-  font-family: var(--heading);
-  letter-spacing: -0.5px;
+.panel-card {
+  display: grid;
+  gap: 1rem;
 }
 
-.header-icon {
-  width: 24px;
-  height: 24px;
-  image-rendering: auto;
+.panel-head h3 {
+  font-size: 1.8rem;
 }
 
-.ore-content {
-  display: flex;
-  gap: 2rem;
+.ore-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1rem;
   align-items: center;
 }
 
-@media (max-width: 600px) {
-  .ore-content { flex-direction: column; }
-  .mobile-hide { display: none !important; }
-}
-
-.chart-container {
-  height: 200px;
-  width: 200px;
-  flex-shrink: 0;
+.chart-wrap {
+  height: 240px;
 }
 
 .ore-list {
-  flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.ore-item {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 8px 12px;
-  border-radius: 8px;
+.ore-row {
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 248, 234, 0.04);
+  border: 1px solid rgba(255, 248, 234, 0.06);
 }
 
-.ore-name { color: var(--text-muted); font-size: 0.85rem; }
-.ore-val { font-weight: 700; color: #fff; font-size: 0.85rem; }
+.ore-row span {
+  color: var(--text-muted);
+}
+
+.ore-row strong {
+  color: var(--text-strong);
+}
+
+@media (max-width: 860px) {
+  .ore-layout,
+  .ore-list {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

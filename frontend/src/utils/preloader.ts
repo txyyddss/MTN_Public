@@ -1,6 +1,11 @@
 import { fetchWithCache } from './dataCache';
 
 const preloadedUrls = new Set<string>();
+const idleWindow = typeof window === 'undefined'
+    ? null
+    : (window as Window & {
+          requestIdleCallback?: (callback: IdleRequestCallback) => number
+      })
 
 export const PreloadPriority = {
     URGENT: 20,       // Scripts, critical core assets
@@ -57,8 +62,8 @@ function reschedule() {
     // Sort queue so highest priority items are at the front
     queue.sort((a, b) => b.priority - a.priority);
 
-    if (typeof window !== 'undefined' && (window as any).requestIdleCallback) {
-        (window as any).requestIdleCallback(() => processQueue());
+    if (idleWindow?.requestIdleCallback) {
+        idleWindow.requestIdleCallback(() => processQueue());
     } else {
         setTimeout(() => processQueue(), 1);
     }

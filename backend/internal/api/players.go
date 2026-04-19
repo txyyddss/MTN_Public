@@ -27,7 +27,7 @@ type PlayerDetailResponse struct {
 	Info          *data.PlayerInfo         `json:"info"`
 	Stats         *data.PlayerStats        `json:"stats"`
 	Advancements  *data.PlayerAdvancements `json:"advancements"`
-	McMMO         interface{}              `json:"mcmmo"`
+	McMMO         *database.McmmoSkills    `json:"mcmmo"`
 	LinkedAccount *database.LinkedPlayer   `json:"linked_account"`
 	OreStats      []OreData                `json:"ore_stats"`
 	Ranks         map[string]int           `json:"ranks"`
@@ -118,7 +118,7 @@ func (s *Server) filterValidPlayers(players []*data.PlayerInfo) []*data.PlayerIn
 
 // handleRandomPlayer redirects to a random player's detail.
 func (s *Server) handleRandomPlayer(c *gin.Context) {
-	players := s.store.GetActivePlayers(s.cfg.ActiveDays)
+	players := s.filterValidPlayers(s.store.GetActivePlayers(s.cfg.ActiveDays))
 	if len(players) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "no active players"})
 		return
@@ -147,7 +147,7 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	advancements := s.store.GetPlayerAdvancements(uuid)
 
 	// McMMO skills
-	var mcmmoSkills interface{}
+	var mcmmoSkills *database.McmmoSkills
 	if s.mcmmoDB != nil {
 		skills, err := s.mcmmoDB.GetSkillsByUUID(c.Request.Context(), uuid)
 		if err == nil && skills != nil {
@@ -192,7 +192,7 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	})
 }
 
-func (s *Server) computeAllRanks(ctx context.Context, uuid string, ps *data.PlayerStats, mcmmo interface{}) map[string]int {
+func (s *Server) computeAllRanks(ctx context.Context, uuid string, ps *data.PlayerStats, mcmmo *database.McmmoSkills) map[string]int {
 	ranks := make(map[string]int)
 
 	// Broad categories from leaderboards
@@ -218,24 +218,22 @@ func (s *Server) computeAllRanks(ctx context.Context, uuid string, ps *data.Play
 
 	// Per-skill McMMO rankings
 	if mcmmo != nil {
-		if m, ok := mcmmo.(*database.McmmoSkills); ok {
-			skills := []struct {
-				name string
-				val  int
-			}{
-				{"taming", m.Taming}, {"mining", m.Mining}, {"woodcutting", m.Woodcutting},
-				{"repair", m.Repair}, {"unarmed", m.Unarmed}, {"herbalism", m.Herbalism},
-				{"excavation", m.Excavation}, {"archery", m.Archery}, {"swords", m.Swords},
-				{"axes", m.Axes}, {"acrobatics", m.Acrobatics}, {"fishing", m.Fishing},
-				{"alchemy", m.Alchemy}, {"crossbows", m.Crossbows}, {"tridents", m.Tridents},
-				{"maces", m.Maces}, {"spears", m.Spears},
-			}
-			for _, sk := range skills {
-				if sk.val > 0 {
-					rankKey := "mcmmo:" + sk.name
-					if rank := s.calculateOrGetRank(ctx, rankKey, uuid); rank > 0 {
-						ranks[rankKey] = rank
-					}
+		skills := []struct {
+			name string
+			val  int
+		}{
+			{"taming", mcmmo.Taming}, {"mining", mcmmo.Mining}, {"woodcutting", mcmmo.Woodcutting},
+			{"repair", mcmmo.Repair}, {"unarmed", mcmmo.Unarmed}, {"herbalism", mcmmo.Herbalism},
+			{"excavation", mcmmo.Excavation}, {"archery", mcmmo.Archery}, {"swords", mcmmo.Swords},
+			{"axes", mcmmo.Axes}, {"acrobatics", mcmmo.Acrobatics}, {"fishing", mcmmo.Fishing},
+			{"alchemy", mcmmo.Alchemy}, {"crossbows", mcmmo.Crossbows}, {"tridents", mcmmo.Tridents},
+			{"maces", mcmmo.Maces}, {"spears", mcmmo.Spears},
+		}
+		for _, sk := range skills {
+			if sk.val > 0 {
+				rankKey := "mcmmo:" + sk.name
+				if rank := s.calculateOrGetRank(ctx, rankKey, uuid); rank > 0 {
+					ranks[rankKey] = rank
 				}
 			}
 		}

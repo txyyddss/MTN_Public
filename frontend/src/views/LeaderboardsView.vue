@@ -1,131 +1,105 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { onMounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+
+import { leaderboardLabels, siteContent } from '@/content/siteContent'
 import { API_BASE_URL } from '@/config'
 import { fetchWithCache } from '@/utils/dataCache'
-import { preloadImages, preloadData, PreloadPriority } from '@/utils/preloader'
+import { useServerStatusStore } from '@/stores/serverStatus'
+import type { LeaderboardEntry, LeaderboardResponse, LeaderboardType } from '@/types/api'
+import { getAvatarUrl } from '@/utils/minecraft'
 
-const types = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
-const currentType = ref('mining')
-const entries = ref<any[]>([])
-const onlinePlayers = ref<string[]>([])
+const statusStore = useServerStatusStore()
+const { status } = storeToRefs(statusStore)
+
+const leaderboardTypes = Object.keys(leaderboardLabels) as LeaderboardType[]
+const currentType = ref<LeaderboardType>('mining')
+const entries = ref<LeaderboardEntry[]>([])
 const loading = ref(false)
 
-const fetchOnline = async () => {
-  try {
-    const json = await fetchWithCache(`${API_BASE_URL}/api/status`)
-    onlinePlayers.value = json.online_players || []
-  } catch (e) {}
+function isOnline(uuid: string): boolean {
+  return status.value?.online_players?.includes(uuid) ?? false
 }
 
-const isOnline = (uuid: string) => {
-    return onlinePlayers.value.includes(uuid)
-}
-
-const fetchLeaderboard = async (type: string) => {
+async function fetchLeaderboard(type: LeaderboardType): Promise<void> {
   loading.value = true
   currentType.value = type
+
   try {
-    const json = await fetchWithCache(`${API_BASE_URL}/api/leaderboards/${type}`)
-    entries.value = json.entries || []
-  } catch(e) {
-    console.error('Failed', e)
+    const json = await fetchWithCache<LeaderboardResponse>(`${API_BASE_URL}/api/leaderboards/${type}`)
+    entries.value = json.entries ?? []
+  } catch (error) {
+    console.error('Failed to load leaderboard data', error)
+    entries.value = []
+  } finally {
+    loading.value = false
   }
-  loading.value = false
+}
+
+function formatValue(value: number, type: LeaderboardType): string {
+  if (type === 'playtime') {
+    return `${(value / 20 / 3600).toFixed(1)} hrs`
+  }
+
+  if (type === 'walking') {
+    const kilometers = value / 100000
+    return kilometers >= 1 ? `${kilometers.toFixed(1)} km` : `${(value / 100).toFixed(0)} m`
+  }
+
+  return value.toLocaleString()
 }
 
 onMounted(() => {
-    fetchLeaderboard(currentType.value)
-    fetchOnline()
+  void fetchLeaderboard(currentType.value)
 })
-
-watch(entries, (newEntries) => {
-  if (newEntries && newEntries.length > 0) {
-    const urls = newEntries.map(e => getAvatarUrl(e.name))
-    preloadImages(urls, PreloadPriority.MEDIUM)
-    
-    // Preload details for top ranked players
-    const detailUrls = newEntries.slice(0, 20).map(e => `${API_BASE_URL}/api/players/${e.uuid}`)
-    preloadData(detailUrls, PreloadPriority.LOW)
-  }
-})
-
-const formatValue = (val: number, type: string) => {
-  if (type === 'playtime') return (val / 20 / 3600).toFixed(1) + ' hrs'
-  if (type === 'walking') {
-    const km = val / 100000;
-    if (km > 1) return km.toFixed(1) + ' km'
-    return (val / 100).toFixed(0) + ' m'
-  }
-  return val.toLocaleString()
-}
-
-const getAvatarUrl = (name: string) => {
-  if (!name) return 'https://mineskin.eu/helm/Steve'
-  const cleanName = name.startsWith('be_') ? name.substring(3) : name
-  return `https://mineskin.eu/helm/${cleanName}`
-}
-
-const getRankClass = (rank: number) => {
-  if (rank === 1) return 'rank-first'
-  if (rank === 2) return 'rank-second'
-  if (rank === 3) return 'rank-third'
-  return ''
-}
 </script>
 
 <template>
-  <div class="leaderboards-view container animate-entry">
-    <div class="header glass-card">
-      <div class="header-content">
-        <h1>Global Leaderboards</h1>
-        <p class="text-muted">See who tops the server across various statistical categories.</p>
-      </div>
-      
-      <div class="type-selector">
-        <button 
-          v-for="t in types" 
-          :key="t" 
-          @click="fetchLeaderboard(t)"
-          :class="['tab-btn', { active: currentType === t }]"
-        >
-          {{ t }}
-        </button>
-      </div>
+  <div class="leaderboards-view container page-shell">
+    <header class="page-header animate-entry">
+      <span class="page-kicker">Ranked survival data</span>
+      <h1>{{ siteContent.leaderboards.title }}</h1>
+      <p class="page-lede">{{ siteContent.leaderboards.body }}</p>
+    </header>
+
+    <div class="leaderboard-tabs glass-card animate-entry delay-100">
+      <button
+        v-for="type in leaderboardTypes"
+        :key="type"
+        :class="['tab-chip', { active: currentType === type }]"
+        type="button"
+        @click="fetchLeaderboard(type)"
+      >
+        {{ leaderboardLabels[type] }}
+      </button>
     </div>
 
-    <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Fetching rankings...</p>
+    <div v-if="loading" class="glass-card state-card">{{ siteContent.leaderboards.loading }}</div>
+
+    <div v-else-if="entries.length === 0" class="glass-card state-card">
+      <h2>{{ siteContent.leaderboards.emptyTitle }}</h2>
+      <p>{{ siteContent.leaderboards.emptyBody }}</p>
     </div>
-    
-    <div v-else-if="entries.length === 0" class="empty-state glass-card">
-      <h3>No data available</h3>
-      <p>No players have ranked in this category yet.</p>
-    </div>
-    
-    <div v-else class="lb-table-wrapper glass-card animate-entry delay-100">
-      <table class="lb-table">
+
+    <div v-else class="glass-card table-wrap animate-entry delay-200">
+      <table class="leaderboard-table">
         <thead>
           <tr>
-            <th class="rank-col">Rank</th>
-            <th>Player</th>
-            <th class="val-col">Score</th>
+            <th>{{ siteContent.leaderboards.columns.rank }}</th>
+            <th>{{ siteContent.leaderboards.columns.player }}</th>
+            <th>{{ siteContent.leaderboards.columns.score }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="entry in entries" :key="entry.uuid" :class="getRankClass(entry.rank)">
-            <td class="rank-col">
-              <span class="rank-badge">#{{ entry.rank }}</span>
-            </td>
+          <tr v-for="entry in entries" :key="entry.uuid">
+            <td class="rank-cell">#{{ entry.rank }}</td>
             <td>
               <RouterLink :to="`/player/${entry.uuid}`" class="player-link">
-                <img :src="getAvatarUrl(entry.name)" alt="avatar" class="avatar-small" loading="lazy" />
-                <span :class="['player-name', 'minecraft-font', { 'online-name': isOnline(entry.uuid) }]">{{ entry.name }}</span>
+                <img :src="getAvatarUrl(entry.name)" :alt="entry.name" class="avatar" loading="lazy" />
+                <span :class="['minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
               </RouterLink>
             </td>
-            <td class="val-col">
-              <span class="value-badge">{{ formatValue(entry.value, currentType) }}</span>
-            </td>
+            <td class="value-cell">{{ formatValue(entry.value, currentType) }}</td>
           </tr>
         </tbody>
       </table>
@@ -134,267 +108,80 @@ const getRankClass = (rank: number) => {
 </template>
 
 <style scoped>
-.leaderboards-view {
-  padding-top: 2rem;
-  padding-bottom: 4rem;
-  max-width: 1000px;
-}
-
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding: 2rem;
-}
-
-@media (min-width: 768px) {
-  .header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-}
-
-.header-content h1 {
-  font-size: 2.2rem;
-  color: var(--primary);
-  margin-bottom: 0.5rem;
-}
-
-.type-selector {
+.leaderboard-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.tab-btn {
-  background: rgba(0,0,0,0.2);
-  color: var(--text-muted);
+.tab-chip {
   border: 1px solid var(--glass-border);
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  text-transform: capitalize;
-  font-size: 0.95rem;
-  font-family: var(--heading);
-  transition: all 0.3s;
+  border-radius: 999px;
+  background: rgba(255, 248, 234, 0.03);
+  color: var(--text-muted);
+  padding: 0.7rem 1rem;
 }
 
-.tab-btn:hover {
-  background: rgba(255,255,255,0.05);
-  color: var(--text-main);
-  border-color: rgba(255,255,255,0.2);
+.tab-chip.active {
+  border-color: rgba(196, 122, 66, 0.4);
+  color: var(--text-strong);
 }
 
-.tab-btn.active {
-  background: var(--primary);
-  color: #000;
-  border-color: var(--primary);
-  font-weight: 700;
+.state-card {
+  display: grid;
+  gap: 1rem;
 }
 
-.lb-table-wrapper {
-  padding: 0;
+.table-wrap {
   overflow-x: auto;
 }
 
-.lb-table {
+.leaderboard-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.lb-table th {
-  background: rgba(0, 0, 0, 0.4);
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 248, 234, 0.08);
   text-align: left;
-  padding: 18px 24px;
-  color: var(--text-muted);
-  font-weight: 600;
-  border-bottom: 1px solid var(--glass-border);
-  font-size: 0.95rem;
+}
+
+.leaderboard-table th {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.lb-table td {
-  padding: 16px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  vertical-align: middle;
-}
-
-.lb-table tbody tr {
-  transition: background 0.3s ease;
-}
-
-.lb-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.lb-table tr:last-child td {
-  border-bottom: none;
-}
-
-.rank-col {
-  width: 100px;
-}
-
-.rank-badge {
-  font-weight: 700;
+.rank-cell,
+.value-cell {
   font-family: var(--mono);
-  font-size: 1.1rem;
-  color: var(--text-muted);
 }
 
-/* Trophy highlights */
-.rank-first .rank-badge {
-  color: #ffd700;
-  font-size: 1.3rem;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-.rank-second .rank-badge {
-  color: #c0c0c0;
-  font-size: 1.2rem;
-  text-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
-}
-.rank-third .rank-badge {
-  color: #cd7f32;
-  font-size: 1.15rem;
-  text-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
-}
-
-.val-col {
+.value-cell {
   text-align: right;
-}
-
-.value-badge {
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 1.05rem;
   color: var(--primary);
-  background: rgba(59, 130, 246, 0.1);
-  padding: 6px 12px;
-  border-radius: 12px;
 }
 
 .player-link {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
+  gap: 0.85rem;
   color: var(--text-main);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: color 0.2s;
 }
 
-.player-link:hover {
-  color: var(--primary);
-}
-
-.player-link .player-name.online-name {
-    color: #10b981;
-    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-}
-
-.avatar-small {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   image-rendering: pixelated;
-  background: rgba(0,0,0,0.3);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-.loading-state, .empty-state {
-  text-align: center;
-  padding: 5rem 2rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(59, 130, 246, 0.2);
-  border-left-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1.5rem;
-}
-
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
-
-/* Mobile responsive leaderboard */
-@media (max-width: 600px) {
-  .leaderboards-view {
-    padding-top: 1rem;
-  }
-
-  .header {
-    padding: 1.5rem;
-  }
-
-  .header-content h1 {
-    font-size: 1.8rem;
-  }
-
-  .lb-table thead {
-    display: none;
-  }
-
-  .lb-table tbody tr {
-    display: grid;
-    grid-template-columns: 60px 1fr;
-    padding: 16px;
-    gap: 4px 12px;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .lb-table td {
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-  }
-
-  .rank-col {
-    grid-row: 1 / 3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .rank-badge {
-    font-size: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-
-  .player-link {
-    grid-column: 2;
-    margin-bottom: 0;
-    gap: 12px;
-  }
-
-  .val-col {
-    grid-column: 2;
-    text-align: left !important;
-    display: flex;
-    align-items: center;
-    margin-left: 44px; /* Align with name: 32px avatar + 12px gap */
-  }
-
-  .value-badge {
-    background: transparent;
-    padding: 0;
-    font-size: 0.95rem;
-    color: var(--primary);
-    font-weight: 600;
-  }
+.online {
+  color: #a9d08e;
 }
 </style>

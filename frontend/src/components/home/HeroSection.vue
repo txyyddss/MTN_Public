@@ -1,255 +1,194 @@
 <script setup lang="ts">
-import { useServerStatus } from '@/composables/useServerStatus'
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 
-const { status } = useServerStatus()
+import heroArt from '@/assets/hero.png'
+import { siteContent } from '@/content/siteContent'
+import { useServerStatusStore } from '@/stores/serverStatus'
+
+const statusStore = useServerStatusStore()
+const { status } = storeToRefs(statusStore)
+
+const onlineCount = computed(() => status.value?.java?.players ?? 0)
+const javaVersion = computed(() => status.value?.java?.version || 'Fetching live version')
+const updatedLabel = computed(() => {
+  if (!status.value?.updated) {
+    return 'Waiting for telemetry'
+  }
+
+  return new Date(status.value.updated).toLocaleTimeString()
+})
 </script>
 
 <template>
-  <header class="hero">
-    <div class="hero-visual-bg"></div>
-    
-    <div class="container hero-content animate-entry delay-100">
-      <div class="hero-badge-wrapper">
-        <div class="hero-badge glass-card">
-          <span class="pulse-icon" v-if="status?.online"></span>
-          <span class="badge-text">{{ status?.players?.online || 0 }} Players Forge Legacies</span>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy animate-entry">
+        <span class="page-kicker">{{ siteContent.home.hero.eyebrow }}</span>
+        <h1 class="hero-title">{{ siteContent.home.hero.title }}</h1>
+        <p class="hero-body">{{ siteContent.home.hero.body }}</p>
+
+        <div class="hero-badges">
+          <span class="badge-pill">
+            <span class="live-dot"></span>
+            {{ onlineCount }} players visible right now
+          </span>
+          <span class="badge-pill">Java version: {{ javaVersion }}</span>
+          <span class="badge-pill">Updated {{ updatedLabel }}</span>
+        </div>
+
+        <div class="hero-actions">
+          <router-link class="btn-primary" to="/players">
+            {{ siteContent.home.hero.primaryCta }}
+          </router-link>
+          <router-link class="btn-secondary" to="/server-intro">
+            {{ siteContent.home.hero.secondaryCta }}
+          </router-link>
         </div>
       </div>
-      
-      <h1 class="hero-title">
-        <span class="line-1">Redefining</span>
-        <span class="text-gradient display-font">Pure Survival</span>
-      </h1>
-      
-      <p class="hero-subtitle">
-        MTNetwork delivers a masterclass in Minecraft survival. High-fidelity performance, 
-        radical fairness, and an uncompromising cross-play architecture.
-      </p>
-      
-      <div class="hero-actions">
-        <router-link to="/players" class="btn-primary">
-          Explore the Realm
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </router-link>
-        <router-link to="/server-intro" class="btn-secondary">Technical Blueprint</router-link>
-      </div>
-      
-      <div class="quick-status glass-card animate-entry delay-300">
-         <div class="status-item">
-           <span class="status-label">Legacy Version</span>
-           <span class="status-value">1.21.11</span>
-         </div>
-         <div class="status-divider"></div>
-         <div class="status-item">
-           <span class="status-label">Difficulty</span>
-           <span class="status-value">Hardcore Instinct</span>
-         </div>
-         <div class="status-divider"></div>
-         <div class="status-item">
-           <span class="status-label">Access</span>
-           <span class="status-value highlight">Cross-Protocol</span>
-         </div>
-      </div>
+
+      <aside class="hero-atlas glass-card animate-entry delay-200">
+        <div class="atlas-visual">
+          <img :src="heroArt" alt="MT Network world capture" />
+        </div>
+        <div class="atlas-caption">
+          <p class="atlas-kicker">Field notes</p>
+          <div class="atlas-facts">
+            <div v-for="fact in siteContent.home.hero.facts" :key="fact.label" class="atlas-fact">
+              <span>{{ fact.label }}</span>
+              <strong>{{ fact.value }}</strong>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
-    
-    <!-- Immersive Background Elements -->
-    <div class="hero-decor decor-1"></div>
-    <div class="hero-decor decor-2"></div>
-    <div class="hero-decor decor-3"></div>
-  </header>
+  </section>
 </template>
 
 <style scoped>
 .hero {
-  position: relative;
-  min-height: 95vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  overflow: hidden;
-  padding: 8rem 0;
-  background: radial-gradient(circle at 50% -20%, hsla(210, 100%, 55%, 0.05), transparent 70%);
+  padding: 4rem 0 3rem;
 }
 
-.hero-visual-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.08), transparent 60%),
-    radial-gradient(circle at 10% 90%, rgba(91, 113, 246, 0.05), transparent 40%);
-  z-index: 1;
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr;
+  gap: 2rem;
+  align-items: stretch;
 }
 
-.hero-content {
-  position: relative;
-  z-index: 10;
-  max-width: 1000px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.hero-badge-wrapper {
-  margin-bottom: 2.5rem;
-}
-
-.hero-badge {
-  padding: 8px 18px !important;
-  border-radius: 100px !important;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-color: var(--glass-border-bright) !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-}
-
-.pulse-icon {
-  width: 10px;
-  height: 10px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 15px var(--accent);
-  animation: pulse 2.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.4; }
+.hero-copy {
+  display: grid;
+  align-content: center;
+  gap: 1.35rem;
+  padding: 1.5rem 0;
 }
 
 .hero-title {
-  font-size: clamp(3.5rem, 9vw, 7rem);
-  font-weight: 800;
-  line-height: 1.05;
-  margin-bottom: 2.5rem;
-  letter-spacing: -0.05em;
-  font-family: var(--heading);
+  font-size: clamp(3.8rem, 8vw, 7rem);
+  max-width: 12ch;
 }
 
-.line-1 {
-  display: block;
-  font-size: 0.45em;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+.hero-body {
+  max-width: 60ch;
   color: var(--text-muted);
-  font-family: var(--display);
-  font-weight: 500;
-  margin-bottom: 0.2em;
+  font-size: 1.08rem;
 }
 
-.display-font {
-  font-family: var(--display);
-  font-weight: 800;
-  font-style: italic;
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, #fff 20%, var(--primary) 60%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 30px var(--primary-glow));
-}
-
-.hero-subtitle {
-  font-size: 1.25rem;
-  color: var(--text-muted);
-  max-width: 720px;
-  margin-bottom: 4rem;
-  font-weight: 400;
-  line-height: 1.7;
+.live-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 6px rgba(126, 165, 103, 0.14);
 }
 
 .hero-actions {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 0.4rem;
 }
 
-.btn-secondary {
-  padding: 16px 36px;
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--text-main);
-  font-family: var(--heading);
-  font-weight: 700;
-  border: 1px solid var(--glass-border-bright);
-  border-radius: var(--radius-sm);
-  transition: all 0.4s var(--transition-fast);
-  backdrop-filter: blur(10px);
+.hero-atlas {
+  display: grid;
+  gap: 1.2rem;
+  min-height: 100%;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: #fff;
-  transform: translateY(-2px);
+.atlas-visual {
+  overflow: hidden;
+  border-radius: calc(var(--radius-lg) - 12px);
+  border: 1px solid rgba(255, 248, 234, 0.08);
+  min-height: 320px;
 }
 
-.quick-status {
-  display: flex;
-  padding: 20px 48px !important;
-  gap: 40px;
-  border-radius: 100px !important;
-  background: rgba(5, 5, 5, 0.8) !important;
+.atlas-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.status-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+.atlas-caption {
+  display: grid;
+  gap: 1rem;
 }
 
-.status-label {
-  font-size: 0.7rem;
+.atlas-kicker {
+  color: var(--primary);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.atlas-facts {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.atlas-fact {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 248, 234, 0.04);
+  border: 1px solid rgba(255, 248, 234, 0.06);
+}
+
+.atlas-fact span {
   color: var(--text-dim);
-  letter-spacing: 2px;
-  font-weight: 700;
-  margin-bottom: 4px;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.status-value {
-  font-size: 1.1rem;
+.atlas-fact strong {
+  color: var(--text-strong);
   font-weight: 600;
-  color: #fff;
-  font-family: var(--heading);
+  text-align: right;
 }
 
-.status-value.highlight {
-  color: var(--accent);
+@media (max-width: 960px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.status-divider {
-  width: 1px;
-  height: 36px;
-  background: var(--glass-border-bright);
-  align-self: center;
-}
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 3.2rem;
+  }
 
-.hero-decor {
-  position: absolute;
-  filter: blur(140px);
-  opacity: 0.15;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.decor-1 { width: 600px; height: 600px; background: var(--primary); top: -200px; right: -100px; }
-.decor-2 { width: 500px; height: 500px; background: var(--secondary); bottom: -150px; left: -150px; }
-.decor-3 { width: 400px; height: 400px; background: var(--accent); top: 30%; left: 10%; }
-
-@media (max-width: 768px) {
-  .hero-title { font-size: 3.5rem; }
-  .quick-status { flex-direction: column; gap: 1.5rem; border-radius: 24px !important; padding: 32px !important; }
-  .status-divider { display: none; }
-  .hero-actions { flex-direction: column; width: 100%; gap: 1rem; }
+  .hero-actions {
+    flex-direction: column;
+  }
 }
 </style>

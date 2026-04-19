@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import SkinViewer from '@/components/SkinViewer.vue'
+import { siteContent } from '@/content/siteContent'
+import type { LinkedAccount, PlayerInfo } from '@/types/api'
 import { getSkinUrl } from '@/utils/minecraft'
 
 defineProps<{
-  info: any
+  info: PlayerInfo
   isOnline: boolean
-  linkedAccount: any
-  formatDate: (ms: number) => string
-  formatPlaytime: (ticks: number) => string
+  linkedAccount: LinkedAccount | null
+  formatDate: (value: number) => string
+  formatPlaytime: (value: number) => string
 }>()
 </script>
 
@@ -20,31 +22,29 @@ defineProps<{
       <h2 :class="['profile-name', 'minecraft-font', { online: isOnline }]">
         {{ info.last_known_name }}
       </h2>
-      <span :class="['type-tag', info.type?.toLowerCase()]">{{ info.type === 'Bedrock' ? 'Bedrock' : 'Java' }}</span>
+      <span class="type-tag">{{ info.type }}</span>
     </div>
 
     <div class="basic-info">
       <div class="info-row">
-        <span class="label">First Join</span>
-        <span class="val">{{ formatDate(info.first_played) }}</span>
+        <span class="label">{{ siteContent.playerDetail.profile.firstJoin }}</span>
+        <span class="value">{{ formatDate(info.first_played) }}</span>
       </div>
       <div class="info-row">
-        <span class="label">Last Seen</span>
-        <span class="val">{{ formatDate(info.last_seen) }}</span>
+        <span class="label">{{ siteContent.playerDetail.profile.lastSeen }}</span>
+        <span class="value">{{ formatDate(info.last_seen) }}</span>
       </div>
       <div class="info-row">
-        <span class="label">Playtime</span>
-        <span class="val">{{ formatPlaytime(info.ticks_lived) }}</span>
+        <span class="label">{{ siteContent.playerDetail.profile.playtime }}</span>
+        <span class="value">{{ formatPlaytime(info.ticks_lived) }}</span>
       </div>
       <div class="info-row">
-        <span class="label">XP Level</span>
-        <span class="val badge lvl-badge">{{ info.xp_level }}</span>
+        <span class="label">{{ siteContent.playerDetail.profile.xpLevel }}</span>
+        <span class="value">{{ info.xp_level }}</span>
       </div>
-      <div class="info-row linked-row" v-if="linkedAccount && info.type === 'Bedrock'">
-        <span class="label">Linked to</span>
-        <span class="val account-link">
-          {{ linkedAccount.bedrock_username || linkedAccount.java_username }}
-        </span>
+      <div v-if="linkedAccount && info.type === 'Bedrock'" class="info-row">
+        <span class="label">{{ siteContent.playerDetail.profile.linkedTo }}</span>
+        <span class="value linked">{{ linkedAccount.bedrock_username || linkedAccount.java_username }}</span>
       </div>
     </div>
   </aside>
@@ -52,98 +52,71 @@ defineProps<{
 
 <style scoped>
 .profile-card {
-  height: fit-content;
+  display: grid;
+  gap: 1.4rem;
   position: sticky;
-  top: 100px;
+  top: 6.2rem;
 }
 
 .avatar-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
 }
 
 .skin-wrapper {
   width: 100%;
-  aspect-ratio: 1;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-lg);
-  margin-bottom: 1.5rem;
+  min-height: 280px;
+  border-radius: 24px;
+  background: rgba(255, 248, 234, 0.04);
+  border: 1px solid rgba(255, 248, 234, 0.06);
   overflow: hidden;
-  border: 1px solid var(--glass-border);
 }
 
 .profile-name {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-  transition: color 0.3s;
+  font-size: 1.7rem;
 }
 
 .profile-name.online {
-  color: #10B981;
-  text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  color: #a9d08e;
 }
 
 .type-tag {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 100px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 248, 234, 0.08);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.74rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.type-tag.java {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--primary);
-  border: 1px solid var(--primary);
-}
-
-.type-tag.bedrock {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
-  border: 1px solid #10B981;
 }
 
 .basic-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  gap: 0.75rem;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 248, 234, 0.04);
+  border: 1px solid rgba(255, 248, 234, 0.06);
 }
 
 .label {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 500;
+  color: var(--text-dim);
 }
 
-.val {
-  font-weight: 700;
-  color: #fff;
+.value {
+  color: var(--text-strong);
+  font-weight: 600;
+  text-align: right;
 }
 
-.badge {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.lvl-badge {
-  background: var(--primary);
-  color: #000;
-}
-
-.account-link {
+.linked {
   color: var(--primary);
 }
 </style>

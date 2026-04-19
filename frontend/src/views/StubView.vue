@@ -1,63 +1,49 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-const pageTitle = route.name?.toString().replace('-', ' ') || 'Work in Progress'
+import { siteContent } from '@/content/siteContent'
 </script>
 
 <template>
-  <div class="stub-view container animate-entry">
-    <div class="glass-card construction-card">
-      <div class="icon-spin">⚙️</div>
-      <h1 class="title capitalize">{{ pageTitle }}</h1>
-      <p class="subtitle">This page is currently under construction. Please check back later!</p>
-      <router-link to="/" class="btn-primary mt-4">Return Home</router-link>
+  <div class="stub-view container page-shell">
+    <div class="glass-card placeholder-card animate-entry">
+      <span class="section-kicker">{{ siteContent.teamPlaceholder.eyebrow }}</span>
+      <h1>{{ siteContent.teamPlaceholder.title }}</h1>
+      <p>{{ siteContent.teamPlaceholder.body }}</p>
+      <div class="placeholder-actions">
+        <RouterLink class="btn-primary" to="/server-intro">{{ siteContent.teamPlaceholder.primaryCta }}</RouterLink>
+        <RouterLink class="btn-secondary" to="/server-intro#community-panel">
+          {{ siteContent.teamPlaceholder.secondaryCta }}
+        </RouterLink>
+      </div>
+      <small>{{ siteContent.teamPlaceholder.note }}</small>
     </div>
   </div>
 </template>
 
 <style scoped>
 .stub-view {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-  padding-top: 4rem;
+  display: grid;
+  place-items: center;
 }
 
-.construction-card {
-  text-align: center;
-  max-width: 500px;
-  width: 100%;
-  padding: 4rem 2rem;
+.placeholder-card {
+  width: min(760px, 100%);
+  display: grid;
+  gap: 1rem;
 }
 
-.icon-spin {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  display: inline-block;
-  animation: spin 6s linear infinite;
+.placeholder-card h1 {
+  font-size: clamp(2.6rem, 5vw, 4.4rem);
+  max-width: 12ch;
 }
 
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
-
-.title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.capitalize {
-  text-transform: capitalize;
-}
-
-.subtitle {
+.placeholder-card p,
+.placeholder-card small {
   color: var(--text-muted);
-  margin-bottom: 2.5rem;
 }
 
-.mt-4 {
-  margin-top: 1rem;
+.placeholder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 </style>

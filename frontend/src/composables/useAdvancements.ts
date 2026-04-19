@@ -1,49 +1,79 @@
 import { computed, type Ref } from 'vue'
+
 import advancementData from '@/assets/advancements.json'
+import type { AdvancementMetadata, PlayerAdvancement } from '@/types/api'
 
-export function useAdvancements(advancements: Ref<any[] | null>) {
-    const totalAdvancements = computed(() => advancements.value?.length || 0)
-    const completedAdvancements = computed(() => advancements.value?.filter((a: any) => a.done).length || 0)
+const typedAdvancementData = advancementData as Record<string, AdvancementMetadata>
 
-    const categorizedAdvancements = computed(() => {
-        if (!advancements.value) return {}
-        const result: Record<string, any[]> = {}
-        for (const adv of advancements.value) {
-            if (!adv.done) continue
-            let category = 'Others'
-            const parts = adv.key.split('/')
-            if (parts.length > 1) {
-                category = parts[0].replace('minecraft:', '').replace(/[_-]/g, ' ')
-            }
-            category = category.charAt(0).toUpperCase() + category.slice(1)
-            if (!result[category]) result[category] = []
-            result[category].push(adv)
-        }
-        return result
-    })
+const fallbackMetadata = (key: string): AdvancementMetadata => ({
+  name: key.split('/').pop() ?? key,
+  icon: key.split('/').pop() ?? 'barrier',
+  description: '',
+  type: 'task'
+})
 
-    const getAdvancementMetadata = (key: string) => {
-        return (advancementData as any)[key] || {
-            name: key.split('/').pop(),
-            icon: key.split('/').pop(),
-            description: '',
-            type: 'task'
-        }
+export function useAdvancements(advancements: Ref<PlayerAdvancement[] | null>) {
+  const totalAdvancements = computed(() => advancements.value?.length ?? 0)
+  const completedAdvancements = computed(() => advancements.value?.filter((advancement) => advancement.done).length ?? 0)
+
+  const categorizedAdvancements = computed((): Record<string, PlayerAdvancement[]> => {
+    if (!advancements.value) {
+      return {}
     }
 
-    const getAdvIconPath = (advKey: string) => {
-        const meta = getAdvancementMetadata(advKey)
-        let category = advKey.split(':')[1]?.split('/')[0] || 'minecraft'
-        if (category === 'story') category = 'minecraft'
-        const iconName = meta.icon
-        return `/mc_icons/advancements/${category}/${iconName}.png`
+    const result: Record<string, PlayerAdvancement[]> = {}
+
+    for (const advancement of advancements.value) {
+      if (!advancement.done) {
+        continue
+      }
+
+      let category = 'Others'
+      const parts = advancement.key.split('/')
+
+      if (parts.length > 1) {
+        category = parts[0].replace('minecraft:', '').replace(/[_-]/g, ' ')
+      }
+
+      const label = category.charAt(0).toUpperCase() + category.slice(1)
+      if (!result[label]) {
+        result[label] = []
+      }
+
+      result[label].push(advancement)
+    }
+
+    return result
+  })
+
+  const getAdvancementMetadata = (key: string): AdvancementMetadata => {
+    const metadata = typedAdvancementData[key]
+    if (!metadata) {
+      return fallbackMetadata(key)
     }
 
     return {
-        totalAdvancements,
-        completedAdvancements,
-        categorizedAdvancements,
-        getAdvancementMetadata,
-        getAdvIconPath
+      ...metadata,
+      name: metadata.name.replace(/\u807d/g, ' ').replace(/\s+/g, ' ').trim()
     }
+  }
+
+  const getAdvIconPath = (advancementKey: string): string => {
+    const metadata = getAdvancementMetadata(advancementKey)
+    let category = advancementKey.split(':')[1]?.split('/')[0] ?? 'minecraft'
+
+    if (category === 'story') {
+      category = 'minecraft'
+    }
+
+    return `/mc_icons/advancements/${category}/${metadata.icon}.png`
+  }
+
+  return {
+    totalAdvancements,
+    completedAdvancements,
+    categorizedAdvancements,
+    getAdvancementMetadata,
+    getAdvIconPath
+  }
 }

@@ -1,110 +1,152 @@
 <script setup lang="ts">
+import { siteContent } from '@/content/siteContent'
+import type { AdvancementMetadata, PlayerAdvancement } from '@/types/api'
+
 defineProps<{
-  advancements: any[] | null
+  advancements: PlayerAdvancement[] | null
   completedAdvancements: number
   totalAdvancements: number
-  categorizedAdvancements: Record<string, any[]>
-  getAdvancementMetadata: (key: string) => any
+  categorizedAdvancements: Record<string, PlayerAdvancement[]>
+  getAdvancementMetadata: (key: string) => AdvancementMetadata
   getAdvIconPath: (key: string) => string
 }>()
+
+function handleImageError(event: Event): void {
+  const image = event.target as HTMLImageElement | null
+  if (image) {
+    image.style.display = 'none'
+  }
+}
 </script>
 
 <template>
-  <section class="panel glass-card" v-if="advancements && advancements.length > 0">
-    <h3><img src="/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
-    
-    <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
-      <h4 class="category-name">{{ category }}</h4>
-      <div class="advancements-grid">
-        <div class="adv-card" v-for="adv in items" :key="adv.key">
-          <div class="adv-icon-wrap" :class="getAdvancementMetadata(adv.key).type">
-            <img 
-               :src="getAdvIconPath(adv.key)" 
-               :alt="getAdvancementMetadata(adv.key).name" 
-               class="adv-icon" 
-               @error="($event: Event) => ($event.target as HTMLImageElement).style.display='none'" 
-            />
+  <section v-if="advancements && advancements.length > 0" class="glass-card panel-card">
+    <div class="panel-head">
+      <h3>{{ siteContent.playerDetail.sections.advancements }}</h3>
+      <span class="meta-chip">{{ completedAdvancements }}/{{ totalAdvancements }}</span>
+    </div>
+
+    <div v-for="(items, category) in categorizedAdvancements" :key="category" class="advancement-section">
+      <h4>{{ category }}</h4>
+      <div class="advancement-grid">
+        <article v-for="advancement in items" :key="advancement.key" class="advancement-card">
+          <div :class="['icon-wrap', getAdvancementMetadata(advancement.key).type]">
+            <img :src="getAdvIconPath(advancement.key)" :alt="getAdvancementMetadata(advancement.key).name" @error="handleImageError" />
           </div>
-          <div class="adv-info">
-            <span class="adv-name">{{ getAdvancementMetadata(adv.key).name }}</span>
+          <div class="advancement-copy">
+            <strong>{{ getAdvancementMetadata(advancement.key).name }}</strong>
+            <small>{{ getAdvancementMetadata(advancement.key).type }}</small>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-.panel h3 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 2rem;
-}
-
-.header-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.adv-category {
-  margin-bottom: 2.5rem;
-}
-
-.category-name {
-  font-size: 1rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.advancements-grid {
+.panel-card {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
-.adv-card {
+.panel-head {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
   align-items: center;
-  text-align: center;
-  gap: 10px;
 }
 
-.adv-icon-wrap {
-  width: 54px;
-  height: 54px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
+.panel-head h3 {
+  font-size: 1.8rem;
+}
+
+.meta-chip {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  border: 1px solid rgba(255, 248, 234, 0.08);
+}
+
+.advancement-section {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.advancement-section h4 {
+  font-size: 1.2rem;
+}
+
+.advancement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.advancement-card {
   display: flex;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 248, 234, 0.04);
+  border: 1px solid rgba(255, 248, 234, 0.06);
   align-items: center;
-  justify-content: center;
-  border: 1px solid var(--glass-border);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.adv-card:hover .adv-icon-wrap {
-  transform: scale(1.1) rotate(5deg);
-  border-color: var(--primary);
+.icon-wrap {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(255, 248, 234, 0.05);
+  border: 1px solid rgba(255, 248, 234, 0.08);
+  flex-shrink: 0;
 }
 
-.adv-icon {
-  width: 32px;
-  height: 32px;
+.icon-wrap.task {
+  border-color: rgba(120, 130, 91, 0.35);
+}
+
+.icon-wrap.goal {
+  border-color: rgba(196, 122, 66, 0.35);
+}
+
+.icon-wrap.challenge {
+  border-color: rgba(186, 77, 55, 0.35);
+}
+
+.icon-wrap img {
+  width: 28px;
+  height: 28px;
   image-rendering: pixelated;
 }
 
-.adv-name {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-main);
+.advancement-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
 }
 
-/* Advancement types colors */
-.goal { border-color: #fbbf24; }
-.challenge { border-color: #8b5cf6; }
+.advancement-copy strong {
+  color: var(--text-strong);
+}
+
+.advancement-copy small {
+  color: var(--text-dim);
+  text-transform: capitalize;
+}
+
+@media (max-width: 980px) {
+  .advancement-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .advancement-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

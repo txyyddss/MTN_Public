@@ -1,112 +1,119 @@
 interface CacheEntry {
-    data: any;
-    expiry: number;
-    ttl: number;
-    lastAccessed: number;
+  data: unknown
+  expiry: number
+  ttl: number
+  lastAccessed: number
 }
 
-const cache = new Map<string, CacheEntry>();
-// Maps in-flight URLs to their Promise so concurrent callers can await the same fetch
-const inFlight = new Map<string, Promise<any>>();
+const cache = new Map<string, CacheEntry>()
+const inFlight = new Map<string, Promise<unknown>>()
+const maxIdleTime = 300000
+const isDev = import.meta.env.DEV
 
-// Maximum idle time before we stop auto-refreshing (5 minutes)
-const MAX_IDLE_TIME = 300000;
+function debugLog(message: string, url: string): void {
+  if (isDev) {
+    console.debug(`[DataCache] ${message}: ${url}`)
+  }
+}
 
-/**
- * Fetches data with an in-memory cache and TTL.
- */
-export async function fetchWithCache<T = any>(url: string, ttl: number = 60000): Promise<T> {
-    const now = Date.now();
-    const entry = cache.get(url);
+export async function fetchWithCache<T>(url: string, ttl = 60000): Promise<T> {
+  const now = Date.now()
+  const entry = cache.get(url)
 
-    if (entry) {
-        entry.lastAccessed = now;
-        const remaining = entry.expiry - now;
+  if (entry) {
+    entry.lastAccessed = now
+    const remaining = entry.expiry - now
 
-        if (remaining > 0) {
-            // Proactive refresh: if less than 30% of TTL remains, refresh in background
-            if (remaining < ttl * 0.3 && !inFlight.has(url)) {
-                console.log(`[DataCache] Proactive refresh: ${url}`);
-                triggerBackgroundRefresh(url, ttl);
-            }
-            return entry.data;
-        } else {
-            // Serve expired cache but trigger background refresh (stale-while-revalidate)
-            if (!inFlight.has(url)) {
-                console.log(`[DataCache] Serving expired data and refreshing: ${url}`);
-                triggerBackgroundRefresh(url, ttl);
-            }
-            return entry.data;
-        }
+    if (remaining > 0) {
+      if (remaining < ttl * 0.3 && !inFlight.has(url)) {
+        debugLog('Proactive refresh', url)
+        triggerBackgroundRefresh(url, ttl)
+      }
+
+      return entry.data as T
     }
 
-    // If a fetch is already in flight for this URL, await the same promise
-    if (inFlight.has(url)) {
-        console.log(`[DataCache] Awaiting in-flight: ${url}`);
-        return inFlight.get(url)!;
+    if (!inFlight.has(url)) {
+      debugLog('Serving stale data and refreshing', url)
+      triggerBackgroundRefresh(url, ttl)
     }
 
-    console.log(`[DataCache] Cache miss/expire: ${url}`);
-    return performFetch(url, ttl);
+    return entry.data as T
+  }
+
+  const existingRequest = inFlight.get(url)
+  if (existingRequest) {
+    debugLog('Awaiting in-flight request', url)
+    return (await existingRequest) as T
+  }
+
+  debugLog('Cache miss', url)
+  return (await performFetch(url, ttl)) as T
 }
 
-async function performFetch(url: string, ttl: number): Promise<any> {
-    const promise = (async () => {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
-            const data = await response.json();
+async function performFetch(url: string, ttl: number): Promise<unknown> {
+  const promise = (async () => {
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`Fetch failed: ${response.statusText}`)
+      }
 
-            cache.set(url, {
-                data,
-                expiry: Date.now() + ttl,
-                ttl,
-                lastAccessed: Date.now()
-            });
-            return data;
-        } catch (error) {
-            console.error(`[DataCache] Fetch error for ${url}:`, error);
-            throw error;
-        } finally {
-            inFlight.delete(url);
-        }
-    })();
+      const data = (await response.json()) as unknown
+      cache.set(url, {
+        data,
+        expiry: Date.now() + ttl,
+        ttl,
+        lastAccessed: Date.now()
+      })
 
-    inFlight.set(url, promise);
-    return promise;
+      return data
+    } catch (error) {
+      console.error(`Data cache fetch failed for ${url}`, error)
+      throw error
+    } finally {
+      inFlight.delete(url)
+    }
+  })()
+
+  inFlight.set(url, promise)
+  return promise
 }
 
-function triggerBackgroundRefresh(url: string, ttl: number) {
-    performFetch(url, ttl).catch(() => { });
+function triggerBackgroundRefresh(url: string, ttl: number): void {
+  void performFetch(url, ttl).catch(() => undefined)
 }
 
-// Background worker to auto-refresh active cache entries
 setInterval(() => {
-    const now = Date.now();
-    for (const [url, entry] of cache.entries()) {
-        const idleTime = now - entry.lastAccessed;
+  const now = Date.now()
 
-        // Only auto-refresh if the data was recently accessed
-        if (idleTime < MAX_IDLE_TIME) {
-            const remaining = entry.expiry - now;
-            // Refresh if less than 15 seconds remain or 25% of TTL
-            const threshold = Math.min(15000, entry.ttl * 0.25);
+  for (const [url, entry] of cache.entries()) {
+    const idleTime = now - entry.lastAccessed
 
-            if (remaining < threshold && !inFlight.has(url)) {
-                console.log(`[DataCache] Background auto-refresh: ${url}`);
-                triggerBackgroundRefresh(url, entry.ttl);
-            }
-        } else {
-            // Cleanup stale cache
-            if (now > entry.expiry + MAX_IDLE_TIME) {
-                cache.delete(url);
-            }
-        }
+    if (idleTime < maxIdleTime) {
+      const remaining = entry.expiry - now
+      const threshold = Math.min(15000, entry.ttl * 0.25)
+
+      if (remaining < threshold && !inFlight.has(url)) {
+        debugLog('Background auto-refresh', url)
+        triggerBackgroundRefresh(url, entry.ttl)
+      }
+
+      continue
     }
-}, 10000); // Check every 10 seconds
 
-export function clearDataCache(url?: string) {
-    if (url) cache.delete(url);
-    else cache.clear();
+    if (now > entry.expiry + maxIdleTime) {
+      cache.delete(url)
+    }
+  }
+}, 10000)
+
+export function clearDataCache(url?: string): void {
+  if (url) {
+    cache.delete(url)
+    return
+  }
+
+  cache.clear()
 }
 

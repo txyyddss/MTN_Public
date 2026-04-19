@@ -5,73 +5,63 @@ const props = defineProps<{
   rank?: number
 }>()
 
-// McMMO max level is 1000 for most skills
-const MAX_LEVEL = 1000
-const progress = Math.min((props.level / MAX_LEVEL) * 100, 100)
+const maxLevel = 1000
+const progress = Math.min((props.level / maxLevel) * 100, 100)
 </script>
 
 <template>
   <div class="skill-row">
     <span class="skill-name">{{ name }}</span>
     <div class="skill-bar-wrap">
-      <div class="skill-bar-fill" :style="{ width: progress + '%' }"></div>
+      <div class="skill-bar-fill" :style="{ width: `${progress}%` }"></div>
     </div>
     <span class="skill-level">{{ level }}</span>
-    <span class="skill-rank" v-if="rank">#{{ rank }}</span>
+    <span v-if="rank" class="skill-rank">#{{ rank }}</span>
   </div>
 </template>
 
 <style scoped>
 .skill-row {
   display: grid;
-  grid-template-columns: 90px 1fr 38px 36px;
+  grid-template-columns: 90px 1fr 42px 42px;
+  gap: 0.7rem;
   align-items: center;
-  gap: 8px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid transparent;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.skill-row:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--glass-border);
+  padding: 0.8rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(255, 248, 234, 0.04);
+  border: 1px solid rgba(255, 248, 234, 0.06);
 }
 
 .skill-name {
-  font-size: 0.78rem;
   color: var(--text-muted);
-  line-height: 1.2;
+  font-size: 0.8rem;
 }
 
 .skill-bar-wrap {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 248, 234, 0.08);
   overflow: hidden;
 }
 
 .skill-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #60a5fa);
-  border-radius: 2px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+}
+
+.skill-level,
+.skill-rank {
+  text-align: right;
+  font-family: var(--mono);
 }
 
 .skill-level {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #fff;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
 }
 
 .skill-rank {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #fcd34d;
-  text-align: right;
-  white-space: nowrap;
+  color: var(--primary);
+  font-size: 0.76rem;
 }
 </style>

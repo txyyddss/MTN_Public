@@ -1,17 +1,19 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { siteContent } from '@/content/siteContent'
+</script>
 
 <template>
-  <section class="cta-section animate-entry delay-400">
+  <section class="cta-section animate-entry delay-200">
     <div class="container">
       <div class="cta-box glass-card">
-        <div class="cta-visual-bg"></div>
-        <div class="cta-content">
-          <h2 class="display-font">Ready to Forge Your <span class="text-gradient">Empire?</span></h2>
-          <p>Join a community of elite explorers in the most refined survival environment ever engineered.</p>
+        <div class="cta-copy">
+          <span class="section-kicker">Next step</span>
+          <h2>{{ siteContent.home.cta.title }}</h2>
+          <p>{{ siteContent.home.cta.body }}</p>
         </div>
         <div class="cta-actions">
-           <router-link to="/server-intro" class="btn-primary large-btn">Start Your Adventure</router-link>
-           <p class="cta-note">Java & Bedrock Fully Supported</p>
+          <router-link class="btn-primary" to="/server-intro">{{ siteContent.home.cta.primaryCta }}</router-link>
+          <p class="cta-note">{{ siteContent.home.cta.note }}</p>
         </div>
       </div>
     </div>
@@ -20,82 +22,45 @@
 
 <style scoped>
 .cta-section {
-  padding: 8rem 0;
+  padding: 1rem 0 6rem;
 }
 
 .cta-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 80px 100px !important;
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(0,0,0,0.6)) !important;
-  border-radius: var(--radius-xl) !important;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--glass-border-bright) !important;
+  display: grid;
+  grid-template-columns: 1.4fr auto;
+  gap: 2rem;
+  align-items: end;
 }
 
-.cta-visual-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 100% 0%, hsla(210, 100%, 55%, 0.15), transparent 50%),
-    radial-gradient(circle at 0% 100%, hsla(260, 90%, 65%, 0.1), transparent 50%);
-  pointer-events: none;
+.cta-copy {
+  display: grid;
+  gap: 1rem;
 }
 
-.cta-content {
-  position: relative;
-  z-index: 2;
-  max-width: 500px;
+.cta-copy h2 {
+  font-size: clamp(2.2rem, 4vw, 4rem);
+  max-width: 14ch;
 }
 
-.cta-content h2 {
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  margin-bottom: 1.5rem;
-  line-height: 1.1;
-}
-
-.cta-content p {
-  font-size: 1.2rem;
+.cta-copy p {
+  max-width: 58ch;
   color: var(--text-muted);
-  line-height: 1.6;
 }
 
 .cta-actions {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.large-btn {
-  padding: 20px 48px;
-  font-size: 1.1rem;
+  display: grid;
+  justify-items: start;
+  gap: 0.9rem;
 }
 
 .cta-note {
-  font-size: 0.8rem;
   color: var(--text-dim);
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-size: 0.86rem;
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@media (max-width: 1024px) {
-  .cta-box { flex-direction: column; text-align: center; padding: 60px 40px !important; gap: 3rem; }
-  .cta-content { max-width: 100%; }
+@media (max-width: 840px) {
+  .cta-box {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

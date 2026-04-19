@@ -1,77 +1,78 @@
 <script setup lang="ts">
 import SkillItem from '@/components/SkillItem.vue'
+import { siteContent } from '@/content/siteContent'
+import type { FormattedSkillEntry, McMMOSkills } from '@/types/api'
 
 defineProps<{
-  mcmmo: any
-  ranks: any
-  filteredMcmmo: Record<string, any>
+  mcmmo: McMMOSkills | null
+  ranks: Record<string, number>
+  filteredMcmmo: FormattedSkillEntry[]
 }>()
 </script>
 
 <template>
-  <section class="panel glass-card" v-if="mcmmo">
-    <div class="panel-header-simple">
-      <h3><img src="/icons/monsters_hunted.ico" class="header-icon" /> McMMO Skills</h3>
-      <div class="rank-badge" v-if="ranks.skills">Rank #{{ ranks.skills }}</div>
-      <div class="total-badge">Total {{ mcmmo.total }}</div>
+  <section v-if="mcmmo" class="glass-card panel-card">
+    <div class="panel-head">
+      <h3>{{ siteContent.playerDetail.sections.skills }}</h3>
+      <div class="meta-cluster">
+        <span v-if="ranks.skills" class="meta-chip">#{{ ranks.skills }}</span>
+        <span class="meta-chip">{{ siteContent.playerDetail.sections.total }} {{ mcmmo.total }}</span>
+      </div>
     </div>
+
     <div class="skill-grid">
-      <SkillItem 
-        v-for="(level, skill) in filteredMcmmo" 
-        :key="skill"
-        :name="String(skill)"
-        :level="Number(level)"
-        :rank="ranks['mcmmo:' + skill.toLowerCase()]"
+      <SkillItem
+        v-for="entry in filteredMcmmo"
+        :key="entry.key"
+        :name="entry.label"
+        :level="entry.level"
+        :rank="ranks[`mcmmo:${entry.key}`]"
       />
     </div>
   </section>
 </template>
 
 <style scoped>
-.panel h3 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
+.panel-card {
+  display: grid;
+  gap: 1rem;
 }
 
-.header-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.panel-header-simple {
+.panel-head {
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
   align-items: center;
-  margin-bottom: 2rem;
 }
 
-.rank-badge {
-  padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--primary);
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--primary);
+.panel-head h3 {
+  font-size: 1.8rem;
 }
 
-.total-badge {
-  font-weight: 800;
+.meta-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.meta-chip {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  border: 1px solid rgba(255, 248, 234, 0.08);
 }
 
 .skill-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 720px) {
   .skill-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 </style>

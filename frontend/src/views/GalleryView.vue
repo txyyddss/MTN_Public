@@ -1,43 +1,63 @@
 <script setup lang="ts">
-import { ref, onUnmounted, computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-const imageModules = import.meta.glob('/public/gallary/*.{png,jpg,jpeg,webp}', { eager: true })
+import { siteContent } from '@/content/siteContent'
+
+const imageModules = import.meta.glob('/public/gallery-images/*.{png,jpg,jpeg,webp}', { eager: true })
 const images = Object.keys(imageModules)
-  .map(path => path.split('/').pop() || '')
-  .filter(img => img !== '')
-  .sort((a, b) => b.localeCompare(a)) // Sort reversed to show newest (by timestamp filename) first
+  .map((path) => path.split('/').pop() || '')
+  .filter((image): image is string => image.length > 0)
+  .sort((left, right) => right.localeCompare(left))
 
 const selectedIndex = ref<number | null>(null)
-const selectedImage = computed(() => selectedIndex.value !== null ? images[selectedIndex.value] : null)
+const selectedImage = computed(() => (selectedIndex.value === null ? null : images[selectedIndex.value]))
+const selectedLabel = computed(() =>
+  selectedIndex.value === null ? '' : `${siteContent.gallery.frameLabel} ${images.length - selectedIndex.value}`
+)
 
-const openLightbox = (index: number) => {
+function openLightbox(index: number): void {
   selectedIndex.value = index
   document.body.style.overflow = 'hidden'
 }
 
-const closeLightbox = () => {
+function closeLightbox(): void {
   selectedIndex.value = null
   document.body.style.overflow = ''
 }
 
-const nextImage = () => {
-  if (selectedIndex.value === null) return
+function nextImage(): void {
+  if (selectedIndex.value === null) {
+    return
+  }
+
   selectedIndex.value = (selectedIndex.value + 1) % images.length
 }
 
-const prevImage = () => {
-  if (selectedIndex.value === null) return
+function previousImage(): void {
+  if (selectedIndex.value === null) {
+    return
+  }
+
   selectedIndex.value = (selectedIndex.value - 1 + images.length) % images.length
 }
 
-const handleKeydown = (e: KeyboardEvent) => {
-  if (selectedIndex.value === null) return
-  if (e.key === 'Escape') closeLightbox()
-  if (e.key === 'ArrowRight') nextImage()
-  if (e.key === 'ArrowLeft') prevImage()
+function handleKeydown(event: KeyboardEvent): void {
+  if (selectedIndex.value === null) {
+    return
+  }
+
+  if (event.key === 'Escape') {
+    closeLightbox()
+  } else if (event.key === 'ArrowRight') {
+    nextImage()
+  } else if (event.key === 'ArrowLeft') {
+    previousImage()
+  }
 }
 
-window.addEventListener('keydown', handleKeydown)
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
@@ -46,267 +66,179 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="gallery-view container">
-    <header class="gallery-header animate-entry">
-      <div class="title-wrap">
-        <h1 class="glitch-title">ARCHIVES</h1>
-        <div class="status-line">
-          <span class="count">{{ images.length }} CAPTURES</span>
-          <span class="separator">/</span>
-          <span class="desc">A VISUAL CHRONICLE OF EVOLUTION</span>
-        </div>
-      </div>
+  <div class="gallery-view container page-shell">
+    <header class="page-header animate-entry">
+      <span class="page-kicker">{{ siteContent.gallery.eyebrow }}</span>
+      <h1>{{ siteContent.gallery.title }}</h1>
+      <p class="page-lede">{{ siteContent.gallery.body }}</p>
+      <div class="badge-pill">{{ images.length }} {{ siteContent.gallery.capturesLabel }}</div>
     </header>
 
-    <div class="waterfall-container">
-      <div 
-        v-for="(img, index) in images" 
-        :key="img" 
-        class="gallery-item glass-card animate-entry"
-        :style="{ animationDelay: `${(index % 20) * 40}ms` }"
+    <div class="waterfall-grid">
+      <button
+        v-for="(image, index) in images"
+        :key="image"
+        type="button"
+        class="gallery-card glass-card animate-entry"
+        :style="{ animationDelay: `${(index % 18) * 0.04}s` }"
         @click="openLightbox(index)"
       >
-        <div class="card-glow"></div>
-        <img 
-          :src="`/gallary/${img}`" 
-          :alt="`Archive Capture ${index + 1}`" 
-          loading="lazy" 
-          class="gallery-img"
-        />
-        <div class="item-meta">
-          <span class="index">#{{ images.length - index }}</span>
-          <span class="action">DECRYPT VIEW</span>
+        <img :src="`/gallery-images/${image}`" :alt="`${siteContent.gallery.frameLabel} ${index + 1}`" loading="lazy" />
+        <div class="gallery-meta">
+          <strong>{{ images.length - index }}</strong>
+          <span>{{ siteContent.gallery.action }}</span>
         </div>
-      </div>
+      </button>
     </div>
 
-    <!-- Immersive Lightbox -->
-    <Transition name="lightbox-zoom">
+    <Transition name="lightbox-fade">
       <div v-if="selectedImage" class="lightbox-overlay" @click="closeLightbox">
-        <div class="lightbox-controls" @click.stop>
-          <button class="nav-btn prev" @click="prevImage" aria-label="Previous">
-             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <div class="lightbox-content">
-            <img :src="`/gallary/${selectedImage}`" class="main-image" />
-            <div class="image-label">CAPTURE {{ images.length - (selectedIndex ?? 0) }}</div>
+        <div class="lightbox-shell" @click.stop>
+          <button class="lightbox-nav" type="button" aria-label="Previous image" @click="previousImage">‹</button>
+          <div class="lightbox-image-wrap">
+            <p class="lightbox-label">{{ selectedLabel }}</p>
+            <img :src="`/gallery-images/${selectedImage}`" :alt="selectedLabel" class="lightbox-image" />
           </div>
-          <button class="nav-btn next" @click="nextImage" aria-label="Next">
-             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"/></svg>
-          </button>
+          <button class="lightbox-nav" type="button" aria-label="Next image" @click="nextImage">›</button>
         </div>
-        <button class="close-lux" @click="closeLightbox">CLOSE</button>
+        <button class="lightbox-close" type="button" @click="closeLightbox">
+          {{ siteContent.gallery.close }}
+        </button>
       </div>
     </Transition>
   </div>
 </template>
 
 <style scoped>
-.gallery-view {
-  padding-top: 6rem;
-  padding-bottom: 10rem;
-}
-
-.gallery-header {
-  margin-bottom: 6rem;
-}
-
-.glitch-title {
-  font-family: var(--display);
-  font-size: clamp(3.5rem, 8vw, 6rem);
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.9;
-  margin-bottom: 1.5rem;
-}
-
-.status-line {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--heading);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-.status-line .count { color: var(--primary); }
-.status-line .separator { opacity: 0.2; }
-.status-line .desc { color: var(--text-muted); }
-
-/* Waterfall Implementation */
-.waterfall-container {
+.waterfall-grid {
   columns: 1;
-  column-gap: 1.5rem;
+  column-gap: 1rem;
 }
 
-@media (min-width: 640px) { .waterfall-container { columns: 2; } }
-@media (min-width: 1024px) { .waterfall-container { columns: 3; } }
-@media (min-width: 1600px) { .waterfall-container { columns: 4; } }
+@media (min-width: 720px) {
+  .waterfall-grid {
+    columns: 2;
+  }
+}
 
-.gallery-item {
+@media (min-width: 1100px) {
+  .waterfall-grid {
+    columns: 3;
+  }
+}
+
+.gallery-card {
   break-inside: avoid;
   display: block;
   width: 100%;
-  margin-bottom: 1.5rem;
-  padding: 0 !important;
-  border-radius: var(--radius-lg) !important;
-  overflow: hidden;
+  padding: 0;
+  margin-bottom: 1rem;
   cursor: pointer;
-  transition: all 0.5s var(--transition-slow);
 }
 
-.card-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top right, var(--primary-glow), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.5s;
-  z-index: 1;
-}
-
-.gallery-item:hover {
-  transform: translateY(-10px) scale(1.01);
-  border-color: var(--primary);
-  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-}
-
-.gallery-item:hover .card-glow { opacity: 0.4; }
-
-.gallery-img {
+.gallery-card img {
   width: 100%;
-  height: auto;
-  display: block;
-  transition: transform 0.8s var(--transition-slow);
+  border-radius: calc(var(--radius-lg) - 10px);
 }
 
-.gallery-item:hover .gallery-img { transform: scale(1.08); }
-
-.item-meta {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 20px;
-  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+.gallery-meta {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s;
-  z-index: 2;
+  gap: 1rem;
+  margin-top: 0.9rem;
 }
 
-.gallery-item:hover .item-meta {
-  opacity: 1;
-  transform: translateY(0);
+.gallery-meta strong {
+  font-family: var(--mono);
+  color: var(--text-strong);
 }
 
-.index { font-family: var(--heading); font-weight: 800; font-size: 1.2rem; color: #fff; }
-.action { font-size: 0.65rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+.gallery-meta span {
+  color: var(--text-dim);
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 
-/* Lightbox Elevation */
 .lightbox-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.98);
-  backdrop-filter: blur(20px);
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 7, 5, 0.94);
+  backdrop-filter: blur(16px);
 }
 
-.lightbox-controls {
-  display: flex;
+.lightbox-shell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  width: min(1200px, calc(100vw - 2rem));
   align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  flex: 1;
 }
 
-.nav-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  color: #fff;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+.lightbox-image-wrap {
+  display: grid;
+  gap: 0.75rem;
 }
 
-.nav-btn:hover {
-  background: var(--primary);
-  color: #000;
-  border-color: var(--primary);
-  transform: scale(1.1);
-}
-
-.lightbox-content {
-  position: relative;
-  max-width: 85vw;
-  max-height: 80vh;
-}
-
-.main-image {
-  max-width: 100%;
-  max-height: 80vh;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 0 100px rgba(0,0,0,0.8);
-}
-
-.image-label {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  font-family: var(--heading);
-  font-weight: 800;
+.lightbox-label {
+  color: var(--primary);
+  font-family: var(--mono);
   font-size: 0.8rem;
-  letter-spacing: 4px;
-  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
 }
 
-.close-lux {
+.lightbox-image {
+  width: 100%;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius: 24px;
+}
+
+.lightbox-nav,
+.lightbox-close {
+  border: 1px solid var(--glass-border-bright);
+  border-radius: 999px;
+  background: rgba(255, 248, 234, 0.05);
+  color: var(--text-main);
+}
+
+.lightbox-nav {
+  width: 54px;
+  height: 54px;
+  font-size: 2rem;
+}
+
+.lightbox-close {
   position: absolute;
-  top: 3rem;
-  right: 3rem;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-family: var(--heading);
-  font-weight: 800;
-  letter-spacing: 4px;
-  cursor: pointer;
-  padding: 10px;
-  transition: all 0.3s;
+  top: 1.25rem;
+  right: 1.25rem;
+  padding: 0.7rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.close-lux:hover {
-  color: var(--primary);
-  text-shadow: 0 0 15px var(--primary-glow);
+.lightbox-fade-enter-active,
+.lightbox-fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-/* Transitions */
-.lightbox-zoom-enter-active,
-.lightbox-zoom-leave-active {
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.lightbox-zoom-enter-from,
-.lightbox-zoom-leave-to {
+.lightbox-fade-enter-from,
+.lightbox-fade-leave-to {
   opacity: 0;
-  transform: scale(0.95);
 }
 
-@media (max-width: 768px) {
-  .nav-btn { display: none; }
-  .close-lux { top: 1rem; right: 1rem; }
-  .glitch-title { font-size: 3rem; }
+@media (max-width: 720px) {
+  .lightbox-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .lightbox-nav {
+    display: none;
+  }
 }
 </style>

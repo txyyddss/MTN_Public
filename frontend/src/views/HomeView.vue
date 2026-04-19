@@ -6,9 +6,9 @@ import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vu
 </script>
 
 <template>
-  <div class="home-view">
+  <div class="home-view page-shell">
     <HeroSection />
-    
+
     <div class="container status-reveal">
       <ServerStatusAndConnection />
     </div>
@@ -23,20 +23,19 @@ import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vu
 .home-view {
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-dark);
   gap: 0; /* Components have their own padding/margins */
   padding-bottom: 0;
 }
 
 .status-reveal {
-  margin-top: -100px;
+  margin-top: -1rem;
   position: relative;
   z-index: 20;
 }
 
 @media (max-width: 768px) {
   .status-reveal {
-    margin-top: -40px;
+    margin-top: 0;
   }
 }
 </style>

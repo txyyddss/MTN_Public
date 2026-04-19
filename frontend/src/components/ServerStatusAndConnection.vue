@@ -1,354 +1,383 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useServerStatus } from '@/composables/useServerStatus'
+import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 
-const { status, connInfo } = useServerStatus()
-const copyFeedback = ref<string | null>(null)
+import { siteContent } from '@/content/siteContent'
+import { useServerStatusStore } from '@/stores/serverStatus'
+import type { ConnectionAddress } from '@/types/api'
+
+interface AddressRow {
+  label: string
+  badge: string
+  value: string
+  copyValue: string
+}
+
 const showAllJava = ref(false)
+const copyFeedback = ref<string | null>(null)
 
-const copyToClipboard = (text: string, label: string) => {
-  navigator.clipboard.writeText(text).then(() => {
-    copyFeedback.value = `Copied ${label}!`
-    setTimeout(() => {
+const statusStore = useServerStatusStore()
+const { status, connection } = storeToRefs(statusStore)
+
+function copyToClipboard(text: string, label: string): void {
+  void navigator.clipboard.writeText(text).then(() => {
+    copyFeedback.value = `${siteContent.serverPanels.copyPrefix} ${label}`
+    window.setTimeout(() => {
       copyFeedback.value = null
-    }, 2000)
+    }, 1800)
   })
 }
 
+function formatEditionTotal(count: number | undefined, online: boolean | undefined): string {
+  if (!online) {
+    return siteContent.serverPanels.labels.offline
+  }
 
-const getJavaTotal = () => {
-  if (!status.value?.java?.online) return 'Offline'
-  const count = status.value.java.players
-  return `${count} ${count <= 1 ? 'Player' : 'Players'}`
+  return `${count ?? 0} ${count === 1 ? 'player' : 'players'}`
 }
 
-const getBedrockTotal = () => {
-  if (!status.value?.bedrock?.online) return 'Offline'
-  const count = status.value.bedrock.players
-  return `${count} ${count <= 1 ? 'Player' : 'Players'}`
+function formatBytes(bytes: number): string {
+  if (bytes <= 0) {
+    return '0 B/s'
+  }
+
+  const units = ['B/s', 'KB/s', 'MB/s', 'GB/s']
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+  return `${(bytes / Math.pow(1024, index)).toFixed(1)} ${units[index]}`
 }
 
-const formatBytes = (bytes: number) => {
-  if (bytes === 0) return '0 B/s'
-  const k = 1024
-  const sizes = ['B/s', 'KB/s', 'MB/s', 'GB/s']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+function formatMemory(bytes: number): string {
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
-const formatMem = (bytes: number) => {
-  return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB'
+function buildDirectRow(label: string, badge: string, entry?: ConnectionAddress): AddressRow | null {
+  if (!entry) {
+    return null
+  }
+
+  const host = entry.domain || entry.ip
+  const value = entry.port ? `${host}:${entry.port}` : host
+
+  return {
+    label,
+    badge,
+    value,
+    copyValue: value
+  }
 }
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return 'N/A'
-  return new Date(dateStr).toLocaleString()
-}
+const javaRows = computed<AddressRow[]>(() => {
+  if (!connection.value) {
+    return []
+  }
+
+  if (showAllJava.value) {
+    return [
+      buildDirectRow('Java IPv4', 'IPv4', connection.value.connection?.java_ipv4),
+      buildDirectRow('Java IPv6', 'IPv6', connection.value.connection?.java_ipv6)
+    ].filter((row): row is AddressRow => Boolean(row))
+  }
+
+  return [
+    connection.value.addresses.java_ipv4_srv
+      ? {
+          label: 'Java SRV IPv4',
+          badge: 'SRV v4',
+          value: connection.value.addresses.java_ipv4_srv,
+          copyValue: connection.value.addresses.java_ipv4_srv
+        }
+      : null,
+    connection.value.addresses.java_ipv6_srv
+      ? {
+          label: 'Java SRV IPv6',
+          badge: 'SRV v6',
+          value: connection.value.addresses.java_ipv6_srv,
+          copyValue: connection.value.addresses.java_ipv6_srv
+        }
+      : null
+  ].filter((row): row is AddressRow => Boolean(row))
+})
+
+const bedrockRows = computed<AddressRow[]>(() =>
+  [
+    buildDirectRow('Bedrock IPv6', 'IPv6', connection.value?.connection?.bedrock_ipv6),
+    buildDirectRow('Bedrock IPv4', 'IPv4', connection.value?.connection?.bedrock_ipv4)
+  ].filter((row): row is AddressRow => Boolean(row))
+)
+
+const updatedLabel = computed(() => {
+  if (!status.value?.updated) {
+    return null
+  }
+
+  return new Date(status.value.updated).toLocaleString()
+})
 </script>
 
 <template>
   <section class="server-status-section">
-    <div class="container animate-entry delay-300">
-      
-      <div class="grid layout-grid">
-        <!-- Live Status Panel -->
-        <div class="glass-card status-panel">
-          <h3><span class="pulse-dot"></span> Live Server Status</h3>
-          <div v-if="status" class="status-content">
-            <div class="status-item">
-              <span class="badge java-badge">Java Edition</span>
-              <span class="count">{{ getJavaTotal() }}</span>
-            </div>
-            <div class="status-item">
-              <span class="badge bedrock-badge">Bedrock Edition</span>
-              <span class="count">{{ getBedrockTotal() }}</span>
-            </div>
-            
-            <div class="system-stats" v-if="status.system">
-              <div class="stat-row">
-                <small><b>Platform:</b> {{ status.system.platform }}</small>
-              </div>
-              <div class="stat-row">
-                <small><b>CPU:</b> {{ status.system.cpu_model }} ({{ status.system.cpu_percent.toFixed(1) }}%)</small>
-              </div>
-              <div class="stat-row">
-                <small><b>Load:</b> {{ status.system.load_1.toFixed(2) }} / {{ status.system.load_5.toFixed(2) }} / {{ status.system.load_15.toFixed(2) }}</small>
-              </div>
-              <div class="stat-row mt-2">
-                <small><b>RAM:</b> {{ formatMem(status.system.mem_used) }} ({{ status.system.mem_percent.toFixed(0) }}%)</small>
-                <small><b>NET:</b> {{ formatBytes(status.system.net_sent_rate + status.system.net_recv_rate) }}</small>
-              </div>
-            </div>
-            <p class="refresh-note">Refreshes every 5s | Last: {{ formatDate(status.updated) }}</p>
+    <div class="container layout-grid animate-entry delay-300">
+      <article class="glass-card panel-block">
+        <div class="panel-head">
+          <div>
+            <span class="section-kicker">{{ siteContent.serverPanels.liveStatusTitle }}</span>
+            <h3>Telemetry and system load</h3>
           </div>
-          <div v-else class="loading-state">Loading status...</div>
         </div>
 
-        <!-- Connection Info Panel -->
-        <div class="glass-card connection-panel">
-          <div class="panel-header">
-            <h3><span>⬡</span> How to Connect</h3>
-            <transition name="fade">
-              <span v-if="copyFeedback" class="copy-toast">{{ copyFeedback }}</span>
-            </transition>
+        <div v-if="status" class="status-stack">
+          <div class="status-row">
+            <span>Java Edition</span>
+            <strong>{{ formatEditionTotal(status.java?.players, status.java?.online) }}</strong>
           </div>
-          <div class="panel-subheader">
-            <p class="suggestion">Recommended: Use IPv6 for better stability if supported by your hardware.</p>
-            <button v-if="connInfo?.connection" class="toggle-view-btn" @click="showAllJava = !showAllJava">
-              {{ showAllJava ? 'Simple View' : 'All Addresses' }}
+          <div class="status-row">
+            <span>Bedrock Edition</span>
+            <strong>{{ formatEditionTotal(status.bedrock?.players, status.bedrock?.online) }}</strong>
+          </div>
+
+          <div v-if="status.system" class="system-grid">
+            <div>
+              <small>{{ siteContent.serverPanels.labels.platform }}</small>
+              <strong>{{ status.system.platform }}</strong>
+            </div>
+            <div>
+              <small>{{ siteContent.serverPanels.labels.cpu }}</small>
+              <strong>{{ status.system.cpu_model }}</strong>
+            </div>
+            <div>
+              <small>{{ siteContent.serverPanels.labels.load }}</small>
+              <strong>
+                {{ status.system.load_1.toFixed(2) }} / {{ status.system.load_5.toFixed(2) }} /
+                {{ status.system.load_15.toFixed(2) }}
+              </strong>
+            </div>
+            <div>
+              <small>{{ siteContent.serverPanels.labels.ram }}</small>
+              <strong>{{ formatMemory(status.system.mem_used) }} · {{ status.system.mem_percent.toFixed(0) }}%</strong>
+            </div>
+            <div>
+              <small>{{ siteContent.serverPanels.labels.network }}</small>
+              <strong>{{ formatBytes(status.system.net_sent_rate + status.system.net_recv_rate) }}</strong>
+            </div>
+          </div>
+
+          <p class="panel-foot">
+            {{ siteContent.serverPanels.liveStatusRefresh }}
+            <span v-if="updatedLabel"> · Last update {{ updatedLabel }}</span>
+          </p>
+        </div>
+        <p v-else class="loading-copy">{{ siteContent.serverPanels.liveStatusFallback }}</p>
+      </article>
+
+      <article class="glass-card panel-block">
+        <div class="panel-head panel-head-spread">
+          <div>
+            <span class="section-kicker">{{ siteContent.serverPanels.connectionTitle }}</span>
+            <h3>Verified addresses</h3>
+          </div>
+          <button v-if="connection?.connection" class="toggle-view-btn" @click="showAllJava = !showAllJava">
+            {{ showAllJava ? siteContent.serverPanels.simpleView : siteContent.serverPanels.fullView }}
+          </button>
+        </div>
+
+        <p class="connection-hint">{{ siteContent.serverPanels.connectionHint }}</p>
+        <transition name="fade">
+          <p v-if="copyFeedback" class="copy-toast">{{ copyFeedback }}</p>
+        </transition>
+
+        <div v-if="connection" class="connection-grid">
+          <section class="connection-block">
+            <h4>{{ siteContent.serverPanels.javaTitle }}</h4>
+            <button
+              v-for="row in javaRows"
+              :key="row.label"
+              type="button"
+              class="address-row"
+              @click="copyToClipboard(row.copyValue, row.label)"
+            >
+              <span class="address-badge">{{ row.badge }}</span>
+              <span class="address-value">{{ row.value }}</span>
             </button>
-          </div>
-          
-          <div v-if="connInfo?.connection" class="conn-grid">
-            <div class="conn-box">
-              <h4>Java Edition</h4>
-              <ul v-if="showAllJava">
-                <li v-if="connInfo.connection.java_ipv4" @click="copyToClipboard(connInfo.connection.java_ipv4.domain || connInfo.connection.java_ipv4.ip + ':' + connInfo.connection.java_ipv4.port, 'Java IPv4')">
-                   <div class="addr-row">
-                    <span class="type-badge ipv4">IPv4</span> 
-                    <code>{{ connInfo.connection.java_ipv4.domain || connInfo.connection.java_ipv4.ip }}:{{ connInfo.connection.java_ipv4.port }}</code>
-                  </div>
+          </section>
 
-                </li>
-                <li v-if="connInfo.connection.java_ipv6" @click="copyToClipboard(connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip, 'Java IPv6')">
-                  <div class="addr-row">
-                    <span class="type-badge ipv6">IPv6</span> 
-                    <code>{{ connInfo.connection.java_ipv6.domain || connInfo.connection.java_ipv6.ip }}</code>
-                  </div>
-
-                </li>
-              </ul>
-              <ul v-else>
-                <li v-if="connInfo.addresses.java_ipv4_srv" @click="copyToClipboard(connInfo.addresses.java_ipv4_srv, 'Java SRV IPv4')">
-                  <div class="addr-row">
-                    <span class="type-badge srv">SRV v4</span>
-                    <code>{{ connInfo.addresses.java_ipv4_srv }}</code>
-                  </div>
-
-                </li>
-                <li v-if="connInfo.addresses.java_ipv6_srv" @click="copyToClipboard(connInfo.addresses.java_ipv6_srv, 'Java SRV IPv6')">
-                  <div class="addr-row">
-                    <span class="type-badge srv">SRV v6</span>
-                    <code>{{ connInfo.addresses.java_ipv6_srv }}</code>
-                  </div>
-
-                </li>
-              </ul>
-            </div>
-            
-            <div class="conn-box">
-              <h4>Bedrock Edition</h4>
-              <ul>
-                <li v-if="connInfo.connection.bedrock_ipv6">
-                  <div class="addr-row flex-grow">
-                    <span class="type-badge ipv6">IPv6</span> 
-                    <code @click="copyToClipboard(connInfo.connection.bedrock_ipv6.ip, 'Bedrock IPv6 Addr')">{{ connInfo.connection.bedrock_ipv6.ip }}</code>
-                    <code v-if="connInfo.connection.bedrock_ipv6.port" class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv6.port.toString(), 'Bedrock IPv6 Port')">{{ connInfo.connection.bedrock_ipv6.port }}</code>
-                  </div>
-
-                </li>
-                <li v-if="connInfo.connection.bedrock_ipv4">
-                  <div class="addr-row flex-grow">
-                    <span class="type-badge ipv4">IPv4</span> 
-                    <code @click="copyToClipboard(connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip, 'Bedrock Addr')">{{ connInfo.connection.bedrock_ipv4.domain || connInfo.connection.bedrock_ipv4.ip }}</code>
-                    <code v-if="connInfo.connection.bedrock_ipv4.port" class="port-code" @click="copyToClipboard(connInfo.connection.bedrock_ipv4.port.toString(), 'Bedrock Port')">{{ connInfo.connection.bedrock_ipv4.port }}</code>
-                  </div>
-
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div v-else class="loading-state">Loading addresses...</div>
+          <section class="connection-block">
+            <h4>{{ siteContent.serverPanels.bedrockTitle }}</h4>
+            <button
+              v-for="row in bedrockRows"
+              :key="row.label"
+              type="button"
+              class="address-row"
+              @click="copyToClipboard(row.copyValue, row.label)"
+            >
+              <span class="address-badge">{{ row.badge }}</span>
+              <span class="address-value">{{ row.value }}</span>
+            </button>
+          </section>
         </div>
-      </div>
-
+        <p v-else class="loading-copy">{{ siteContent.serverPanels.connectionLoading }}</p>
+      </article>
     </div>
   </section>
 </template>
 
 <style scoped>
 .server-status-section {
-  position: relative;
-  z-index: 10;
-  margin-bottom: 4rem;
+  padding-bottom: 5rem;
 }
 
 .layout-grid {
   display: grid;
-  grid-template-columns: 1fr 1.8fr;
-  gap: 2.5rem;
+  grid-template-columns: 0.95fr 1.15fr;
+  gap: 1.25rem;
 }
 
-@media (max-width: 1024px) {
-  .layout-grid {
-    grid-template-columns: 1fr;
-  }
+.panel-block {
+  display: grid;
+  gap: 1.35rem;
 }
 
-.panel-header {
+.panel-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 1rem;
+}
+
+.panel-head h3 {
+  font-size: 2rem;
+}
+
+.panel-head-spread {
   align-items: center;
-  margin-bottom: 1rem;
 }
 
-.panel-subheader {
-  margin-bottom: 2rem;
+.status-stack {
+  display: grid;
+  gap: 0.9rem;
 }
 
-.toggle-view-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--glass-border-bright);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.3s var(--transition-fast);
-  font-family: var(--heading);
-}
-.toggle-view-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #fff;
-}
-
-h3 {
+.status-row,
+.address-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin: 0;
-  font-size: 1.6rem;
-  font-family: var(--heading);
-  letter-spacing: -0.02em;
-}
-
-.pulse-dot {
-  width: 12px;
-  height: 12px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 15px var(--accent);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 hsla(180, 100%, 50%, 0.4); }
-  70% { transform: scale(1); box-shadow: 0 0 0 12px hsla(180, 100%, 50%, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 hsla(180, 100%, 50%, 0); }
-}
-
-.status-item {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  margin-bottom: 12px;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(255, 248, 234, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 248, 234, 0.035);
 }
 
-.badge {
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-family: var(--display);
-}
-.java-badge { background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid hsla(210, 100%, 55%, 0.2); }
-.bedrock-badge { background: rgba(139, 92, 246, 0.1); color: var(--secondary); border: 1px solid hsla(260, 90%, 65%, 0.2); }
-
-.count {
-  font-weight: 700;
-  font-size: 1.1rem;
-  font-family: var(--heading);
-}
-
-.system-stats {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--glass-border);
+.status-row span,
+.address-value {
   color: var(--text-muted);
 }
 
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.stat-row b {
-  color: var(--text-dim);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-size: 0.7rem;
-}
-
-.refresh-note {
+.status-row strong {
+  color: var(--text-strong);
+  font-weight: 600;
   text-align: right;
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  margin-top: 12px;
-  font-weight: 500;
 }
 
-.suggestion {
-  color: var(--accent);
-  background: hsla(180, 100%, 50%, 0.05);
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-  border: 1px solid hsla(180, 100%, 50%, 0.15);
-  line-height: 1.5;
-}
-
-.conn-grid {
+.system-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-@media (max-width: 600px) {
-  .conn-grid { grid-template-columns: 1fr; }
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
 }
 
-.conn-box h4 {
-  font-size: 1.2rem;
-  margin-bottom: 1.25rem;
-  color: #fff;
-  font-family: var(--heading);
+.system-grid > div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 248, 234, 0.03);
+  border: 1px solid rgba(255, 248, 234, 0.05);
 }
 
-.conn-box li {
-  padding: 12px 16px !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid var(--glass-border) !important;
-  transition: all 0.3s var(--transition-fast) !important;
-}
-.conn-box li:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: var(--glass-border-bright) !important;
-  transform: translateX(4px);
+.system-grid small {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.type-badge {
-  font-family: var(--display);
-  font-weight: 800;
+.system-grid strong {
+  color: var(--text-strong);
+  font-size: 0.96rem;
+  font-weight: 600;
 }
 
-code {
-  background: rgba(0,0,0,0.4);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
+.panel-foot,
+.connection-hint,
+.loading-copy {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.toggle-view-btn {
+  border: 1px solid var(--glass-border-bright);
+  border-radius: 999px;
+  background: rgba(255, 248, 234, 0.03);
+  color: var(--text-main);
+  padding: 0.65rem 0.95rem;
+}
+
+.connection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.connection-block {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.connection-block h4 {
+  font-size: 1.45rem;
+}
+
+.address-row {
+  cursor: pointer;
+  text-align: left;
+}
+
+.address-row:hover {
+  border-color: var(--glass-border-bright);
+  transform: translateY(-1px);
+}
+
+.address-badge {
+  flex-shrink: 0;
+  color: var(--primary);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
 }
 
 .copy-toast {
-  font-family: var(--heading);
-  font-weight: 700;
+  color: var(--primary);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@media (max-width: 980px) {
+  .layout-grid,
+  .connection-grid,
+  .system-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
