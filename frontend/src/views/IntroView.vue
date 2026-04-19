@@ -138,6 +138,7 @@ const { status } = useServerStatus()
 }
 
 .main-title {
+  font-family: var(--display);
   font-size: clamp(4rem, 12vw, 10rem);
   font-weight: 800;
   margin-bottom: 0.5rem;
@@ -221,6 +222,15 @@ const { status } = useServerStatus()
 .philosophy-card {
   height: fit-content;
   border-left: 4px solid var(--primary);
+}
+
+.glitch-title {
+  font-family: var(--display);
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  margin-bottom: 1.5rem;
 }
 
 .card-tag {

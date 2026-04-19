@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap');
 
 @font-face {
   font-family: 'Minecraft';
@@ -7,38 +7,42 @@
 
 :root {
   /* Cyber-luxury palette - More refined and deeper */
-  --bg-dark: #020202;
-  --bg-lighter: #080808;
-  --bg-card: rgba(10, 10, 10, 0.6);
-  --text-main: #fafafa;
-  --text-muted: #8892b0;
+  --bg-dark: #050505;
+  --bg-lighter: #0a0a0a;
+  --bg-card: rgba(12, 12, 12, 0.7);
+  --text-main: #f0f0f0;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
 
-  /* Bold Accent colors - More vibrant HSL */
-  --primary: hsl(217, 91%, 60%);
-  --primary-glow: hsla(217, 91%, 60%, 0.4);
-  --secondary: hsl(232, 91%, 60%);
-  --accent: hsl(190, 95%, 50%);
-  --danger: hsl(0, 100%, 60%);
+  /* Bold Accent colors - Precise HSL */
+  --primary: hsl(210, 100%, 55%);
+  --primary-glow: hsla(210, 100%, 55%, 0.3);
+  --secondary: hsl(260, 90%, 65%);
+  --accent: hsl(180, 100%, 50%);
+  --success: hsl(150, 100%, 45%);
+  --danger: hsl(0, 90%, 60%);
 
   /* Glass Effects */
-  --glass-bg: rgba(15, 15, 15, 0.4);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-bright: rgba(255, 255, 255, 0.15);
-  --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  --glass-bg: rgba(18, 18, 18, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-border-bright: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9);
 
   /* Typography */
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --heading: 'Outfit', sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --heading: 'Space Grotesk', sans-serif;
+  --display: 'Syne', sans-serif;
   --minecraft: 'Minecraft', sans-serif;
 
   /* Spacing & Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
 
-  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.25s cubic-bezier(0.2, 0, 0, 1);
+  --transition-slow: 0.8s cubic-bezier(0.2, 0, 0, 1);
 }
 
 * {

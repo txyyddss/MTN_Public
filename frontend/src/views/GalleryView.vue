@@ -112,10 +112,11 @@ onUnmounted(() => {
 }
 
 .glitch-title {
-  font-size: 5rem;
+  font-family: var(--display);
+  font-size: clamp(3.5rem, 8vw, 6rem);
   font-weight: 800;
-  letter-spacing: -3px;
-  line-height: 0.8;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
   margin-bottom: 1.5rem;
 }
 
