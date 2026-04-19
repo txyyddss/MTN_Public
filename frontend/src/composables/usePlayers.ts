@@ -61,6 +61,26 @@ export function usePlayers() {
         } catch (e) { }
     }
 
+    let refreshInterval: ReturnType<typeof setInterval> | null = null
+
+    const startAutoRefresh = (ms = 5000) => {
+        if (refreshInterval) stopAutoRefresh()
+        refreshInterval = setInterval(() => {
+            fetchOnline()
+            // Only refresh full player list if not searching to avoid UI jumps while typing
+            if (!searchQuery.value) {
+                fetchPlayers()
+            }
+        }, ms)
+    }
+
+    const stopAutoRefresh = () => {
+        if (refreshInterval) {
+            clearInterval(refreshInterval)
+            refreshInterval = null
+        }
+    }
+
     let searchTimeout: ReturnType<typeof setTimeout> | null = null
     watch(searchQuery, () => {
         if (searchTimeout) clearTimeout(searchTimeout)
@@ -79,6 +99,8 @@ export function usePlayers() {
         onlinePlayers,
         sortedPlayers,
         fetchPlayers,
-        fetchOnline
+        fetchOnline,
+        startAutoRefresh,
+        stopAutoRefresh
     }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { API_BASE_URL } from '@/config'
 import { usePlayers, type PlayerInfo } from '@/composables/usePlayers'
@@ -7,7 +7,7 @@ import { usePlayers, type PlayerInfo } from '@/composables/usePlayers'
 const router = useRouter()
 const {
   players, count, activeDays, searchQuery, showAll, loading, onlinePlayers, sortedPlayers,
-  fetchPlayers, fetchOnline
+  fetchPlayers, fetchOnline, startAutoRefresh, stopAutoRefresh
 } = usePlayers()
 
 
@@ -40,6 +40,11 @@ const getAvatarUrl = (p: PlayerInfo) => {
 onMounted(() => {
   fetchPlayers()
   fetchOnline()
+  startAutoRefresh(5000)
+})
+
+onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>
 
