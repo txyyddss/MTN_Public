@@ -1,214 +1,341 @@
 <script setup lang="ts">
-// No complex logic needed for intro
+import { useServerStatus } from '@/composables/useServerStatus'
+const { status } = useServerStatus()
 </script>
 
 <template>
   <div class="intro-view container animate-entry">
-    <header class="hero">
-      <h1 class="main-title">MT Network</h1>
-      <p class="tagline">Explore. Create. Build. Together.</p>
+    <header class="editorial-header">
+      <div class="header-meta">EST. 2024</div>
+      <h1 class="main-title">MT NETWORK</h1>
+      <p class="tagline">A New Standard for Minecraft Survival</p>
+      <div class="header-line"></div>
     </header>
 
-    <div class="grid-content">
-      <!-- History Section -->
-      <section class="glass-card section-card history">
-        <div class="card-icon">⏳</div>
-        <h2>MTN 历史</h2>
-        <div class="content">
-          <p>MTN于2024年10月由三位核心成员创建，包括硬件负责人 <strong>mc9957</strong> 和骨灰级玩家 <strong>wor114514</strong>。起初，这只是一个小型的私人服务器，仅供三位好友间游玩。</p>
-          <p>2025年5月，软件负责人 <strong>txrog</strong> 加入团队，致力于打破局限，将原有的封闭基岩版服务器转型为高性能的Java版服务器，并向公众开放。在此过程中，铁路大亨 <strong>HEHAWellgood</strong> 也随后加入。经过数个版本的精心打磨与迭代，MTN正式开启了它的公测之旅。</p>
-        </div>
-      </section>
-
-      <!-- Preface Section -->
-      <section class="glass-card section-card preface">
-        <div class="card-icon">📜</div>
-        <h2>官方群序言</h2>
-        <div class="content">
-          <p>Minecraft 已经成为了开放性与创造力的代名词。我们由衷地感谢 Mojang Studios 为全球玩家带来的快乐。</p>
-          <p>在 Minecraft 的基石之上，MTMCer 团队创建了 <strong>MT Network (MTN)</strong>。这是一个支持 Java 版与基岩版互通的生存服务器。在这里，你可以体验最纯粹的生存乐趣，并深度参与多个城市的现代化建设。</p>
-          <p>我们希望每位玩家在进入前都能阅读服务器规章。让我们共同维护这个和谐、有趣的社区，让 MTN 变得更加美好！</p>
-        </div>
-      </section>
-
-      <!-- Stats Section -->
-      <section class="glass-card section-card stats">
-        <div class="card-icon">⚡</div>
-        <h2>服务器特性</h2>
-        <ul class="feature-list">
-          <li><strong>纯公益</strong> - 零氪金，真正的平等竞技</li>
-          <li><strong>原汁原味</strong> - 仅在原版基础上进行微调</li>
-          <li><strong>无边界</strong> - 无地图大小限制，自由探索</li>
-          <li><strong>生电友好</strong> - 不限制生电玩法</li>
-          <li><strong>硬核挑战</strong> - 困难模式 + 死亡惩罚</li>
-          <li><strong>全平台</strong> - Java/基岩互通 & 账号绑定</li>
-          <li><strong>正版支持</strong> - 支持正版与离线模式登录</li>
-          <li><strong>零容忍</strong> - 强力反作弊，守护公平环境</li>
-        </ul>
-      </section>
-
-      <!-- Hardware/Contact Section -->
-      <section class="glass-card section-card hardware">
-        <div class="card-icon">🖥️</div>
-        <h2>硬件与联系</h2>
-        <div class="hardware-info">
-          <div class="info-item">
-            <span class="label">服务器位置</span>
-            <span class="value">中国 · 深圳</span>
-          </div>
-          <div class="info-item">
-            <span class="label">网络环境</span>
-            <span class="value">中国移动</span>
-          </div>
-          <div class="info-item">
-            <span class="label">硬件类型</span>
-            <span class="value">Homeserver</span>
-          </div>
-        </div>
+    <div class="editorial-grid">
+      <!-- Story Section -->
+      <section class="editorial-section story">
+        <div class="section-label">THE ORIGIN STORY</div>
+        <h2 class="section-title-large">从私人角落到<br><span class="text-gradient">全服公测</span></h2>
         
-        <div class="qq-group">
-          <h3>加入官方群</h3>
-          <div class="qr-wrap">
-            <img src="/qrcode/qqgroup.jpg" alt="QQ Group QR Code" class="qr-code" />
-          </div>
-          <p class="qr-hint">扫码加入社区</p>
+        <div class="story-columns">
+           <p class="lead">MTN的起点极其平凡。2024年10月，三位核心成员——硬件专家 <strong>mc9957</strong>、资深玩家 <strong>wor114514</strong> 以及随后加入的 <strong>txrog</strong>，在深圳的一台Homeserver上种下了这颗种子。</p>
+           <p>最初，它仅仅是一个为了三位好友间游玩而设立的小型私人空间。随着 <strong>txrog</strong> 对软件架构的全面优化，服务器成功从封闭的基岩版转型为高性能的Java版架构，并毅然决定面向公众开放。</p>
+           <p>在此过程中，铁路建设大师 <strong>HEHAWellgood</strong> 的加入为服务器注入了基建灵魂。经过无数个昼夜的打磨与版本迭代，MTN终于从一个私人存档演变成了现在的形态。</p>
         </div>
       </section>
+
+      <!-- Philosophy / Preface -->
+      <section class="glass-card philosophy-card">
+        <div class="card-tag">PHILOSOPHY</div>
+        <h2>官方群序言</h2>
+        <div class="philosophy-content">
+          <p>Minecraft 并不只是一个方块游戏，它是开放性与创造力的代名词。</p>
+          <p>在 Minecraft 的基石之上，MTMCer 团队创建了 <strong>MT Network (MTN)</strong>。这是一个打破设备隔阂，支持 Java 与 基岩 互通的生存圣地。</p>
+          <p>我们追求纯粹。这意味着在这里，你可以体验到最原始的生存乐趣，并深度参与多个现代化城市的宏伟建设。</p>
+        </div>
+        <div class="philosophy-footer">
+          <p>“让我们共同维护这个和谐、有趣的社区，让 MTN 变得更加美好。”</p>
+        </div>
+      </section>
+
+      <!-- Features (The Blueprint) -->
+      <section class="blueprint-section">
+        <div class="section-label">TECHNICAL SPECIFICATIONS</div>
+        <div class="blueprint-grid">
+          <div class="blueprint-item">
+            <div class="bp-icon">⚡</div>
+            <div class="bp-info">
+              <h4>纯公益运营</h4>
+              <p>零氪金环境，拒绝任何付费特权或 administrative bias。</p>
+            </div>
+          </div>
+          <div class="blueprint-item">
+            <div class="bp-icon">🌲</div>
+            <div class="bp-info">
+              <h4>原汁原味</h4>
+              <p>坚守原版生存核心逻辑，仅进行极致的公平性微调。</p>
+            </div>
+          </div>
+          <div class="blueprint-item">
+            <div class="bp-icon">🎮</div>
+            <div class="bp-info">
+              <h4>全平台互通</h4>
+              <p>Java/基岩无缝连接，通过绑定系统实现资产数据共享。</p>
+            </div>
+          </div>
+          <div class="blueprint-item">
+            <div class="bp-icon">⚙️</div>
+            <div class="bp-info">
+              <h4>生电友好</h4>
+              <p>不限制高频率红线装置，为生电玩家提供坚实底层支撑。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hardware & Community -->
+      <div class="community-hardware-wrap">
+        <aside class="glass-card hardware-card">
+          <h3>NODE STATUS</h3>
+          <div class="hw-stats">
+             <div class="hw-row">
+               <span>LOCATION</span>
+               <strong>Shenzhen, CN</strong>
+             </div>
+             <div class="hw-row">
+               <span>NETWORK</span>
+               <strong>China Mobile</strong>
+             </div>
+             <div class="hw-row">
+               <span>HARDWARE</span>
+               <strong>Dedicated Node</strong>
+             </div>
+             <div class="hw-row">
+               <span>STATUS</span>
+               <strong :class="{ online: status?.online }">{{ status?.online ? 'OPERATIONAL' : 'OFFLINE' }}</strong>
+             </div>
+          </div>
+        </aside>
+
+        <section class="glass-card community-card">
+          <div class="qq-group-brand">
+            <h3>JOIN THE COMMUNTIY</h3>
+            <p>与数千位MTN玩家交流心得</p>
+          </div>
+          <div class="qr-container">
+            <div class="qr-glow"></div>
+            <img src="/qrcode/qqgroup.jpg" alt="QQ Group" class="qr-code" />
+          </div>
+          <div class="join-info">
+             <span class="group-id">Official Group</span>
+             <p>扫码即可开启你的MTN之旅</p>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .intro-view {
-  padding-top: 4rem;
-  padding-bottom: 8rem;
+  padding-top: 6rem;
+  padding-bottom: 10rem;
 }
 
-.hero {
+/* Editorial Header */
+.editorial-header {
   text-align: center;
-  margin-bottom: 6rem;
+  margin-bottom: 8rem;
+}
+
+.header-meta {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.4em;
+  color: var(--primary);
+  margin-bottom: 1rem;
 }
 
 .main-title {
-  font-size: 5rem;
-  margin-bottom: 1rem;
+  font-size: clamp(4rem, 12vw, 10rem);
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: -2px;
-  background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 10px 20px rgba(59, 130, 246, 0.2));
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.05em;
+  line-height: 1;
 }
 
 .tagline {
   font-size: 1.5rem;
   color: var(--text-muted);
-  font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 400;
+  letter-spacing: 0.1em;
 }
 
-.grid-content {
+.header-line {
+  width: 60px;
+  height: 4px;
+  background: var(--primary);
+  margin: 3rem auto 0;
+}
+
+/* Content Grid */
+.editorial-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 4rem;
 }
 
-@media (min-width: 1024px) {
-  .grid-content {
-    grid-template-columns: 1.5fr 1fr;
+@media (min-width: 1100px) {
+  .editorial-grid {
+    grid-template-columns: 1.6fr 1fr;
   }
 }
 
-.section-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.section-card h2 {
-  font-size: 1.8rem;
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--primary);
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
 }
 
-.card-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  opacity: 0.8;
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--glass-border);
 }
 
-.content p {
-  margin-bottom: 1.2rem;
-  color: var(--text-main);
-  opacity: 0.9;
+.section-title-large {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 2.5rem;
+}
+
+/* Story Section */
+.story-columns {
+  columns: 1;
+  column-gap: 3rem;
+  color: var(--text-muted);
+  font-size: 1.05rem;
   line-height: 1.8;
 }
 
-.feature-list {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+@media (min-width: 768px) {
+  .story-columns { columns: 2; }
 }
 
-.feature-list li {
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.95rem;
-}
-
-.feature-list li strong {
-  color: var(--primary);
-  display: block;
-  margin-bottom: 4px;
-}
-
-.hardware-info {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-md);
-}
-
-.info-item .label {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.info-item .value {
-  font-weight: 700;
+.lead {
+  font-size: 1.25rem;
   color: #fff;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  break-inside: avoid;
 }
 
-.qq-group {
-  margin-top: auto;
-  text-align: center;
+/* Philosophy Card */
+.philosophy-card {
+  height: fit-content;
+  border-left: 4px solid var(--primary);
+}
+
+.card-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.philosophy-content p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.philosophy-footer {
+  margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--glass-border);
+  font-style: italic;
+  color: var(--text-muted);
 }
 
-.qr-wrap {
-  margin: 1.5rem auto;
-  width: 280px;
-  height: 280px;
+/* Blueprint Section */
+.blueprint-section {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 4rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border);
+}
+
+.blueprint-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 3rem;
+}
+
+.blueprint-item {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.bp-icon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.bp-info h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.bp-info p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Community & Hardware */
+.community-hardware-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.hardware-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  letter-spacing: 2px;
+}
+
+.hw-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.hw-row span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.hw-row strong.online {
+  color: #10B981;
+}
+
+.community-card {
+  text-align: center;
+}
+
+.qq-group-brand h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.qr-container {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 2rem auto;
   background: #fff;
   padding: 10px;
-  border-radius: var(--radius-md);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
 }
 
 .qr-code {
@@ -216,14 +343,18 @@
   height: 100%;
 }
 
-.qr-hint {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+.qr-glow {
+  position: absolute;
+  inset: -20px;
+  background: var(--primary);
+  filter: blur(40px);
+  opacity: 0.2;
+  z-index: -1;
 }
 
 @media (max-width: 768px) {
-  .main-title {
-    font-size: 3rem;
-  }
+  .intro-view { padding-top: 4rem; }
+  .section-title-large { font-size: 2.5rem; }
+  .blueprint-section { padding: 2rem; }
 }
 </style>

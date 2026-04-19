@@ -1,256 +1,44 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { API_BASE_URL } from '@/config'
-import advancementData from '@/assets/advancements.json'
-import iconMap from '@/assets/icon_map.json'
-import StatBox from '@/components/StatBox.vue'
-import SkillItem from '@/components/SkillItem.vue'
-import SkinViewer from '@/components/SkinViewer.vue'
-import PlayerPieChart from '@/components/PlayerPieChart.vue'
-import { fetchWithCache } from '@/utils/dataCache'
 import { preloadImages, PreloadPriority } from '@/utils/preloader'
 import { useServerStatus } from '@/composables/useServerStatus'
+import { usePlayerDetail } from '@/composables/usePlayerDetail'
+import { usePlayerStats } from '@/composables/usePlayerStats'
+import { useAdvancements } from '@/composables/useAdvancements'
+import { getSkinUrl } from '@/utils/minecraft'
+
+// Import new sub-components
+import PlayerSidebar from '@/components/player/PlayerSidebar.vue'
+import PlayerSkills from '@/components/player/PlayerSkills.vue'
+import PlayerAdvancementList from '@/components/player/PlayerAdvancementList.vue'
+import PlayerStatsExtended from '@/components/player/PlayerStatsExtended.vue'
+import PlayerPieChart from '@/components/PlayerPieChart.vue'
 
 const route = useRoute()
 const { status } = useServerStatus()
 const uuid = computed(() => route.params.uuid as string)
-const loading = ref(true)
 
-interface PlayerInfo {
-    uuid: string
-    last_known_name: string
-    first_played: number
-    last_seen: number
-    ticks_lived: number
-    xp_level: number
-    type: string
-}
+const {
+  loading, info, stats, advancements, mcmmo, linkedAccount, oreStats, ranks, fetchDetail
+} = usePlayerDetail(uuid.value)
 
-const info = ref<PlayerInfo | null>(null)
-const stats = ref<any>(null)
-const advancements = ref<any[] | null>(null)
-const mcmmo = ref<any>(null)
-const linkedAccount = ref<any>(null)
-const oreStats = ref<any[]>([])
-const ranks = ref<Record<string, number>>({})
+const {
+  formatStatName, formatStatValue, getStatIconPath, getFilteredStats, getFilteredMcmmo
+} = usePlayerStats(stats)
+
+const {
+  totalAdvancements, completedAdvancements, categorizedAdvancements, getAdvancementMetadata, getAdvIconPath
+} = useAdvancements(advancements)
 
 const onlinePlayers = computed<string[]>(() => status.value?.online_players || [])
 const isOnline = computed(() => onlinePlayers.value.includes(uuid.value))
 
-const CUSTOM_STAT_TRANSLATIONS: Record<string, string> = {
-  'play_one_minute': 'Time Played',
-  'play_time': 'Time Played',
-  'jump': 'Jumps',
-  'damage_dealt': 'Damage Dealt',
-  'damage_taken': 'Damage Taken',
-  'deaths': 'Deaths',
-  'mob_kills': 'Mob Kills',
-  'player_kills': 'Player Kills',
-  'walk_one_cm': 'Distance Walked',
-  'sprint_one_cm': 'Distance Sprinted',
-  'fly_one_cm': 'Distance Flown',
-  'climb_one_cm': 'Distance Climbed',
-  'fall_one_cm': 'Distance Fallen',
-  'minecart_one_cm': 'Distance by Minecart',
-  'boat_one_cm': 'Distance by Boat',
-  'pig_one_cm': 'Distance by Pig',
-  'horse_one_cm': 'Distance by Horse',
-  'strider_one_cm': 'Distance by Strider',
-  'aviate_one_cm': 'Distance by Elytra',
-  'swim_one_cm': 'Distance Swum',
-  'walk_on_water_one_cm': 'Distance on Water',
-  'walk_under_water_one_cm': 'Distance Under Water',
-  'time_since_death': 'Time Since Last Death',
-  'time_since_rest': 'Time Since Last Rest',
-  'sneak_time': 'Sneak Time',
-  'total_world_time': 'Total World Time',
-  'leave_game': 'Games Quit',
-  'dropped': 'Items Dropped',
-  'interact_with_beacon': 'Beacon Interactions',
-  'inspect_hopper': 'Hopper Inspections',
-  'interact_with_blast_furnace': 'Blast Furnace Interactions',
-  'interact_with_smoker': 'Smoker Interactions',
-  'interact_with_camp_fire': 'Campfire Interactions',
-  'interact_with_campfire': 'Campfire Interactions',
-  'talked_to_villager': 'Villager Talks',
-  'traded_with_villager': 'Villager Trades',
-  'fish_caught': 'Fish Caught',
-  'sleep_in_bed': 'Times Slept',
-  'raid_win': 'Raids Won',
-  'raid_trigger': 'Raids Triggered',
-  'trigger_trapped_chest': 'Trapped Chests Triggered',
-  'damage_absorbed': 'Damage Absorbed',
-  'interact_with_furnace': 'Furnace Interactions',
-  'crouch_one_cm': 'Distance Crouched',
-  'interact_with_stonecutter': 'Stonecutter Interactions',
-  'damage_resisted': 'Damage Resisted',
-  'damage_blocked_by_shield': 'Damage Blocked by Shield',
-  'interact_with_crafting_table': 'Crafting Table Interactions',
-  'inspect_dropper': 'Dropper Inspections',
-  'target_hit': 'Targets Hit',
-  'fill_cauldron': 'Cauldrons Filled',
-  'interact_with_grindstone': 'Grindstone Interactions',
-  'open_shulker_box': 'Shulker Boxes Opened',
-  'open_enderchest': 'Ender Chests Opened',
-  'damage_dealt_absorbed': 'Damage Dealt (Absorbed)',
-  'interact_with_brewingstand': 'Brewing Stand Interactions',
-  'inspect_dispenser': 'Dispenser Inspections',
-  'interact_with_loom': 'Loom Interactions',
-  'play_noteblock': 'Note Blocks Played',
-  'interact_with_lectern': 'Lectern Interactions',
-  'drop': 'Items Dropped',
-  'use_cauldron': 'Cauldrons Used',
-  'bell_ring': 'Bells Rung',
-  'open_barrel': 'Barrels Opened',
-  'interact_with_cartography_table': 'Cartography Table Interactions',
-  'open_chest': 'Chests Opened',
-  'tune_noteblock': 'Note Blocks Tuned',
-  'interact_with_anvil': 'Anvil Interactions',
-  'animals_bred': 'Animals Bred',
-  'play_record': 'Music Discs Played',
-  'interact_with_smithing_table': 'Smithing Table Interactions',
-  'pot_flower': 'Flowers Potted',
-  'clean_banner': 'Banners Cleaned',
-  'enchant_item': 'Items Enchanted',
-  'clean_armor': 'Armor Pieces Cleaned',
-  'clean_shulker_box': 'Shulker Boxes Cleaned',
-  'eat_cake_slice': 'Cake Slices Eaten',
-  'interact_with_beehive': 'Beehive Interactions',
-  'interact_with_lodestone': 'Lodestone Interactions',
-  'interact_with_respawn_anchor': 'Respawn Anchor Interactions'
-}
-
 const selectedCategory = ref<string>('minecraft:custom')
 const statSearch = ref('')
 
-const fuzzyMatch = (text: string, query: string) => {
-  let i = 0, j = 0;
-  while (i < text.length && j < query.length) {
-    if (text[i] === query[j]) j++;
-    i++;
-  }
-  return j === query.length;
-}
-
-const filteredStats = computed(() => {
-  if (!selectedCategory.value || !stats.value || !stats.value[selectedCategory.value]) return {}
-  const pool = stats.value[selectedCategory.value]
-  
-  let entries = Object.entries(pool)
-
-  if (selectedCategory.value === 'minecraft:custom') {
-    entries = entries.filter(([name]) => {
-      const id = name.replace('minecraft:', '')
-      return !!CUSTOM_STAT_TRANSLATIONS[id]
-    })
-  }
-  
-  if (statSearch.value) {
-    const query = statSearch.value.toLowerCase().trim()
-    entries = entries.filter(([name]) => {
-      // Use formatStatName if it is defined, else fallback to name
-      // since formatStatName is initialized after this computed property in the file
-      // we can safely call it inside the closure, but just to be safe we check
-      const id = name.replace('minecraft:', '')
-      const displayName = ((id === 'custom' ? 'Global' : (CUSTOM_STAT_TRANSLATIONS[id] || id.replace(/_/g, ' ')))).toLowerCase()
-      const rawName = name.toLowerCase()
-      return fuzzyMatch(displayName, query) || fuzzyMatch(rawName, query)
-    })
-  }
-  
-  // Sort by value descending
-  entries.sort((a, b) => (b[1] as number) - (a[1] as number))
-  
-  const result: Record<string, number> = {}
-  for (const [name, val] of entries) {
-    result[name] = val as number
-  }
-  return result
-})
-
-const filteredMcmmo = computed(() => {
-  if (!mcmmo.value) return {}
-  let entries = Object.entries(mcmmo.value).filter(([key]) => !['user_id', 'user', 'uuid', 'total'].includes(key))
-  
-  // Sort by level descending
-  entries.sort((a, b) => (b[1] as number) - (a[1] as number))
-  
-  const result: Record<string, any> = {}
-  for (const [key, val] of entries) {
-    result[key.charAt(0).toUpperCase() + key.slice(1)] = val
-  }
-  return result
-})
-
-const formatNumber = (num: number) => {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-  return num.toLocaleString()
-}
-
-const formatStatName = (name: string) => {
-  const id = name.replace('minecraft:', '')
-  if (id === 'custom') return 'Global'
-  if (CUSTOM_STAT_TRANSLATIONS[id]) return CUSTOM_STAT_TRANSLATIONS[id]
-  return id.replace(/_/g, ' ')
-}
-
-const formatStatValue = (val: number, name: string) => {
-    const id = name.replace('minecraft:', '')
-    
-    // Time stats (ticks)
-    if (id.includes('time') || id.includes('one_minute') || id.includes('since')) {
-        const hours = val / 20 / 3600
-        if (hours > 1) return hours.toFixed(1) + 'h'
-        const mins = val / 20 / 60
-        return mins.toFixed(0) + 'm'
-    }
-
-    // Distance stats (cm)
-    if (id.endsWith('_one_cm')) {
-        const km = val / 100000;
-        if (km > 1) return km.toFixed(2) + 'km'
-        const m = val / 100
-        return m.toFixed(1) + 'm'
-    }
-
-    return formatNumber(val)
-}
-
-
-const fetchDetail = async () => {
-  loading.value = true
-  try {
-    const json = await fetchWithCache(`${API_BASE_URL}/api/players/${uuid.value}`)
-    info.value = json.info
-    stats.value = json.stats?.stats || null
-    advancements.value = json.advancements?.advancements || []
-    mcmmo.value = json.mcmmo
-    linkedAccount.value = json.linked_account
-    oreStats.value = json.ore_stats
-    ranks.value = json.ranks || {}
-    
-    if (stats.value && Object.keys(stats.value).length > 0) {
-      const keys = Object.keys(stats.value)
-      if (keys.includes('minecraft:custom')) selectedCategory.value = 'minecraft:custom'
-      else selectedCategory.value = keys[0]
-    }
-  } catch (e) {
-    console.error('Failed to load player detail', e)
-  } finally {
-    loading.value = false
-  }
-}
-
-const getSkinUrl = (p: any) => {
-  if (!p?.last_known_name) return 'https://mineskin.eu/skin/Steve'
-  let cleanName = p.last_known_name
-  if (p.type === 'Bedrock' || cleanName.startsWith('.')) {
-      cleanName = cleanName.replace(/^\./, '').replace(/^BE_/, '')
-  }
-  return `https://mineskin.eu/skin/${cleanName}`
-}
+const filteredStats = computed(() => getFilteredStats(selectedCategory.value, statSearch.value))
+const filteredMcmmo = computed(() => getFilteredMcmmo(mcmmo.value))
 
 onMounted(() => {
   fetchDetail()
@@ -262,83 +50,8 @@ watch(uuid, (newUuid) => {
   }
 })
 
-const formatDate = (ms: number) => {
-  if (!ms) return 'N/A'
-  return new Date(ms).toLocaleDateString()
-}
-
-const formatPlaytime = (ticks: number) => {
-  if (!ticks) return '0h'
-  const hours = (ticks / 20 / 3600).toFixed(1)
-  return `${hours}h`
-}
-
-const totalAdvancements = computed(() => advancements.value?.length || 0)
-const completedAdvancements = computed(() => advancements.value?.filter((a: any) => a.done).length || 0)
-
-const categorizedAdvancements = computed(() => {
-  if (!advancements.value) return {}
-  const result: Record<string, any[]> = {}
-  for (const adv of advancements.value) {
-    if (!adv.done) continue
-    
-    let category = 'Others'
-    const parts = adv.key.split('/')
-    if (parts.length > 1) {
-       category = parts[0].replace('minecraft:', '').replace(/[_-]/g, ' ')
-    }
-    category = category.charAt(0).toUpperCase() + category.slice(1)
-    
-    if (!result[category]) result[category] = []
-    result[category].push(adv)
-  }
-  return result
-})
-
-const getAdvancementMetadata = (key: string) => {
-  return (advancementData as any)[key] || { name: key.split('/').pop(), icon: key.split('/').pop(), description: '', type: 'task' }
-}
-
-const getAdvIconPath = (advKey: string) => {
-  const meta = getAdvancementMetadata(advKey)
-  let category = advKey.split(':')[1]?.split('/')[0] || 'minecraft'
-  
-  if (category === 'story') category = 'minecraft'
-  
-  const iconName = meta.icon
-  return `/mc_icons/advancements/${category}/${iconName}.png`
-}
-
-const getStatIconPath = (category: string, name: string) => {
-  const id = name.replace('minecraft:', '')
-  
-  if (category === 'minecraft:custom') return null
-
-  // Try exact match in icon map
-  if ((iconMap as any)[id]) return (iconMap as any)[id]
-  
-  // Fuzzy matching for mobs
-  if (category === 'minecraft:killed' || category === 'minecraft:killed_by') {
-      // If it's a mob, try adding _spawn_egg if not found
-      const eggId = `${id}_spawn_egg`
-      if ((iconMap as any)[eggId]) return (iconMap as any)[eggId]
-  }
-
-  // Try removing 'spawn_egg' if it's there
-  const cleanId = id.replace('_spawn_egg', '')
-  if ((iconMap as any)[cleanId]) return (iconMap as any)[cleanId]
-
-  // Final fallbacks for items/blocks
-  if (category === 'minecraft:mined' || category === 'minecraft:broken') {
-    return `/mc_icons/blocks/misc/${id}^32.png` 
-  }
-
-  if (['minecraft:crafted', 'minecraft:used', 'minecraft:picked_up', 'minecraft:dropped'].includes(category)) {
-      return `/mc_icons/items/${id}.png`
-  }
-
-  return null
-}
+const formatDate = (ms: number) => ms ? new Date(ms).toLocaleDateString() : 'N/A'
+const formatPlaytime = (ticks: number) => ticks ? `${(ticks / 20 / 3600).toFixed(1)}h` : '0h'
 
 const statGroups = [
   { name: 'Global Statistics', categories: ['minecraft:custom'] },
@@ -354,30 +67,25 @@ const groupCategories = computed(() => {
 })
 
 watch(activeGroup, (newGroup) => {
-    const cats = newGroup.categories.filter(cat => stats.value && stats.value[cat])
-    if (cats.length > 0) {
-        if (!cats.includes(selectedCategory.value)) {
-            selectedCategory.value = cats[0]
-        }
-    }
-})
-
-// REALTIME PRELOAD LOGIC - Specific to current player
-// Preload skin when info is fetched
-watch(info, (newInfo) => {
-  if (newInfo) {
-    preloadImages([getSkinUrl(newInfo)], PreloadPriority.HIGH)
+  if (!stats.value) return
+  const cats = newGroup.categories.filter(cat => stats.value[cat])
+  if (cats.length > 0 && !cats.includes(selectedCategory.value)) {
+    selectedCategory.value = cats[0]
   }
 })
 
-// Preload advancement icons when they are categorized
+// REALTIME PRELOAD LOGIC
+watch(info, (newInfo) => {
+  if (newInfo) {
+    preloadImages([getSkinUrl(newInfo.last_known_name, newInfo.type)], PreloadPriority.HIGH)
+  }
+})
+
 watch(categorizedAdvancements, (categories) => {
   if (categories) {
     const urls: string[] = []
     Object.values(categories).forEach(items => {
-      items.forEach(adv => {
-        urls.push(getAdvIconPath(adv.key))
-      })
+      items.forEach(adv => urls.push(getAdvIconPath(adv.key)))
     })
     preloadImages(urls, PreloadPriority.MEDIUM_HIGH)
   }
@@ -398,152 +106,51 @@ watch(categorizedAdvancements, (categories) => {
     </div>
     
     <div v-else class="content-grid">
-      <!-- Sidebar Profile Card -->
-      <aside class="profile-card glass-card">
-        <div class="avatar-header">
-            <div class="skin-wrapper">
-              <SkinViewer :skin-url="getSkinUrl(info)" />
-            </div>
-            <h2 :class="['profile-name', 'minecraft-font', { online: isOnline }]">
-              {{ info.last_known_name }}
-            </h2>
-            <span :class="['type-tag', info.type?.toLowerCase()]">{{ info.type === 'Bedrock' ? 'Bedrock' : 'Java' }}</span>
-        </div>
-        
-        <div class="basic-info">
-          <div class="info-row">
-            <span class="label">First Join</span>
-            <span class="val">{{ formatDate(info.first_played) }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Last Seen</span>
-            <span class="val">{{ formatDate(info.last_seen) }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Playtime</span>
-            <span class="val">{{ formatPlaytime(info.ticks_lived) }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">XP Level</span>
-            <span class="val badge lvl-badge">{{ info.xp_level }}</span>
-          </div>
-          <div class="info-row linked-row" v-if="linkedAccount && info.type === 'Bedrock'">
-            <span class="label">Linked to</span>
-            <span class="val account-link">
-                {{ linkedAccount.bedrock_username || linkedAccount.java_username }}
-            </span>
-          </div>
-        </div>
-      </aside>
+      <!-- Left Column: Profile Sidebar -->
+      <PlayerSidebar 
+        :info="info" 
+        :is-online="isOnline" 
+        :linked-account="linkedAccount"
+        :format-date="formatDate"
+        :format-playtime="formatPlaytime"
+      />
 
-      <!-- Main Content Details -->
-      <div class="details-section">
-        
+      <!-- Right Column: Stats Sections -->
+      <main class="details-section">
         <!-- Ores Pie Chart -->
         <PlayerPieChart :oreStats="oreStats" />
 
         <!-- McMMO Skills -->
-        <section class="panel glass-card" v-if="mcmmo">
-          <div class="panel-header-simple">
-            <h3><img src="/icons/monsters_hunted.ico" class="header-icon" /> McMMO Skills</h3>
-            <div class="rank-badge" v-if="ranks.skills">Rank #{{ ranks.skills }}</div>
-            <div class="total-badge">Total {{ mcmmo.total }}</div>
-          </div>
-          <div class="skill-grid">
-            <SkillItem 
-              v-for="(level, skill) in filteredMcmmo" 
-              :key="skill"
-              :name="String(skill)"
-              :level="Number(level)"
-              :rank="ranks['mcmmo:' + skill.toLowerCase()]"
-            />
-          </div>
-        </section>
+        <PlayerSkills 
+          :mcmmo="mcmmo"
+          :ranks="ranks"
+          :filtered-mcmmo="filteredMcmmo"
+        />
 
-        <section class="panel glass-card" v-if="advancements && advancements.length > 0">
-          <h3><img src="/icons/all_advancements.ico" class="header-icon" /> Advancements <small class="text-muted">({{ completedAdvancements }}/{{ totalAdvancements }})</small></h3>
-          
-          <div class="adv-category" v-for="(items, category) in categorizedAdvancements" :key="category">
-            <h4 class="category-name">{{ category }}</h4>
-            <div class="advancements-grid">
-              <div class="adv-card" v-for="adv in items" :key="adv.key">
-                <div class="adv-icon-wrap" :class="getAdvancementMetadata(adv.key).type">
-                  <img :src="getAdvIconPath(adv.key)" :alt="getAdvancementMetadata(adv.key).name" class="adv-icon" @error="($event: Event) => ($event.target as HTMLImageElement).style.display='none'" />
-                </div>
-                <div class="adv-info">
-                  <span class="adv-name">{{ getAdvancementMetadata(adv.key).name }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <!-- Advancements -->
+        <PlayerAdvancementList 
+          :advancements="advancements"
+          :completed-advancements="completedAdvancements"
+          :total-advancements="totalAdvancements"
+          :categorized-advancements="categorizedAdvancements"
+          :get-advancement-metadata="getAdvancementMetadata"
+          :get-adv-icon-path="getAdvIconPath"
+        />
 
-        <!-- Extended Statistics -->
-        <section class="panel glass-card" v-if="stats && Object.keys(stats).length > 0">
-          <div class="panel-header-simple">
-            <h3><img src="/icons/all_blocks.ico" class="header-icon" /> Extended Statistics</h3>
-            <div class="rank-group">
-                <div class="rank-badge mini" v-if="ranks.playtime">Playtime #{{ ranks.playtime }}</div>
-                <div class="rank-badge mini" v-if="ranks.mining">Mining #{{ ranks.mining }}</div>
-            </div>
-          </div>
-
-          <div class="group-tabs">
-            <button 
-              v-for="group in statGroups" 
-              :key="group.name"
-              :class="['group-btn', { active: activeGroup.name === group.name }]"
-              @click="activeGroup = group"
-            >
-              {{ group.name }}
-            </button>
-          </div>
-          
-          <div class="tabs-header">
-            <div class="tabs" v-if="groupCategories.length > 0">
-              <button 
-                v-for="category in groupCategories" 
-                :key="category"
-                :class="['tab-btn', { active: selectedCategory === category }]"
-                @click="selectedCategory = category as string"
-              >
-                {{ formatStatName(category as string) }}
-              </button>
-            </div>
-            <div class="search-wrapper">
-              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input v-model="statSearch" placeholder="Search stats..." class="stat-search-box" />
-            </div>
-          </div>
-          
-          <div :class="selectedCategory === 'minecraft:custom' ? 'custom-stat-list' : 'stat-grid'" v-if="selectedCategory && Object.keys(filteredStats).length > 0">
-            <template v-if="selectedCategory === 'minecraft:custom'">
-              <div v-for="(value, name) in filteredStats" :key="name" class="custom-stat-item">
-                <span class="stat-label">{{ formatStatName(String(name)) }}</span>
-                <div class="stat-value-wrap">
-                    <span class="stat-rank" v-if="ranks['stat:' + selectedCategory + ':' + name]">#{{ ranks['stat:' + selectedCategory + ':' + name] }}</span>
-                    <span class="stat-val">{{ formatStatValue(value, String(name)) }}</span>
-                </div>
-              </div>
-            </template>
-            <StatBox 
-              v-else
-              v-for="(value, name) in filteredStats" 
-              :key="name"
-              :name="String(name)"
-              :value="value"
-              :rank="ranks['stat:' + selectedCategory + ':' + name]"
-              :icon="getStatIconPath(selectedCategory, String(name))"
-              :formatValue="formatNumber"
-            />
-          </div>
-          <div v-else class="empty-mini">No stats matching search</div>
-        </section>
-        
-      </div>
+        <!-- Extended Stats -->
+        <PlayerStatsExtended 
+          v-model:activeGroup="activeGroup"
+          v-model:selectedCategory="selectedCategory"
+          v-model:statSearch="statSearch"
+          :stats="stats"
+          :statGroups="statGroups"
+          :groupCategories="groupCategories"
+          :filtered-stats="filteredStats"
+          :format-stat-name="formatStatName"
+          :format-stat-value="formatStatValue"
+          :get-stat-icon-path="getStatIconPath"
+        />
+      </main>
     </div>
   </div>
 </template>

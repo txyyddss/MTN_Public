@@ -1,86 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-import { API_BASE_URL } from '@/config'
-import { preloadImages, PreloadPriority, preloadScripts, preloadData } from '@/utils/preloader'
-import { fetchWithCache } from '@/utils/dataCache'
-import iconMap from '@/assets/icon_map.json'
+import { usePreloader } from '@/composables/usePreloader'
 
 const menuOpen = ref(false)
 const toggleMenu = () => menuOpen.value = !menuOpen.value
 
 const isLoading = ref(true)
-
-const preloadGlobalAssets = async () => {
-    // 0. Preload critical JS chunks for other pages (highest priority)
-    preloadScripts([
-        '/src/views/PlayersView.vue',
-        '/src/views/LeaderboardsView.vue',
-        '/src/views/PlayerDetailView.vue'
-    ])
-
-    // 1. Preload server status (for online players list in /players)
-    preloadData([`${API_BASE_URL}/api/status`], PreloadPriority.DATA)
-
-    // 2. Preload players and skins (High Priority)
-    // We want this done as soon as possible after scripts
-    const fetchPlayersAndSkins = async () => {
-        try {
-            const defaultUrl = `${API_BASE_URL}/api/players?`
-            const allUrl = `${API_BASE_URL}/api/players?all=true`
-
-            // Fetch default (recent) list first — this is what the user sees on /players
-            const json = await fetchWithCache(defaultUrl)
-            // Also warm the all=true cache in background
-            fetchWithCache(allUrl).catch(() => { })
-
-            const players = json.players || []
-            const avatarUrls: string[] = []
-            const skinUrls: string[] = []
-
-            players.forEach((p: any) => {
-                let cleanName = p.last_known_name || 'Steve'
-                if (p.type === 'Bedrock' || cleanName.startsWith('.')) {
-                    cleanName = cleanName.replace(/^\./, '').replace(/^BE_/, '')
-                }
-                avatarUrls.push(`https://mineskin.eu/helm/${cleanName}`)
-                skinUrls.push(`https://mineskin.eu/skin/${cleanName}`)
-            });
-
-            // Heads are medium priority, skins are high priority
-            preloadImages(avatarUrls, PreloadPriority.MEDIUM)
-            preloadImages(skinUrls, PreloadPriority.HIGH)
-        } catch (e) {
-            console.error('Player preload failed:', e)
-        }
-    }
-
-    // Run player/skin preloading concurrently with other background tasks
-    fetchPlayersAndSkins()
-
-    // 3. Preload all icons from the map with BACKGROUND priority (lower priority)
-    const iconUrls = Object.values(iconMap)
-    preloadImages(iconUrls, PreloadPriority.BACKGROUND)
-
-    // 4. Preload leaderboard data (1 min TTL)
-    const lbTypes = ['skills', 'playtime', 'mining', 'killing', 'deaths', 'walking', 'pvp']
-    lbTypes.forEach(type => {
-        preloadData([`${API_BASE_URL}/api/leaderboards/${type}`], PreloadPriority.BACKGROUND)
-    })
-}
+const { initPreloading } = usePreloader()
 
 onMounted(() => {
-  // Wait for full window load and then use idle callback for preloading
-  // This ensures the browser thinks the site "finished loading" first
-  window.addEventListener('load', () => {
-      if ((window as any).requestIdleCallback) {
-          (window as any).requestIdleCallback(() => {
-              setTimeout(preloadGlobalAssets, 500);
-          });
-      } else {
-          setTimeout(preloadGlobalAssets, 2000);
-      }
-  });
+  initPreloading()
   
   // Simulate app initialization / asset loading
   setTimeout(() => {
