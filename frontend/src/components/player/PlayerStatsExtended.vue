@@ -20,7 +20,7 @@ const emit = defineEmits(['update:activeGroup', 'update:selectedCategory', 'upda
 <template>
   <section class="panel glass-card extended-stats" v-if="stats">
     <div class="stats-header">
-      <h3><img src="/icons/book_enchantment.ico" class="header-icon" /> Extended Statistics</h3>
+      <h3><img src="/mc_icons/blocks/special/bookshelf^48.png" class="header-icon" /> Extended Statistics</h3>
       <div class="search-wrap">
         <input 
           type="text" 
