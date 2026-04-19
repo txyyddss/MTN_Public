@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useMediaQuery } from '@/composables/useMediaQuery'
 import { getAvatarUrl } from '@/utils/minecraft'
 import type { LeaderboardEntry, LeaderboardType } from '@/types/api'
 
@@ -11,11 +12,31 @@ defineProps<{
   playerLabel: string
   scoreLabel: string
 }>()
+
+const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
 </script>
 
 <template>
   <div class="table-wrap animate-entry delay-200">
-    <table class="leaderboard-table">
+    <TransitionGroup v-if="isMobile" name="list-fade" tag="div" class="mobile-board-list">
+      <article v-for="entry in entries" :key="entry.uuid" class="mobile-board-card hover-rise">
+        <div class="mobile-board-topline">
+          <span class="mobile-rank">#{{ entry.rank }}</span>
+          <span v-if="isOnline(entry.uuid)" class="mobile-presence">Online</span>
+        </div>
+
+        <RouterLink :to="`/player/${entry.uuid}`" class="mobile-player-link">
+          <img :src="getAvatarUrl(entry.name)" :alt="entry.name" class="avatar" loading="lazy" />
+          <div class="mobile-player-copy">
+            <span :class="['player-name', 'minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
+            <span class="mobile-score-label">{{ scoreLabel }}</span>
+            <strong class="mobile-card-score">{{ formatValue(entry.value, currentType) }}</strong>
+          </div>
+        </RouterLink>
+      </article>
+    </TransitionGroup>
+
+    <table v-else class="leaderboard-table">
       <thead>
         <tr>
           <th>{{ rankLabel }}</th>
@@ -31,7 +52,6 @@ defineProps<{
               <img :src="getAvatarUrl(entry.name)" :alt="entry.name" class="avatar" loading="lazy" />
               <span class="player-meta">
                 <span :class="['player-name', 'minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
-                <span class="mobile-value">{{ formatValue(entry.value, currentType) }}</span>
               </span>
             </RouterLink>
           </td>
@@ -49,22 +69,44 @@ defineProps<{
 
 .leaderboard-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 0.55rem;
 }
 
 .leaderboard-table th,
 .leaderboard-table td {
-  padding: 0.95rem 0.7rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.82rem 0.72rem;
   text-align: left;
 }
 
-.leaderboard-table th {
+.leaderboard-table thead th {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.leaderboard-table tbody tr {
+  background: rgba(7, 16, 30, 0.82);
+  transition:
+    transform var(--transition-panel),
+    background var(--transition-fast),
+    box-shadow var(--transition-panel);
+}
+
+.leaderboard-table tbody tr:hover {
+  background: rgba(10, 22, 40, 0.96);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+}
+
+.leaderboard-table tbody td:first-child {
+  border-radius: 16px 0 0 16px;
+}
+
+.leaderboard-table tbody td:last-child {
+  border-radius: 0 16px 16px 0;
 }
 
 .rank-cell,
@@ -73,7 +115,7 @@ defineProps<{
 }
 
 .rank-cell {
-  width: 4.5rem;
+  width: 5rem;
   color: var(--text-strong);
 }
 
@@ -90,26 +132,19 @@ defineProps<{
 }
 
 .avatar {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   image-rendering: pixelated;
 }
 
 .player-meta {
   display: grid;
-  gap: 0.18rem;
+  gap: 0.12rem;
 }
 
 .player-name {
   color: var(--text-main);
-}
-
-.mobile-value {
-  display: none;
-  color: var(--primary);
-  font-family: var(--mono);
-  font-size: 0.78rem;
 }
 
 .online {
@@ -117,41 +152,63 @@ defineProps<{
 }
 
 @media (max-width: 720px) {
-  .leaderboard-table,
-  .leaderboard-table tbody,
-  .leaderboard-table tr,
-  .leaderboard-table td {
-    display: block;
-    width: 100%;
+  .mobile-board-list {
+    display: grid;
+    gap: 0.75rem;
   }
 
-  .leaderboard-table thead,
-  .value-cell {
-    display: none;
+  .mobile-board-card {
+    display: grid;
+    gap: 0.7rem;
+    padding: 0.85rem 0.9rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border-soft);
+    background: rgba(8, 18, 34, 0.9);
+    box-shadow: var(--panel-shadow);
   }
 
-  .leaderboard-table tr {
-    padding: 0.85rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  .mobile-board-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
   }
 
-  .leaderboard-table td {
-    border: 0;
-    padding: 0;
+  .mobile-rank,
+  .mobile-presence,
+  .mobile-score-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
-  .rank-cell {
-    margin-bottom: 0.45rem;
+  .mobile-rank,
+  .mobile-score-label {
     color: var(--text-dim);
-    font-size: 0.78rem;
   }
 
-  .player-link {
+  .mobile-presence {
+    color: #8fe3b3;
+  }
+
+  .mobile-player-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
     width: 100%;
   }
 
-  .mobile-value {
-    display: block;
+  .mobile-player-copy {
+    display: grid;
+    gap: 0.18rem;
+    min-width: 0;
+  }
+
+  .mobile-card-score {
+    color: var(--primary);
+    font-size: 1rem;
+    font-weight: 600;
   }
 }
 </style>

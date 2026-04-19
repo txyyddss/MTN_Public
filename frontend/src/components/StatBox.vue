@@ -41,9 +41,9 @@ function handleImageError(event: Event): void {
 <style scoped>
 .stat-box {
   display: flex;
-  gap: 0.8rem;
+  gap: 0.7rem;
   align-items: center;
-  padding: 0.85rem 0.95rem;
+  padding: 0.76rem 0.86rem;
   border-radius: 18px;
   border: 1px solid rgba(255, 248, 234, 0.06);
   background: rgba(255, 248, 234, 0.04);
@@ -81,6 +81,7 @@ function handleImageError(event: Event): void {
 .stat-value {
   color: var(--text-strong);
   font-weight: 600;
+  font-size: 0.92rem;
 }
 
 .stat-rank {

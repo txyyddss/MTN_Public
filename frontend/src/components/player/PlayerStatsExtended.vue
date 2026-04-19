@@ -41,7 +41,9 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 
     <div class="panel-head">
       <input
+        id="player-stat-search"
         :value="statSearch"
+        name="player-stat-search"
         :placeholder="siteContent.playerDetail.sections.searchPlaceholder"
         class="search-input"
         @input="emit('update:statSearch', ($event.target as HTMLInputElement).value)"
@@ -89,7 +91,7 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 <style scoped>
 .panel-card {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .panel-head {
@@ -99,8 +101,8 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 
 .search-input {
   width: min(360px, 100%);
-  min-height: 3rem;
-  padding: 0 1rem;
+  min-height: 2.8rem;
+  padding: 0 0.95rem;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
@@ -111,29 +113,64 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 .category-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 0.45rem;
 }
 
 .group-tab,
 .category-tab {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
-  padding: 0.65rem 0.9rem;
+  padding: 0.56rem 0.82rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
   text-transform: capitalize;
+  transition:
+    transform var(--transition-panel),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.group-tab::after,
+.category-tab::after {
+  content: '';
+  position: absolute;
+  inset: auto 14px 8px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--transition-panel);
+}
+
+.group-tab:hover,
+.category-tab:hover {
+  color: var(--text-main);
+  transform: translateY(-1px);
 }
 
 .group-tab.active,
 .category-tab.active {
   border-color: rgba(91, 113, 246, 0.42);
+  background: rgba(10, 21, 38, 0.94);
   color: var(--text-strong);
+}
+
+.group-tab.active::after,
+.category-tab.active::after {
+  transform: scaleX(1);
 }
 
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .empty-copy {
@@ -141,11 +178,11 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 }
 
 .meta-chip {
-  padding: 0.45rem 0.7rem;
+  padding: 0.38rem 0.62rem;
   border-radius: 999px;
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   text-transform: capitalize;
 }

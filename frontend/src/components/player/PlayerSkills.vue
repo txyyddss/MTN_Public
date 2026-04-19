@@ -20,7 +20,7 @@ defineProps<{
       </div>
     </template>
 
-    <div class="skill-grid">
+    <div v-if="filteredMcmmo.length > 0" class="skill-grid">
       <SkillItem
         v-for="entry in filteredMcmmo"
         :key="entry.key"
@@ -29,13 +29,14 @@ defineProps<{
         :rank="ranks[`mcmmo:${entry.key}`]"
       />
     </div>
+    <p v-else class="empty-copy">{{ siteContent.playerDetail.summary.noSkillData }}</p>
   </PlayerCollapsiblePanel>
 </template>
 
 <style scoped>
 .panel-card {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .meta-cluster {
@@ -56,7 +57,11 @@ defineProps<{
 .skill-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.65rem;
+}
+
+.empty-copy {
+  color: var(--text-muted);
 }
 
 @media (max-width: 720px) {

@@ -28,7 +28,10 @@ const cardStyle = computed(() => ({
 
 <template>
   <article :class="cardClasses" :style="cardStyle">
-    <div class="feature-index">{{ props.feature.icon }}</div>
+    <div class="feature-topline">
+      <div class="feature-index">{{ props.feature.icon }}</div>
+      <span class="feature-mode">System</span>
+    </div>
     <div class="feature-copy">
       <h3 class="feature-title">{{ props.feature.title }}</h3>
       <p class="feature-description">{{ props.feature.description }}</p>
@@ -48,16 +51,31 @@ const cardStyle = computed(() => ({
   gap: 1rem;
 }
 
+.feature-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .feature-index {
   width: 3rem;
   height: 3rem;
   display: inline-grid;
   place-items: center;
-  border-radius: 999px;
+  border-radius: 16px;
   font-family: var(--mono);
   font-size: 0.88rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.feature-mode {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .feature-copy {
@@ -66,7 +84,7 @@ const cardStyle = computed(() => ({
 }
 
 .feature-title {
-  font-size: 1.5rem;
+  font-size: 1.55rem;
 }
 
 .feature-description {

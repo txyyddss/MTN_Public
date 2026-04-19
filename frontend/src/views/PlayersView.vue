@@ -15,8 +15,30 @@ const statusStore = useServerStatusStore()
 const { status } = storeToRefs(statusStore)
 
 const onlinePlayers = computed(() => status.value?.online_players ?? [])
-const { players, count, activeDays, searchQuery, showAll, loading, sortedPlayers, fetchPlayers, startAutoRefresh, stopAutoRefresh } =
-  usePlayers(onlinePlayers)
+const {
+  players,
+  count,
+  activeDays,
+  searchQuery,
+  showAll,
+  loading,
+  sortedPlayers,
+  fetchPlayers,
+  startAutoRefresh,
+  stopAutoRefresh
+} = usePlayers(onlinePlayers)
+
+const resultsDescriptor = computed(() => {
+  if (searchQuery.value) {
+    return `matching "${searchQuery.value}"`
+  }
+
+  if (!showAll.value) {
+    return `active within the last ${activeDays.value} days`
+  }
+
+  return 'in the full archive'
+})
 
 async function handleRandom(): Promise<void> {
   try {
@@ -38,6 +60,11 @@ function isOnline(uuid: string): boolean {
   return onlinePlayers.value.includes(uuid)
 }
 
+function resetFilters(): void {
+  searchQuery.value = ''
+  showAll.value = false
+}
+
 onMounted(() => {
   void fetchPlayers()
   startAutoRefresh()
@@ -57,18 +84,29 @@ onUnmounted(() => {
     </header>
 
     <section class="controls-row glass-card animate-entry delay-100">
+      <div class="controls-copy">
+        <span class="hud-kicker">Roster query</span>
+        <p class="controls-note">Search the live archive or move between recent and full-history views.</p>
+      </div>
+
       <label class="search-field">
         <span>Search</span>
-        <input v-model="searchQuery" :placeholder="siteContent.players.searchPlaceholder" />
+        <input
+          id="player-search"
+          v-model="searchQuery"
+          name="player-search"
+          :placeholder="siteContent.players.searchPlaceholder"
+        />
       </label>
 
       <div class="control-actions">
         <button :class="['toggle-chip', { active: !showAll }]" type="button" @click="showAll = false">
           {{ siteContent.players.recentLabel }}
-          <small v-if="!showAll">last {{ activeDays }} days</small>
+          <small>last {{ activeDays }} days</small>
         </button>
         <button :class="['toggle-chip', { active: showAll }]" type="button" @click="showAll = true">
           {{ siteContent.players.allLabel }}
+          <small>full log</small>
         </button>
         <button class="btn-secondary random-button" type="button" :title="siteContent.players.randomTitle" @click="handleRandom">
           Random
@@ -77,10 +115,8 @@ onUnmounted(() => {
     </section>
 
     <p class="results-line animate-entry delay-200">
-      <span class="badge-pill">{{ count }} {{ count === 1 ? 'player' : 'players' }}</span>
-      <span v-if="searchQuery">matching “{{ searchQuery }}”</span>
-      <span v-else-if="!showAll">active within the last {{ activeDays }} days</span>
-      <span v-else>in the full archive</span>
+      <span class="badge-pill"><strong>{{ count }}</strong> {{ count === 1 ? 'player' : 'players' }}</span>
+      <span>{{ resultsDescriptor }}</span>
     </p>
 
     <div v-if="loading && players.length === 0" class="glass-card state-card">
@@ -90,7 +126,7 @@ onUnmounted(() => {
     <div v-else-if="players.length === 0" class="glass-card state-card">
       <h2>{{ siteContent.players.emptyTitle }}</h2>
       <p>{{ siteContent.players.emptyBody }}</p>
-      <button class="btn-primary" type="button" @click="() => { searchQuery = ''; showAll = false }">
+      <button class="btn-primary" type="button" @click="resetFilters">
         {{ siteContent.players.reset }}
       </button>
     </div>
@@ -110,27 +146,51 @@ onUnmounted(() => {
             class="player-avatar"
             loading="lazy"
           />
-          <div>
-            <h2 :class="['player-name', 'minecraft-font', { online: isOnline(player.uuid) }]">
-              {{ player.last_known_name || siteContent.players.firstSeenFallback }}
-            </h2>
+          <div class="player-copy">
+            <div class="player-line">
+              <h2 :class="['player-name', 'minecraft-font', { online: isOnline(player.uuid) }]">
+                {{ player.last_known_name || siteContent.players.firstSeenFallback }}
+              </h2>
+              <span :class="['player-status', { online: isOnline(player.uuid) }]">
+                {{ isOnline(player.uuid) ? siteContent.players.onlineNow : player.type }}
+              </span>
+            </div>
+
             <p class="player-meta">
-              {{ player.type }} · {{ isOnline(player.uuid) ? siteContent.players.onlineNow : 'Last seen ' + new Date(player.last_seen).toLocaleDateString() }}
+              {{ isOnline(player.uuid) ? 'Visible in the live player list.' : `Last seen ${new Date(player.last_seen).toLocaleDateString()}` }}
             </p>
           </div>
         </div>
-        <span class="player-arrow">Open record</span>
+
+        <div class="player-footer">
+          <span class="player-platform">{{ player.type }}</span>
+          <span class="player-arrow">Open record</span>
+        </div>
       </RouterLink>
     </div>
   </div>
 </template>
 
 <style scoped>
+.players-view {
+  display: grid;
+  gap: 1rem;
+}
+
 .controls-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.controls-copy {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.controls-note {
+  color: var(--text-muted);
 }
 
 .search-field {
@@ -151,26 +211,27 @@ onUnmounted(() => {
   min-height: 3.2rem;
   padding: 0 1rem;
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  background: rgba(255, 248, 234, 0.03);
+  border-radius: 18px;
+  background: rgba(8, 18, 34, 0.86);
   color: var(--text-main);
 }
 
 .control-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
   gap: 0.75rem;
+  grid-column: 1 / -1;
 }
 
 .toggle-chip {
   display: grid;
   gap: 0.2rem;
-  padding: 0.7rem 1rem;
+  padding: 0.82rem 1rem;
   border-radius: 18px;
   border: 1px solid var(--glass-border);
-  background: rgba(255, 248, 234, 0.03);
+  background: rgba(8, 18, 34, 0.86);
   color: var(--text-muted);
+  text-align: left;
 }
 
 .toggle-chip.active {
@@ -184,7 +245,7 @@ onUnmounted(() => {
 }
 
 .random-button {
-  min-width: 120px;
+  min-width: 140px;
 }
 
 .results-line {
@@ -192,7 +253,6 @@ onUnmounted(() => {
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
-  margin-bottom: 1rem;
   color: var(--text-muted);
 }
 
@@ -210,7 +270,7 @@ onUnmounted(() => {
 
 .player-card {
   display: grid;
-  gap: 1.4rem;
+  gap: 1.2rem;
 }
 
 .player-head {
@@ -223,8 +283,21 @@ onUnmounted(() => {
   width: 72px;
   height: 72px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 248, 234, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   image-rendering: pixelated;
+}
+
+.player-copy {
+  flex: 1;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.player-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
 }
 
 .player-name {
@@ -235,26 +308,50 @@ onUnmounted(() => {
   color: #a9d08e;
 }
 
-.player-meta,
-.player-arrow {
+.player-status {
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(121, 183, 255, 0.18);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player-status.online {
+  color: var(--success);
+}
+
+.player-meta {
   color: var(--text-muted);
   font-size: 0.92rem;
 }
 
+.player-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.player-platform,
 .player-arrow {
+  color: var(--text-muted);
   font-family: var(--mono);
-  text-transform: uppercase;
+  font-size: 0.78rem;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player-arrow {
+  color: var(--primary);
 }
 
 @media (max-width: 980px) {
   .controls-row,
   .player-grid {
     grid-template-columns: 1fr;
-  }
-
-  .control-actions {
-    justify-content: flex-start;
   }
 }
 </style>

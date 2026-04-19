@@ -5,15 +5,19 @@ import { siteContent } from '@/content/siteContent'
 <template>
   <div class="stub-view container page-shell">
     <div class="glass-card placeholder-card animate-entry">
-      <span class="section-kicker">{{ siteContent.teamPlaceholder.eyebrow }}</span>
-      <h1>{{ siteContent.teamPlaceholder.title }}</h1>
-      <p>{{ siteContent.teamPlaceholder.body }}</p>
+      <div class="placeholder-copy">
+        <span class="section-kicker">{{ siteContent.teamPlaceholder.eyebrow }}</span>
+        <h1>{{ siteContent.teamPlaceholder.title }}</h1>
+        <p>{{ siteContent.teamPlaceholder.body }}</p>
+      </div>
+
       <div class="placeholder-actions">
         <RouterLink class="btn-primary" to="/server-intro">{{ siteContent.teamPlaceholder.primaryCta }}</RouterLink>
         <RouterLink class="btn-secondary" to="/server-intro#community-panel">
           {{ siteContent.teamPlaceholder.secondaryCta }}
         </RouterLink>
       </div>
+
       <small>{{ siteContent.teamPlaceholder.note }}</small>
     </div>
   </div>
@@ -26,7 +30,12 @@ import { siteContent } from '@/content/siteContent'
 }
 
 .placeholder-card {
-  width: min(760px, 100%);
+  width: min(880px, 100%);
+  display: grid;
+  gap: 1.2rem;
+}
+
+.placeholder-copy {
   display: grid;
   gap: 1rem;
 }

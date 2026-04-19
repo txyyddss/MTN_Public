@@ -69,12 +69,17 @@ const updatedLabel = computed(() => {
         <span class="section-kicker">{{ siteContent.serverPanels.liveStatusTitle }}</span>
         <h3 class="panel-title">Node load</h3>
       </div>
+      <span class="panel-state" :class="{ live: props.status?.java?.online }">
+        {{ props.status?.java?.online ? 'Operational' : 'Standby' }}
+      </span>
     </div>
 
     <div v-if="props.status" class="status-stack">
-      <div v-for="row in editionRows" :key="row.label" class="status-row">
-        <span class="status-label">{{ row.label }}</span>
-        <strong class="status-value">{{ row.value }}</strong>
+      <div class="edition-grid">
+        <div v-for="row in editionRows" :key="row.label" class="status-row">
+          <span class="status-label">{{ row.label }}</span>
+          <strong class="status-value">{{ row.value }}</strong>
+        </div>
       </div>
 
       <div v-if="systemRows.length" class="system-grid">
@@ -113,12 +118,32 @@ const updatedLabel = computed(() => {
 }
 
 .panel-title {
-  font-size: 1.55rem;
+  font-size: 1.75rem;
+}
+
+.panel-state {
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(121, 183, 255, 0.18);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panel-state.live {
+  color: var(--success);
 }
 
 .status-stack {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.8rem;
+}
+
+.edition-grid {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .status-row {
@@ -126,7 +151,7 @@ const updatedLabel = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.8rem 0.95rem;
+  padding: 0.9rem 0.95rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.035);
@@ -151,9 +176,9 @@ const updatedLabel = computed(() => {
 .system-card {
   display: grid;
   gap: 0.25rem;
-  padding: 0.8rem 0.95rem;
+  padding: 0.95rem;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(7, 16, 30, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -174,7 +199,7 @@ const updatedLabel = computed(() => {
 .panel-foot,
 .loading-copy {
   color: var(--text-dim);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 980px) {

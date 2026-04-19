@@ -98,31 +98,31 @@ function formatNumber(value: number): string {
 <style scoped>
 .panel-card {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .ore-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 1rem;
+  grid-template-columns: 220px 1fr;
+  gap: 0.85rem;
   align-items: center;
 }
 
 .chart-wrap {
-  height: 240px;
+  height: 220px;
 }
 
 .ore-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .ore-row {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem 1rem;
+  padding: 0.75rem 0.85rem;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);

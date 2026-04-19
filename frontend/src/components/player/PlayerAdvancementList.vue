@@ -50,15 +50,15 @@ function handleImageError(event: Event): void {
 <style scoped>
 .panel-card {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .meta-chip {
-  padding: 0.45rem 0.7rem;
+  padding: 0.38rem 0.62rem;
   border-radius: 999px;
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -74,13 +74,13 @@ function handleImageError(event: Event): void {
 .advancement-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .advancement-card {
   display: flex;
-  gap: 0.85rem;
-  padding: 0.9rem 1rem;
+  gap: 0.7rem;
+  padding: 0.76rem 0.86rem;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -88,8 +88,8 @@ function handleImageError(event: Event): void {
 }
 
 .icon-wrap {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
   border-radius: 14px;
@@ -111,8 +111,8 @@ function handleImageError(event: Event): void {
 }
 
 .icon-wrap img {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   image-rendering: pixelated;
 }
 
@@ -129,6 +129,7 @@ function handleImageError(event: Event): void {
 .advancement-copy small {
   color: var(--text-dim);
   text-transform: capitalize;
+  font-size: 0.72rem;
 }
 
 @media (max-width: 980px) {

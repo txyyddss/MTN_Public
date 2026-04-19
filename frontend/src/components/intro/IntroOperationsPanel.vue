@@ -51,8 +51,7 @@ const visiblePrinciple = computed(() => principles[currentIndex.value] ?? princi
 .operations-grid {
   display: grid;
   grid-template-columns: 1.3fr 0.9fr;
-  gap: 1.25rem;
-  margin-top: 1.25rem;
+  gap: 1.15rem;
 }
 
 .principles-card,
@@ -81,7 +80,7 @@ const visiblePrinciple = computed(() => principles[currentIndex.value] ?? princi
   gap: 0.45rem;
   padding: 1rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(7, 16, 30, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -112,7 +111,7 @@ const visiblePrinciple = computed(() => principles[currentIndex.value] ?? princi
 .carousel-btn {
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(9, 18, 33, 0.92);
   color: var(--text-main);
   padding: 0.58rem 0.8rem;
 }

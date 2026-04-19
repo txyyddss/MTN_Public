@@ -24,7 +24,7 @@ defineProps<{
 
     <div class="avatar-header">
       <div class="skin-wrapper">
-        <SkinViewer :skin-url="getSkinUrl(info.last_known_name, info.type)" />
+        <SkinViewer :skin-url="getSkinUrl(info.last_known_name, info.type)" :width="220" :height="260" />
       </div>
       <h2 :class="['profile-name', 'minecraft-font', { online: isOnline }]">
         {{ info.last_known_name }}
@@ -60,26 +60,28 @@ defineProps<{
 <style scoped>
 .profile-card {
   display: grid;
-  gap: 1.2rem;
+  gap: 0.95rem;
+  align-content: start;
 }
 
 .avatar-header {
   display: grid;
   justify-items: center;
-  gap: 0.85rem;
+  gap: 0.7rem;
 }
 
 .skin-wrapper {
   width: 100%;
-  min-height: 280px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.04);
+  min-height: 250px;
+  border-radius: 22px;
+  background: rgba(7, 16, 30, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
 
 .profile-name {
-  font-size: 1.7rem;
+  font-size: 1.48rem;
+  text-align: center;
 }
 
 .profile-name.online {
@@ -87,27 +89,27 @@ defineProps<{
 }
 
 .type-tag {
-  padding: 0.4rem 0.75rem;
+  padding: 0.35rem 0.68rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
 }
 
 .basic-info {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem 1rem;
+  padding: 0.74rem 0.88rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(7, 16, 30, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -130,11 +132,11 @@ defineProps<{
 }
 
 .meta-chip {
-  padding: 0.45rem 0.7rem;
+  padding: 0.38rem 0.62rem;
   border-radius: 999px;
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 

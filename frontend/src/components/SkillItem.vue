@@ -24,9 +24,9 @@ const progress = Math.min((props.level / maxLevel) * 100, 100)
 .skill-row {
   display: grid;
   grid-template-columns: 90px 1fr 42px 42px;
-  gap: 0.7rem;
+  gap: 0.6rem;
   align-items: center;
-  padding: 0.8rem 0.95rem;
+  padding: 0.72rem 0.85rem;
   border-radius: 16px;
   background: rgba(255, 248, 234, 0.04);
   border: 1px solid rgba(255, 248, 234, 0.06);
@@ -34,7 +34,7 @@ const progress = Math.min((props.level / maxLevel) * 100, 100)
 
 .skill-name {
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
 }
 
 .skill-bar-wrap {
@@ -62,6 +62,6 @@ const progress = Math.min((props.level / maxLevel) * 100, 100)
 
 .skill-rank {
   color: var(--primary);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
 }
 </style>

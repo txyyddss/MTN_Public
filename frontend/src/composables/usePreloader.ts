@@ -10,11 +10,13 @@ export function usePreloader() {
     let initPromise: Promise<void> | null = null
 
     const preloadGlobalAssets = async () => {
-        preloadScripts([
-            '/src/views/PlayersView.vue',
-            '/src/views/LeaderboardsView.vue',
-            '/src/views/PlayerDetailView.vue'
-        ])
+        if (import.meta.env.DEV) {
+            preloadScripts([
+                '/src/views/PlayersView.vue',
+                '/src/views/LeaderboardsView.vue',
+                '/src/views/PlayerDetailView.vue'
+            ])
+        }
 
         preloadData([`${API_BASE_URL}/api/status`], PreloadPriority.DATA)
         preloadData([`${API_BASE_URL}/api/connection`], PreloadPriority.DATA)

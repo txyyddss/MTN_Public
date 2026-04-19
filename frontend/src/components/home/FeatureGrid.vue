@@ -18,7 +18,7 @@ const visibleFeature = computed(() => features[currentIndex.value] ?? features[0
       <div class="section-head animate-entry">
         <span class="section-kicker">Operating principles</span>
         <h2 class="section-title">What this world is built for.</h2>
-        <p class="section-copy">Fair rules, stable survival, shared history.</p>
+        <p class="section-copy">Fair rules, stable survival, shared history made visible.</p>
       </div>
 
       <div v-if="!isPhone" class="features-grid">
@@ -47,19 +47,19 @@ const visibleFeature = computed(() => features[currentIndex.value] ?? features[0
 
 <style scoped>
 .features-section {
-  padding: 2rem 0 5rem;
+  padding: 1rem 0 4.5rem;
 }
 
 .section-head {
   display: grid;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.25rem;
+  gap: 1.1rem;
 }
 
 .feature-carousel {
@@ -85,7 +85,7 @@ const visibleFeature = computed(() => features[currentIndex.value] ?? features[0
 .carousel-btn {
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(9, 18, 33, 0.92);
   color: var(--text-main);
   padding: 0.58rem 0.8rem;
 }

@@ -23,14 +23,14 @@ import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vu
 }
 
 .status-reveal {
-  margin-top: -1rem;
+  margin-top: -0.4rem;
   position: relative;
   z-index: 20;
 }
 
 @media (max-width: 768px) {
   .status-reveal {
-    margin-top: 0;
+    margin-top: 0.2rem;
   }
 }
 </style>

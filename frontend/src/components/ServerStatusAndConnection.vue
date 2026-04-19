@@ -20,13 +20,13 @@ const { status, connection } = storeToRefs(statusStore)
 
 <style scoped>
 .server-status-section {
-  padding-bottom: 5rem;
+  padding-bottom: 4.75rem;
 }
 
 .layout-grid {
   display: grid;
   grid-template-columns: 0.95fr 1.15fr;
-  gap: 1.25rem;
+  gap: 1.1rem;
 }
 
 @media (max-width: 980px) {

@@ -17,6 +17,6 @@ import IntroStoryPanel from '@/components/intro/IntroStoryPanel.vue'
 <style scoped>
 .intro-view {
   display: grid;
-  gap: 0;
+  gap: 1.2rem;
 }
 </style>

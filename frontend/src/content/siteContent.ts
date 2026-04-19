@@ -51,7 +51,6 @@ export const playerStatGroups: StatGroup[] = [
 
 export const siteContent = {
   app: {
-    brand: 'MTNetwork',
     loader: {
       kicker: 'SURVIVAL ATLAS',
       title: 'Mapping the world...'
@@ -64,9 +63,7 @@ export const siteContent = {
       { label: 'Core Members', to: '/core-members' },
       { label: 'Gallery', to: '/gallery' },
       { label: 'Wiki', to: '/wiki', external: true }
-    ] satisfies NavItem[],
-    footer:
-      'Community-run survival since 2024. Fair rules, cross-play access, long-term builds.'
+    ] satisfies NavItem[]
   },
   home: {
     hero: {
@@ -232,6 +229,22 @@ export const siteContent = {
     emptyTitle: 'Player record unavailable',
     emptyBody: 'The requested UUID does not have a complete record in the public archive.',
     back: 'Back To Players',
+    tabs: {
+      overview: 'Overview',
+      advancements: 'Advancements',
+      statistics: 'Statistics'
+    },
+    summary: {
+      onlineNow: 'Online now',
+      archiveRecord: 'Archive record',
+      linkedTo: 'Linked to',
+      playtime: 'Playtime',
+      advancements: 'Advancements',
+      skillTotal: 'McMMO Total',
+      xpLevel: 'XP Level',
+      ranks: 'Leaderboard ranks',
+      noSkillData: 'No public skill data'
+    },
     profile: {
       firstJoin: 'First Join',
       lastSeen: 'Last Seen',

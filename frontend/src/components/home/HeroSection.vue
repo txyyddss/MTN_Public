@@ -34,7 +34,7 @@ const updatedLabel = computed(() => {
 
 <style scoped>
 .hero {
-  padding: 3.25rem 0 2.25rem;
+  padding: 2.4rem 0 2rem;
 }
 
 .hero-grid {

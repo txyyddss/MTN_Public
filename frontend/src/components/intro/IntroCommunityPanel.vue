@@ -35,8 +35,7 @@ const updatedLabel = computed(() => {
 .community-grid {
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;
-  gap: 1.25rem;
-  margin-top: 1.25rem;
+  gap: 1.15rem;
 }
 
 @media (max-width: 980px) {

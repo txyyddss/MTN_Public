@@ -119,15 +119,19 @@ onUnmounted(() => {
 }
 
 .panel-title {
-  font-size: 1.55rem;
+  font-size: 1.75rem;
 }
 
 .toggle-view-btn {
-  border: 1px solid var(--glass-border-bright);
+  border: 1px solid var(--glass-border-strong);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(9, 18, 33, 0.9);
   color: var(--text-main);
   padding: 0.58rem 0.86rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .connection-hint,
@@ -157,16 +161,17 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  padding: 0.82rem 0.92rem;
+  padding: 0.9rem 0.92rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(7, 16, 30, 0.86);
   cursor: pointer;
   text-align: left;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .address-row:hover {
-  border-color: var(--glass-border-bright);
+  border-color: var(--glass-border-strong);
   transform: translateY(-1px);
 }
 
@@ -180,6 +185,7 @@ onUnmounted(() => {
 
 .address-value {
   color: var(--text-muted);
+  text-align: right;
 }
 
 .copy-toast {

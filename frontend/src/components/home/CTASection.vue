@@ -22,12 +22,12 @@ import { siteContent } from '@/content/siteContent'
 
 <style scoped>
 .cta-section {
-  padding: 1rem 0 6rem;
+  padding: 0.5rem 0 5.5rem;
 }
 
 .cta-box {
   display: grid;
-  grid-template-columns: 1.4fr auto;
+  grid-template-columns: minmax(0, 1.4fr) auto;
   gap: 2rem;
   align-items: end;
 }
@@ -55,7 +55,10 @@ import { siteContent } from '@/content/siteContent'
 
 .cta-note {
   color: var(--text-dim);
-  font-size: 0.86rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 840px) {

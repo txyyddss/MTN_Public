@@ -54,8 +54,8 @@ const factRows = computed(() => [
   gap: 1rem;
   padding: 0.9rem 1rem;
   border-radius: 18px;
-  background: rgba(255, 248, 234, 0.04);
-  border: 1px solid rgba(255, 248, 234, 0.06);
+  background: rgba(7, 16, 30, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .status-label {
@@ -74,8 +74,8 @@ const factRows = computed(() => [
 .qr-frame {
   padding: 0.7rem;
   border-radius: 22px;
-  background: rgba(255, 248, 234, 0.05);
-  border: 1px solid rgba(255, 248, 234, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .qr-image {

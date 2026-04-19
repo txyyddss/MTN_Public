@@ -17,7 +17,7 @@ const expanded = shallowRef(props.defaultExpanded)
 </script>
 
 <template>
-  <section :class="['glass-card', 'collapsible-panel', 'animate-entry', { sticky: props.sticky, collapsed: !expanded }]">
+  <section :class="['glass-card', 'collapsible-panel', 'animate-entry-soft', { sticky: props.sticky, collapsed: !expanded }]">
     <header class="panel-header">
       <div class="panel-heading">
         <h3 class="panel-title">{{ props.title }}</h3>
@@ -26,7 +26,7 @@ const expanded = shallowRef(props.defaultExpanded)
         </div>
       </div>
 
-      <button type="button" class="panel-toggle" @click="expanded = !expanded">
+      <button type="button" class="panel-toggle" :aria-expanded="expanded" @click="expanded = !expanded">
         {{ expanded ? 'Collapse' : 'Expand' }}
       </button>
     </header>
@@ -42,7 +42,7 @@ const expanded = shallowRef(props.defaultExpanded)
 <style scoped>
 .collapsible-panel {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .collapsible-panel.sticky {
@@ -54,16 +54,16 @@ const expanded = shallowRef(props.defaultExpanded)
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .panel-heading {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.45rem;
 }
 
 .panel-title {
-  font-size: 1.4rem;
+  font-size: 1.32rem;
 }
 
 .panel-summary {
@@ -75,21 +75,23 @@ const expanded = shallowRef(props.defaultExpanded)
 .panel-toggle {
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(9, 18, 33, 0.92);
   color: var(--text-main);
-  padding: 0.55rem 0.8rem;
+  padding: 0.48rem 0.72rem;
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   transition:
     border-color var(--transition-fast),
-    transform var(--transition-fast);
+    transform var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .panel-toggle:hover {
-  border-color: var(--glass-border-bright);
+  border-color: var(--glass-border-strong);
   transform: translateY(-1px);
+  background: rgba(14, 26, 46, 0.94);
 }
 
 .panel-body-shell {
@@ -111,9 +113,16 @@ const expanded = shallowRef(props.defaultExpanded)
   overflow: hidden;
 }
 
+@media (max-width: 1024px) {
+  .collapsible-panel.sticky {
+    position: static;
+  }
+}
+
 @media (max-width: 720px) {
   .panel-header {
     align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

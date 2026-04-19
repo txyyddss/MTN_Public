@@ -77,7 +77,7 @@ onUnmounted(() => {
       <span class="page-kicker">{{ siteContent.gallery.eyebrow }}</span>
       <h1>{{ siteContent.gallery.title }}</h1>
       <p class="page-lede">{{ siteContent.gallery.body }}</p>
-      <div class="badge-pill">{{ images.length }} {{ siteContent.gallery.capturesLabel }}</div>
+      <div class="badge-pill"><strong>{{ images.length }}</strong> {{ siteContent.gallery.capturesLabel }}</div>
     </header>
 
     <div class="waterfall-grid">
@@ -94,6 +94,7 @@ onUnmounted(() => {
         <img :src="`/gallery-images/${image}`" :alt="`${siteContent.gallery.frameLabel} ${index + 1}`" loading="lazy" />
         <div class="gallery-meta">
           <strong>{{ images.length - index }}</strong>
+          <span>{{ siteContent.gallery.action }}</span>
         </div>
       </button>
     </div>
@@ -117,6 +118,11 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.gallery-view {
+  display: grid;
+  gap: 1rem;
+}
+
 .waterfall-grid {
   columns: 1;
   column-gap: 1rem;
@@ -138,7 +144,7 @@ onUnmounted(() => {
   break-inside: avoid;
   display: block;
   width: 100%;
-  padding: 0;
+  padding: 0.8rem;
   margin-bottom: 1rem;
   cursor: pointer;
 }
@@ -149,19 +155,23 @@ onUnmounted(() => {
 
 .gallery-card img {
   width: 100%;
-  border-radius: calc(var(--radius-lg) - 10px);
+  border-radius: calc(var(--radius-lg) - 12px);
 }
 
 .gallery-meta {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 1rem;
   margin-top: 0.9rem;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .gallery-meta strong {
-  font-family: var(--mono);
   color: var(--text-strong);
 }
 
@@ -205,7 +215,7 @@ onUnmounted(() => {
 
 .lightbox-nav,
 .lightbox-close {
-  border: 1px solid var(--glass-border-bright);
+  border: 1px solid var(--glass-border-strong);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
