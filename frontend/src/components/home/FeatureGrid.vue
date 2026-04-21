@@ -174,12 +174,14 @@ onUnmounted(() => {
 .feature-carousel {
   display: grid;
   gap: 0.7rem;
+  overflow: hidden;
 }
 
 .carousel-track {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 100%;
+  align-items: stretch;
   gap: 0.75rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -191,6 +193,8 @@ onUnmounted(() => {
 }
 
 .feature-slide {
+  display: grid;
+  min-width: 0;
   scroll-snap-align: start;
 }
 

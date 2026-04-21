@@ -3,8 +3,6 @@ export type PlayerPlatform = 'Java' | 'Bedrock' | string
 export interface EditionStatus {
   online: boolean
   players: number
-  player_list: string[]
-  motd: string
 }
 
 export interface ConnectionLatency {
@@ -15,18 +13,9 @@ export interface ConnectionLatency {
 
 export interface SystemStats {
   platform: string
-  virtualization: string
   cpu_model: string
-  cpu_percent: number
-  mem_total: number
   mem_used: number
   mem_percent: number
-  disk_read: number
-  disk_write: number
-  disk_read_rate: number
-  disk_write_rate: number
-  net_sent: number
-  net_recv: number
   load_1: number
   load_5: number
   load_15: number
@@ -36,7 +25,6 @@ export interface StatusResponse {
   java: EditionStatus | null
   bedrock: EditionStatus | null
   system: SystemStats | null
-  connections: Record<string, ConnectionLatency>
   online_players: string[]
   updated: string
 }
@@ -92,12 +80,9 @@ export interface PlayerInfo {
   uuid: string
   xp_level: number
   ticks_lived: number
-  food_level: number
-  health: number
   last_seen: number
   first_played: number
   last_known_name: string
-  clean_name: string
   type: PlayerPlatform
 }
 
@@ -111,11 +96,9 @@ export interface PlayerStatsPayload {
 export interface PlayerAdvancement {
   key: string
   done: boolean
-  criteria: Record<string, string>
 }
 
 export interface PlayerAdvancementsPayload {
-  uuid: string
   advancements: PlayerAdvancement[]
 }
 

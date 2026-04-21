@@ -5,8 +5,6 @@ import { siteContent } from '@/content/siteContent'
 
 interface Props {
   content: typeof siteContent.home.hero
-  onlineCount: number
-  updatedLabel: string
 }
 
 const props = defineProps<Props>()
@@ -20,14 +18,6 @@ const factRows = computed(() => props.content.facts)
       <span class="page-kicker">{{ props.content.eyebrow }}</span>
       <h1 class="hero-title">{{ props.content.title }}</h1>
       <p class="hero-body">{{ props.content.body }}</p>
-
-      <div class="hero-badges">
-        <span class="hud-chip">
-          <span class="live-dot"></span>
-          {{ props.onlineCount }} online
-        </span>
-        <span class="hud-chip">Updated {{ props.updatedLabel }}</span>
-      </div>
 
       <div class="hero-actions">
         <router-link class="btn-primary" to="/players">
@@ -50,65 +40,63 @@ const factRows = computed(() => props.content.facts)
 
 <style scoped>
 .hero-panel {
-  padding: 1.75rem;
+  display: grid;
+  min-height: 100%;
+  padding: 1.7rem;
 }
 
 .hero-copy {
   display: grid;
-  gap: 0.95rem;
+  align-content: start;
+  gap: 1rem;
+  min-height: 100%;
 }
 
 .hero-title {
-  font-size: clamp(3.15rem, 7vw, 5.8rem);
-  max-width: 9ch;
+  font-size: clamp(3.3rem, 8vw, 6.35rem);
+  max-width: 10ch;
 }
 
 .hero-body {
-  max-width: 48ch;
+  max-width: 52ch;
   color: var(--text-muted);
-  font-size: 1.02rem;
-}
-
-.hero-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
+  font-size: 1.06rem;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  padding-top: 0.15rem;
+  padding-top: 0.25rem;
+}
+
+.hero-actions :deep(.btn-primary),
+.hero-actions :deep(.btn-secondary) {
+  min-width: 11.5rem;
 }
 
 .hero-facts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.65rem;
-  padding-top: 0.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 0.7rem;
+  margin-top: auto;
+  padding-top: 0.4rem;
 }
 
 .hero-fact-card {
   display: grid;
   gap: 0.35rem;
-  padding: 0.82rem 0.88rem;
+  align-content: start;
+  min-height: 100%;
+  padding: 0.92rem 0.95rem;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
 }
 
-.live-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 0 5px rgba(131, 211, 167, 0.12);
-}
-
 @media (max-width: 960px) {
   .hero-facts {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -119,6 +107,16 @@ const factRows = computed(() => props.content.facts)
 
   .hero-actions {
     flex-direction: column;
+  }
+
+  .hero-actions :deep(.btn-primary),
+  .hero-actions :deep(.btn-secondary) {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .hero-facts {
+    grid-template-columns: 1fr;
   }
 }
 </style>

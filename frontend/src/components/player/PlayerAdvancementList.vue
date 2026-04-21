@@ -26,10 +26,6 @@ function handleImageError(event: Event): void {
     class="panel-card"
     :title="siteContent.playerDetail.sections.advancements"
   >
-    <template #summary>
-      <span class="meta-chip">{{ completedAdvancements }}/{{ totalAdvancements }}</span>
-    </template>
-
     <div v-for="(items, category) in categorizedAdvancements" :key="category" class="advancement-section">
       <h4>{{ category }}</h4>
       <div class="advancement-grid">
@@ -51,15 +47,6 @@ function handleImageError(event: Event): void {
 .panel-card {
   display: grid;
   gap: 0.85rem;
-}
-
-.meta-chip {
-  padding: 0.38rem 0.62rem;
-  border-radius: 999px;
-  color: var(--text-muted);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .advancement-section {

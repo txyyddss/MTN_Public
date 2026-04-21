@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import CTASection from '@/components/home/CTASection.vue'
 import FeatureGrid from '@/components/home/FeatureGrid.vue'
 import HeroSection from '@/components/home/HeroSection.vue'
 import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vue'
@@ -10,7 +9,6 @@ import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vu
     <HeroSection />
     <ServerStatusAndConnection class="status-reveal" />
     <FeatureGrid />
-    <CTASection />
   </div>
 </template>
 

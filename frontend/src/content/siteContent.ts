@@ -177,6 +177,7 @@ export const siteContent = {
       playtime: 'Playtime',
       advancements: 'Advancements',
       skillTotal: 'McMMO Total',
+      skillLeaderboard: 'Skill leaderboard',
       xpLevel: 'XP Level',
       ranks: 'Leaderboard ranks',
       noSkillData: 'No public skill data',

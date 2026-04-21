@@ -26,6 +26,7 @@ const props = defineProps<{
   rankHighlights: PlayerRankHighlight[]
   topRankHighlight: PlayerRankHighlight | null
   formatDate: (value: number) => string
+  formatDateTime: (value: number) => string
   formatPlaytime: (value: number) => string
 }>()
 
@@ -35,28 +36,16 @@ const emit = defineEmits<{
 
 const { revealed } = useRevealOnScroll<HTMLElement>('overviewSection')
 
-const linkedAccountName = computed(() => {
-  if (!props.linkedAccount) {
-    return ''
-  }
-
-  if (props.info.type === 'Bedrock') {
-    return props.linkedAccount.java_username
-  }
-
-  return props.linkedAccount.bedrock_username || props.linkedAccount.java_username
-})
-
 const overviewMetrics = computed(() => [
   { label: siteContent.playerDetail.profile.firstJoin, value: props.formatDate(props.info.first_played), target: null },
-  { label: siteContent.playerDetail.profile.lastSeen, value: props.formatDate(props.info.last_seen), target: null },
+  { label: siteContent.playerDetail.profile.lastSeen, value: props.formatDateTime(props.info.last_seen), target: null },
   {
     label: siteContent.playerDetail.summary.advancements,
     value: `${props.completedAdvancements}/${props.totalAdvancements || 0}`,
     target: null
   },
   {
-    label: siteContent.playerDetail.summary.ranks,
+    label: siteContent.playerDetail.summary.skillLeaderboard,
     value: props.topRankHighlight?.value ?? 'Unranked',
     target: props.topRankHighlight?.target ?? null
   }
@@ -75,7 +64,6 @@ const overviewMetrics = computed(() => [
         :info="info"
         :is-online="isOnline"
         :linked-account="linkedAccount"
-        :format-date="formatDate"
         :format-playtime="formatPlaytime"
       />
     </div>
@@ -84,16 +72,6 @@ const overviewMetrics = computed(() => [
       <article class="glass-card overview-summary hover-rise">
         <div class="overview-summary-head">
           <span class="hud-kicker">{{ siteContent.playerDetail.tabs.overview }}</span>
-          <div class="overview-badges">
-            <span class="badge-pill"><strong>{{ info.type }}</strong></span>
-            <span :class="['badge-pill', 'overview-status', { online: isOnline }]">
-              <strong>{{ isOnline ? siteContent.playerDetail.summary.onlineNow : siteContent.playerDetail.summary.archiveRecord }}</strong>
-            </span>
-            <span v-if="linkedAccountName" class="badge-pill">
-              {{ siteContent.playerDetail.summary.linkedTo }}
-              <strong>{{ linkedAccountName }}</strong>
-            </span>
-          </div>
         </div>
 
         <div class="hud-metric-grid overview-metric-grid">
@@ -184,15 +162,10 @@ const overviewMetrics = computed(() => [
   gap: 0.6rem;
 }
 
-.overview-badges,
 .overview-rank-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-}
-
-.overview-status.online strong {
-  color: var(--success);
 }
 
 .overview-metric-grid {

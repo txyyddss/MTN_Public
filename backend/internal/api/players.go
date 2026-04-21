@@ -18,16 +18,42 @@ import (
 
 // PlayerListResponse represents list of players
 type PlayerListResponse struct {
-	Players    []*data.PlayerInfo `json:"players"`
-	Count      int                `json:"count"`
-	ActiveDays int                `json:"active_days,omitempty"`
+	Players    []*PlayerListItem `json:"players"`
+	Count      int               `json:"count"`
+	ActiveDays int               `json:"active_days,omitempty"`
+}
+
+type PlayerListItem struct {
+	UUID          string `json:"uuid"`
+	LastSeen      int64  `json:"last_seen"`
+	LastKnownName string `json:"last_known_name"`
+	Type          string `json:"type"`
+}
+
+type PlayerDetailInfo struct {
+	UUID          string `json:"uuid"`
+	XpLevel       int    `json:"xp_level"`
+	TicksLived    int64  `json:"ticks_lived"`
+	LastSeen      int64  `json:"last_seen"`
+	FirstPlayed   int64  `json:"first_played"`
+	LastKnownName string `json:"last_known_name"`
+	Type          string `json:"type"`
+}
+
+type PlayerAdvancement struct {
+	Key  string `json:"key"`
+	Done bool   `json:"done"`
+}
+
+type PlayerAdvancementsPayload struct {
+	Advancements []PlayerAdvancement `json:"advancements"`
 }
 
 // PlayerDetailResponse represents detailed player info
 type PlayerDetailResponse struct {
-	Info          *data.PlayerInfo               `json:"info"`
+	Info          *PlayerDetailInfo              `json:"info"`
 	Stats         *data.PlayerStats              `json:"stats"`
-	Advancements  *data.PlayerAdvancements       `json:"advancements"`
+	Advancements  *PlayerAdvancementsPayload     `json:"advancements"`
 	McMMO         *database.McmmoSkills          `json:"mcmmo"`
 	LinkedAccount *database.LinkedPlayer         `json:"linked_account"`
 	OreStats      []OreData                      `json:"ore_stats"`
@@ -55,10 +81,15 @@ func (s *Server) handlePlayers(c *gin.Context) {
 	})
 
 	validPlayers := s.filterValidPlayers(players)
+	listItems := make([]*PlayerListItem, 0, len(validPlayers))
+	for _, player := range validPlayers {
+		listItems = append(listItems, slimPlayerListItem(player))
+	}
 
+	c.Header("Cache-Control", "public, max-age=30, stale-while-revalidate=120")
 	c.JSON(http.StatusOK, PlayerListResponse{
-		Players:    validPlayers,
-		Count:      len(validPlayers),
+		Players:    listItems,
+		Count:      len(listItems),
 		ActiveDays: s.cfg.ActiveDays,
 	})
 }
@@ -146,7 +177,7 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	}
 
 	stats := s.store.GetPlayerStats(uuid)
-	advancements := s.store.GetPlayerAdvancements(uuid)
+	advancements := slimPlayerAdvancements(s.store.GetPlayerAdvancements(uuid))
 
 	// McMMO skills
 	var mcmmoSkills *database.McmmoSkills
@@ -191,8 +222,9 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 		}
 	}
 
+	c.Header("Cache-Control", "public, max-age=60, stale-while-revalidate=300")
 	c.JSON(http.StatusOK, PlayerDetailResponse{
-		Info:          info,
+		Info:          slimPlayerDetailInfo(info),
 		Stats:         stats,
 		Advancements:  advancements,
 		McMMO:         mcmmoSkills,
@@ -201,6 +233,53 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 		Ranks:         ranks,
 		OnlineHeatmap: onlineHeatmap,
 	})
+}
+
+func slimPlayerListItem(info *data.PlayerInfo) *PlayerListItem {
+	if info == nil {
+		return nil
+	}
+
+	return &PlayerListItem{
+		UUID:          info.UUID,
+		LastSeen:      info.LastSeen,
+		LastKnownName: info.LastKnownName,
+		Type:          info.Type,
+	}
+}
+
+func slimPlayerDetailInfo(info *data.PlayerInfo) *PlayerDetailInfo {
+	if info == nil {
+		return nil
+	}
+
+	return &PlayerDetailInfo{
+		UUID:          info.UUID,
+		XpLevel:       info.XpLevel,
+		TicksLived:    info.TicksLived,
+		LastSeen:      info.LastSeen,
+		FirstPlayed:   info.FirstPlayed,
+		LastKnownName: info.LastKnownName,
+		Type:          info.Type,
+	}
+}
+
+func slimPlayerAdvancements(advancements *data.PlayerAdvancements) *PlayerAdvancementsPayload {
+	if advancements == nil {
+		return nil
+	}
+
+	items := make([]PlayerAdvancement, 0, len(advancements.Advancements))
+	for _, advancement := range advancements.Advancements {
+		items = append(items, PlayerAdvancement{
+			Key:  advancement.Key,
+			Done: advancement.Done,
+		})
+	}
+
+	return &PlayerAdvancementsPayload{
+		Advancements: items,
+	}
 }
 
 func (s *Server) computeAllRanks(ctx context.Context, uuid string, ps *data.PlayerStats, mcmmo *database.McmmoSkills) map[string]int {

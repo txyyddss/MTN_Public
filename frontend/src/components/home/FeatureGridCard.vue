@@ -48,7 +48,7 @@ const cardStyle = computed(() => ({
 }
 
 .feature-card.compact {
-  min-height: auto;
+  min-height: 166px;
   gap: 0.78rem;
   padding: 0.95rem;
 }

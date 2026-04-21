@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 
 	"github.com/mtn-server/backend/config"
@@ -68,6 +69,7 @@ func (s *Server) SetupRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// CORS
 	r.Use(cors.New(cors.Config{

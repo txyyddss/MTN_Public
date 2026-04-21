@@ -62,6 +62,7 @@ func (s *Server) handleLeaderboard(c *gin.Context) {
 	// Try checking cache first
 	if s.cache != nil {
 		if ok, _ := s.cache.Get(c.Request.Context(), cacheKey, &entries); ok {
+			c.Header("Cache-Control", "public, max-age=60, stale-while-revalidate=300")
 			s.sendPaginatedLeaderboard(c, lbType, entries, page, pageSize)
 			return
 		}
@@ -77,6 +78,7 @@ func (s *Server) handleLeaderboard(c *gin.Context) {
 		s.cache.Set(c.Request.Context(), cacheKey, entries, 5*time.Minute)
 	}
 
+	c.Header("Cache-Control", "public, max-age=60, stale-while-revalidate=300")
 	s.sendPaginatedLeaderboard(c, lbType, entries, page, pageSize)
 }
 

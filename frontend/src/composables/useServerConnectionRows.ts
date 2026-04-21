@@ -44,19 +44,11 @@ function buildSrvRow(label: string, badge: string, value?: string): AddressRow |
 }
 
 export function useServerConnectionRows(
-  connection: Readonly<Ref<ConnectionResponse | null>>,
-  showAllJava: Readonly<Ref<boolean>>
+  connection: Readonly<Ref<ConnectionResponse | null>>
 ) {
   const javaRows = computed<AddressRow[]>(() => {
     if (!connection.value) {
       return []
-    }
-
-    if (showAllJava.value) {
-      return [
-        buildDirectRow('Java IPv4', 'IPv4', connection.value.connection?.java_ipv4),
-        buildDirectRow('Java IPv6', 'IPv6', connection.value.connection?.java_ipv6)
-      ].filter(isAddressRow)
     }
 
     return [

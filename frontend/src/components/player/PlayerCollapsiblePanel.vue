@@ -1,23 +1,17 @@
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-
 const props = withDefaults(
   defineProps<{
     title: string
-    defaultExpanded?: boolean
     sticky?: boolean
   }>(),
   {
-    defaultExpanded: true,
     sticky: false
   }
 )
-
-const expanded = shallowRef(props.defaultExpanded)
 </script>
 
 <template>
-  <section :class="['glass-card', 'collapsible-panel', 'animate-entry-soft', { sticky: props.sticky, collapsed: !expanded }]">
+  <section :class="['glass-card', 'collapsible-panel', 'animate-entry-soft', { sticky: props.sticky }]">
     <header class="panel-header">
       <div class="panel-heading">
         <h3 class="panel-title">{{ props.title }}</h3>
@@ -26,15 +20,10 @@ const expanded = shallowRef(props.defaultExpanded)
         </div>
       </div>
 
-      <button type="button" class="panel-toggle" :aria-expanded="expanded" @click="expanded = !expanded">
-        {{ expanded ? 'Collapse' : 'Expand' }}
-      </button>
     </header>
 
-    <div :class="['panel-body-shell', { collapsed: !expanded }]">
-      <div class="panel-body">
-        <slot />
-      </div>
+    <div class="panel-body">
+      <slot />
     </div>
   </section>
 </template>
@@ -72,45 +61,9 @@ const expanded = shallowRef(props.defaultExpanded)
   gap: 0.45rem;
 }
 
-.panel-toggle {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
-  padding: 0.48rem 0.72rem;
-  font-family: var(--sans);
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  transition:
-    border-color var(--transition-fast),
-    transform var(--transition-fast),
-    background var(--transition-fast);
-}
-
-.panel-toggle:hover {
-  border-color: rgba(76, 147, 251, 0.28);
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.panel-body-shell {
-  display: grid;
-  grid-template-rows: 1fr;
-  opacity: 1;
-  transition:
-    grid-template-rows 0.3s ease,
-    opacity 0.2s ease;
-}
-
-.panel-body-shell.collapsed {
-  grid-template-rows: 0fr;
-  opacity: 0.2;
-}
-
 .panel-body {
-  min-height: 0;
-  overflow: hidden;
+  display: grid;
+  gap: 0.85rem;
 }
 
 @media (max-width: 1024px) {

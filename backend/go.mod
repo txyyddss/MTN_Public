@@ -4,6 +4,7 @@ go 1.26.1
 
 require (
 	github.com/gin-contrib/cors v1.7.7
+	github.com/gin-contrib/gzip v1.2.5
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/mcstatus-io/mcutil/v4 v4.0.1

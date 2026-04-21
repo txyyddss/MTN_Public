@@ -40,6 +40,20 @@ const resultsDescriptor = computed(() => {
   return 'in the full archive'
 })
 
+function formatLastSeen(value: number): string {
+  if (!value) {
+    return 'Last seen unavailable'
+  }
+
+  return `Last seen ${new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value))}`
+}
+
 async function handleRandom(): Promise<void> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/players/random`)
@@ -169,7 +183,7 @@ onUnmounted(() => {
             </div>
 
             <p class="player-meta">
-              {{ isOnline(player.uuid) ? 'Visible in the live player list.' : `Last seen ${new Date(player.last_seen).toLocaleDateString()}` }}
+              {{ isOnline(player.uuid) ? 'Visible in the live player list.' : formatLastSeen(player.last_seen) }}
             </p>
           </div>
         </div>
@@ -237,8 +251,8 @@ onUnmounted(() => {
 .toggle-chip {
   display: grid;
   gap: 0.2rem;
-  min-height: 2.7rem;
-  padding: 0.64rem 0.84rem;
+  min-height: 2.45rem;
+  padding: 0.52rem 0.78rem;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
@@ -267,9 +281,9 @@ onUnmounted(() => {
 }
 
 .random-button {
-  min-width: 112px;
-  min-height: 2.7rem;
-  padding: 0.64rem 0.9rem;
+  min-width: 92px;
+  min-height: 2.45rem;
+  padding: 0.52rem 0.78rem;
 }
 
 .results-line {

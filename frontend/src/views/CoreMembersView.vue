@@ -51,6 +51,10 @@ import { siteContent } from '@/content/siteContent'
   gap: 1rem;
 }
 
+.page-header h1 {
+  max-width: 15ch;
+}
+
 .member-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

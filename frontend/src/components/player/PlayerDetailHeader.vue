@@ -1,26 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-import { siteContent } from '@/content/siteContent'
 import type { LinkedAccount, PlayerInfo } from '@/types/api'
 
-const props = defineProps<{
+defineProps<{
   info: PlayerInfo
   isOnline: boolean
   linkedAccount: LinkedAccount | null
 }>()
-
-const linkedAccountName = computed(() => {
-  if (!props.linkedAccount) {
-    return ''
-  }
-
-  if (props.info.type === 'Bedrock') {
-    return props.linkedAccount.java_username
-  }
-
-  return props.linkedAccount.bedrock_username || props.linkedAccount.java_username
-})
 </script>
 
 <template>
@@ -31,17 +16,6 @@ const linkedAccountName = computed(() => {
       <p class="detail-player-copy">
         {{ isOnline ? 'Live presence detected in the server status feed.' : 'Historical record and progression summary.' }}
       </p>
-    </div>
-
-    <div class="detail-header-badges">
-      <span :class="['badge-pill', 'detail-status-pill', { online: isOnline }]">
-        <strong>{{ isOnline ? siteContent.playerDetail.summary.onlineNow : siteContent.playerDetail.summary.archiveRecord }}</strong>
-      </span>
-      <span class="badge-pill"><strong>{{ info.type }}</strong></span>
-      <span v-if="linkedAccountName" class="badge-pill">
-        {{ siteContent.playerDetail.summary.linkedTo }}
-        <strong>{{ linkedAccountName }}</strong>
-      </span>
     </div>
   </section>
 </template>
@@ -68,12 +42,6 @@ const linkedAccountName = computed(() => {
 
 .detail-player-copy {
   color: var(--text-muted);
-  max-width: 48ch;
-}
-
-.detail-header-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+  max-width: 56ch;
 }
 </style>

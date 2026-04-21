@@ -20,7 +20,6 @@ const emit = defineEmits<{
   <PlayerCollapsiblePanel v-if="mcmmo" class="panel-card" :title="siteContent.playerDetail.sections.skills">
     <template #summary>
       <div class="meta-cluster">
-        <span v-if="ranks.skills" class="meta-chip">#{{ ranks.skills }}</span>
         <span class="meta-chip">{{ siteContent.playerDetail.sections.total }} {{ mcmmo.total }}</span>
       </div>
     </template>

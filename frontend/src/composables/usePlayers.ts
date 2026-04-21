@@ -47,12 +47,6 @@ export function usePlayers(onlinePlayerIds: MaybeRefOrGetter<string[]> = []) {
       players.value = json.players ?? []
       count.value = json.count ?? 0
       activeDays.value = json.active_days ?? 0
-
-      if (players.value.length > 0) {
-        const { preloadData } = await import('@/utils/preloader')
-        const detailUrls = players.value.map((player) => `${API_BASE_URL}/api/players/${player.uuid}`)
-        preloadData(detailUrls)
-      }
     } catch (error) {
       console.error('Failed to fetch players', error)
     } finally {

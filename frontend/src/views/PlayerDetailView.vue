@@ -121,7 +121,29 @@ watch(
 )
 
 function formatDate(value: number): string {
-  return value ? new Date(value).toLocaleDateString() : 'N/A'
+  if (!value) {
+    return 'N/A'
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric'
+  }).format(new Date(value))
+}
+
+function formatDateTime(value: number): string {
+  if (!value) {
+    return 'N/A'
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value))
 }
 
 function formatPlaytime(ticks: number): string {
@@ -204,6 +226,7 @@ function closeLeaderboard(): void {
           :rank-highlights="rankHighlights"
           :top-rank-highlight="topRankHighlight"
           :format-date="formatDate"
+          :format-date-time="formatDateTime"
           :format-playtime="formatPlaytime"
           @select-leaderboard="handleSelectLeaderboard"
         />

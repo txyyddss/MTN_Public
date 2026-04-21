@@ -11,18 +11,15 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const showAllJava = shallowRef(false)
 const copyFeedback = shallowRef<string | null>(null)
 
 const connectionRef = computed(() => props.connection)
-const { javaRows, bedrockRows } = useServerConnectionRows(connectionRef, showAllJava)
+const { javaRows, bedrockRows } = useServerConnectionRows(connectionRef)
 
 const connectionSections = computed(() => [
   { title: siteContent.serverPanels.javaTitle, rows: javaRows.value },
   { title: siteContent.serverPanels.bedrockTitle, rows: bedrockRows.value }
 ])
-
-const canToggleDetailedView = computed(() => Boolean(props.connection?.connection))
 
 let feedbackTimer: ReturnType<typeof window.setTimeout> | null = null
 
@@ -64,10 +61,6 @@ onUnmounted(() => {
         <span class="section-kicker">{{ siteContent.serverPanels.connectionTitle }}</span>
         <h3 class="panel-title">Addresses</h3>
       </div>
-
-      <button v-if="canToggleDetailedView" type="button" class="toggle-view-btn" @click="showAllJava = !showAllJava">
-        {{ showAllJava ? siteContent.serverPanels.simpleView : siteContent.serverPanels.fullView }}
-      </button>
     </div>
 
     <p class="connection-hint">{{ siteContent.serverPanels.connectionHint }}</p>
@@ -110,7 +103,7 @@ onUnmounted(() => {
 <style scoped>
 .panel-block {
   display: grid;
-  gap: 0.95rem;
+  gap: 0.82rem;
 }
 
 .panel-head {
@@ -130,18 +123,7 @@ onUnmounted(() => {
 }
 
 .panel-title {
-  font-size: 1.6rem;
-}
-
-.toggle-view-btn {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
-  padding: 0.58rem 0.86rem;
-  font-family: var(--sans);
-  font-size: 0.84rem;
-  letter-spacing: -0.01em;
+  font-size: 1.42rem;
 }
 
 .connection-hint,
@@ -153,12 +135,12 @@ onUnmounted(() => {
 .connection-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .connection-block {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.48rem;
 }
 
 .connection-block-title {
@@ -171,7 +153,7 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  padding: 0.9rem 0.92rem;
+  padding: 0.76rem 0.84rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
@@ -196,6 +178,7 @@ onUnmounted(() => {
 .address-value {
   color: var(--text-muted);
   text-align: right;
+  font-size: 0.92rem;
 }
 
 .copy-toast {

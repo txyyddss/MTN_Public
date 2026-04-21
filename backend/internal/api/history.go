@@ -25,5 +25,6 @@ func (s *Server) handleStatusHistory(c *gin.Context) {
 		return
 	}
 
+	c.Header("Cache-Control", "public, max-age=60, stale-while-revalidate=120")
 	c.JSON(http.StatusOK, heatmap)
 }
