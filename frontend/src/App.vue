@@ -57,21 +57,11 @@ onUnmounted(() => {
 
     <header class="top-bar">
       <nav class="container nav-frame">
-        <div class="brand-cluster">
-          <RouterLink class="brand-lockup" to="/" @click="closeMenu">
-            <span class="brand-text">
-              <span class="brand-text-mtn">MTN</span><span class="brand-text-etwork">etwork</span>
-            </span>
-          </RouterLink>
-
-          <div class="shell-readout">
-            <span class="hud-chip">
-              <span class="status-dot" :class="{ active: shellStatus === 'Live' }"></span>
-              {{ shellStatus }}
-            </span>
-            <span class="hud-chip">{{ shellPlayers }} online</span>
-          </div>
-        </div>
+        <RouterLink class="brand-lockup" to="/" @click="closeMenu">
+          <span class="brand-text">
+            <span class="brand-text-mtn">MTN</span><span class="brand-text-etwork">etwork</span>
+          </span>
+        </RouterLink>
 
         <button class="menu-toggle" type="button" aria-label="Toggle navigation" @click="toggleMenu">
           <span :class="{ active: menuOpen }"></span>
@@ -92,6 +82,14 @@ onUnmounted(() => {
               {{ item.label }}
             </RouterLink>
           </template>
+        </div>
+
+        <div class="shell-readout">
+          <span class="hud-chip">
+            <span class="status-dot" :class="{ active: shellStatus === 'Live' }"></span>
+            {{ shellStatus }}
+          </span>
+          <span class="hud-chip">{{ shellPlayers }} online</span>
         </div>
       </nav>
     </header>
@@ -121,9 +119,9 @@ onUnmounted(() => {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at top, rgba(91, 113, 246, 0.22), transparent 30%),
-    linear-gradient(180deg, rgba(5, 7, 13, 0.98), rgba(5, 7, 13, 1));
-  transition: opacity 0.45s ease;
+    radial-gradient(circle at 50% 18%, rgba(76, 147, 251, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(10, 11, 14, 0.96), rgba(0, 0, 0, 1));
+  transition: opacity 0.4s ease;
 }
 
 .loader-overlay.hidden {
@@ -132,9 +130,9 @@ onUnmounted(() => {
 }
 
 .loader-mark {
-  width: min(420px, calc(100vw - 2rem));
+  width: min(430px, calc(100vw - 2rem));
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
   text-align: center;
 }
 
@@ -148,22 +146,22 @@ onUnmounted(() => {
 .loader-status {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .loader-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .loader-grid span {
-  height: 24px;
-  border-radius: 8px;
-  background: rgba(255, 248, 234, 0.08);
-  border: 1px solid rgba(255, 248, 234, 0.12);
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   animation: pulse-map 1.2s ease-in-out infinite alternate;
 }
 
@@ -180,21 +178,25 @@ onUnmounted(() => {
 }
 
 .loader-title {
-  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 600;
 }
 
 .loader-scanline {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(121, 183, 255, 0.8), transparent);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(141, 184, 255, 0.85), transparent);
   animation: loader-sweep 1.8s linear infinite;
 }
 
 .top-bar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 80;
-  padding: 0.65rem 0 0;
-  backdrop-filter: blur(14px);
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: saturate(180%) blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .nav-frame {
@@ -202,34 +204,23 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.88rem 1.05rem;
-  border: 1px solid var(--glass-border);
-  border-radius: 28px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 22%),
-    rgba(7, 12, 22, 0.88);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.34);
-}
-
-.brand-cluster {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  min-width: 0;
+  min-height: 56px;
+  padding: 0.35rem 0;
 }
 
 .brand-lockup {
   display: inline-flex;
   align-items: center;
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .brand-text {
   display: inline-flex;
   align-items: center;
   font-family: var(--display);
-  font-size: clamp(1.2rem, 2vw, 1.42rem);
-  font-weight: 700;
+  font-size: clamp(1.1rem, 2vw, 1.32rem);
+  font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 1;
 }
@@ -246,34 +237,38 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .status-dot {
-  width: 0.55rem;
-  height: 0.55rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
-  background: rgba(154, 174, 203, 0.6);
+  background: rgba(182, 190, 203, 0.8);
 }
 
 .status-dot.active {
   background: var(--success);
-  box-shadow: 0 0 0 6px rgba(93, 226, 164, 0.14);
+  box-shadow: 0 0 0 5px rgba(131, 211, 167, 0.12);
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 0.2rem;
+  justify-content: center;
+  gap: 0.1rem;
+  margin: 0 auto;
 }
 
 .nav-link {
-  padding: 0.56rem 0.82rem;
-  border-radius: 999px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
   color: var(--text-muted);
-  font-size: 0.78rem;
-  font-family: var(--mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.88rem;
+  font-family: var(--sans);
+  font-weight: 500;
+  letter-spacing: -0.01em;
   transition:
     background var(--transition-fast),
     border-color var(--transition-fast),
@@ -284,21 +279,21 @@ onUnmounted(() => {
 .nav-link:hover,
 .nav-link.router-link-active {
   color: var(--text-strong);
-  border-color: var(--glass-border-strong);
-  background: rgba(248, 251, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.055);
 }
 
 .nav-link-external {
-  border-color: var(--glass-border);
+  color: var(--accent);
 }
 
 .menu-toggle {
   display: none;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--glass-border);
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.04);
   position: relative;
 }
 
@@ -332,6 +327,7 @@ onUnmounted(() => {
 .main-content {
   flex: 1;
   position: relative;
+  padding-top: 4.35rem;
 }
 
 @keyframes pulse-map {
@@ -341,9 +337,9 @@ onUnmounted(() => {
   }
 
   to {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
     opacity: 1;
-    box-shadow: 0 10px 18px rgba(91, 113, 246, 0.24);
+    box-shadow: 0 8px 18px rgba(76, 147, 251, 0.18);
   }
 }
 
@@ -366,6 +362,7 @@ onUnmounted(() => {
 @media (max-width: 980px) {
   .menu-toggle {
     display: inline-block;
+    order: 3;
   }
 
   .shell-readout {
@@ -374,19 +371,21 @@ onUnmounted(() => {
 
   .nav-links {
     position: fixed;
-    top: 5.5rem;
+    top: 4.45rem;
+    left: 1rem;
     right: 1rem;
-    width: min(340px, calc(100vw - 2rem));
+    width: auto;
     flex-direction: column;
     align-items: stretch;
-    padding: 1rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    background: rgba(7, 12, 22, 0.96);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.34);
+    margin: 0;
+    padding: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    background: rgba(14, 15, 18, 0.94);
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
     opacity: 0;
     pointer-events: none;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
     transition: opacity var(--transition-fast), transform var(--transition-fast);
   }
 
@@ -398,6 +397,8 @@ onUnmounted(() => {
 
   .nav-link {
     width: 100%;
+    padding: 0.8rem 0.95rem;
+    border-radius: 14px;
   }
 }
 
@@ -407,8 +408,8 @@ onUnmounted(() => {
     align-items: flex-start;
   }
 
-  .brand-cluster {
-    min-width: 0;
+  .nav-frame {
+    min-height: 54px;
   }
 }
 </style>

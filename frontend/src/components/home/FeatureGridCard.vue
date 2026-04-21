@@ -42,13 +42,13 @@ const cardStyle = computed(() => ({
 <style scoped>
 .feature-card {
   display: grid;
-  gap: 1.5rem;
-  min-height: 250px;
+  gap: 1.2rem;
+  min-height: 220px;
 }
 
 .feature-card.compact {
   min-height: auto;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .feature-topline {
@@ -59,21 +59,21 @@ const cardStyle = computed(() => ({
 }
 
 .feature-index {
-  width: 3rem;
-  height: 3rem;
+  width: 2.7rem;
+  height: 2.7rem;
   display: inline-grid;
   place-items: center;
-  border-radius: 16px;
+  border-radius: 999px;
   font-family: var(--mono);
-  font-size: 0.88rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .feature-mode {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -84,7 +84,7 @@ const cardStyle = computed(() => ({
 }
 
 .feature-title {
-  font-size: 1.55rem;
+  font-size: 1.45rem;
 }
 
 .feature-description {
@@ -92,14 +92,14 @@ const cardStyle = computed(() => ({
 }
 
 .accent-copper {
-  border-color: rgba(43, 98, 255, 0.34);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .accent-moss {
-  border-color: rgba(30, 84, 219, 0.32);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .accent-redstone {
-  border-color: rgba(98, 171, 255, 0.3);
+  border-color: rgba(76, 147, 251, 0.22);
 }
 </style>

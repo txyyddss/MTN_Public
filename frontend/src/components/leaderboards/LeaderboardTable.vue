@@ -70,7 +70,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
 .leaderboard-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 0.55rem;
+  border-spacing: 0 0.45rem;
 }
 
 .leaderboard-table th,
@@ -88,7 +88,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
 }
 
 .leaderboard-table tbody tr {
-  background: rgba(7, 16, 30, 0.82);
+  background: rgba(255, 255, 255, 0.03);
   transition:
     transform var(--transition-panel),
     background var(--transition-fast),
@@ -96,9 +96,9 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
 }
 
 .leaderboard-table tbody tr:hover {
-  background: rgba(10, 22, 40, 0.96);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
 }
 
 .leaderboard-table tbody td:first-child {
@@ -134,7 +134,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
 .avatar {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 12px;
   image-rendering: pixelated;
 }
 
@@ -148,7 +148,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
 }
 
 .online {
-  color: #8fe3b3;
+  color: var(--success);
 }
 
 @media (max-width: 720px) {
@@ -157,13 +157,13 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
     gap: 0.75rem;
   }
 
-  .mobile-board-card {
+.mobile-board-card {
     display: grid;
     gap: 0.7rem;
     padding: 0.85rem 0.9rem;
     border-radius: 20px;
-    border: 1px solid var(--glass-border-soft);
-    background: rgba(8, 18, 34, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
     box-shadow: var(--panel-shadow);
   }
 
@@ -189,7 +189,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
   }
 
   .mobile-presence {
-    color: #8fe3b3;
+    color: var(--success);
   }
 
   .mobile-player-link {

@@ -22,18 +22,18 @@ import { siteContent } from '@/content/siteContent'
 .intro-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.7fr);
-  gap: 1.25rem;
+  gap: 1rem;
   margin-bottom: 0;
 }
 
 .intro-hero-copy {
   display: grid;
-  gap: 1rem;
+  gap: 0.95rem;
 }
 
 .intro-hero h1 {
-  font-size: clamp(3rem, 7vw, 5.8rem);
-  max-width: 12ch;
+  font-size: clamp(3rem, 7vw, 5.2rem);
+  max-width: 10ch;
 }
 
 .intro-hero p,
@@ -44,12 +44,12 @@ import { siteContent } from '@/content/siteContent'
 
 .hero-aside-card {
   display: grid;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.7rem;
+  padding: 1.05rem;
   height: 100%;
-  border-radius: 24px;
-  background: rgba(7, 16, 30, 0.88);
-  border: 1px solid rgba(121, 183, 255, 0.14);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 900px) {

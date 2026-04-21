@@ -141,7 +141,7 @@ const overviewMetrics = computed(() => [
 }
 
 .overview-status.online strong {
-  color: #8fe3b3;
+  color: var(--success);
 }
 
 .overview-metric-grid {

@@ -67,15 +67,15 @@ defineProps<{
 .avatar-header {
   display: grid;
   justify-items: center;
-  gap: 0.7rem;
+  gap: 0.65rem;
 }
 
 .skin-wrapper {
   width: 100%;
   min-height: 250px;
-  border-radius: 22px;
-  background: rgba(7, 16, 30, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
@@ -85,7 +85,7 @@ defineProps<{
 }
 
 .profile-name.online {
-  color: #a9d08e;
+  color: var(--success);
 }
 
 .type-tag {
@@ -109,8 +109,8 @@ defineProps<{
   gap: 1rem;
   padding: 0.74rem 0.88rem;
   border-radius: 18px;
-  background: rgba(7, 16, 30, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .label {
@@ -141,6 +141,6 @@ defineProps<{
 }
 
 .meta-chip.live {
-  color: #8fe3b3;
+  color: var(--success);
 }
 </style>

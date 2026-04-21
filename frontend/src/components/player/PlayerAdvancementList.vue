@@ -82,8 +82,8 @@ function handleImageError(event: Event): void {
   gap: 0.7rem;
   padding: 0.76rem 0.86rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   align-items: center;
 }
 

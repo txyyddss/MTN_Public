@@ -144,7 +144,7 @@ onUnmounted(() => {
   break-inside: avoid;
   display: block;
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.75rem;
   margin-bottom: 1rem;
   cursor: pointer;
 }
@@ -181,8 +181,8 @@ onUnmounted(() => {
   z-index: 120;
   display: grid;
   place-items: center;
-  background: rgba(8, 7, 5, 0.94);
-  backdrop-filter: blur(16px);
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(18px);
 }
 
 .lightbox-shell {
@@ -215,9 +215,9 @@ onUnmounted(() => {
 
 .lightbox-nav,
 .lightbox-close {
-  border: 1px solid var(--glass-border-strong);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
 }
 
@@ -232,8 +232,7 @@ onUnmounted(() => {
   top: 1.25rem;
   right: 1.25rem;
   padding: 0.7rem 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.9rem;
 }
 
 .lightbox-fade-enter-active,

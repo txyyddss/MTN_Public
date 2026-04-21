@@ -118,7 +118,7 @@ const summaryMetrics = computed(() => [
 }
 
 .player-title.online {
-  color: #a9d08e;
+  color: var(--success);
 }
 
 .player-badge-row {
@@ -128,7 +128,7 @@ const summaryMetrics = computed(() => [
 }
 
 .status-badge.online strong {
-  color: #8fe3b3;
+  color: var(--success);
 }
 
 .linked-badge {

@@ -103,7 +103,7 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
   width: min(360px, 100%);
   min-height: 2.8rem;
   padding: 0 0.95rem;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-main);
@@ -120,14 +120,15 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 .category-tab {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
-  padding: 0.56rem 0.82rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  padding: 0.58rem 0.86rem;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   text-transform: capitalize;
   transition:
     transform var(--transition-panel),
@@ -141,7 +142,7 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
   content: '';
   position: absolute;
   inset: auto 14px 8px;
-  height: 2px;
+  height: 1px;
   border-radius: 999px;
   background: var(--primary);
   transform: scaleX(0);
@@ -157,8 +158,8 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 
 .group-tab.active,
 .category-tab.active {
-  border-color: rgba(91, 113, 246, 0.42);
-  background: rgba(10, 21, 38, 0.94);
+  border-color: rgba(76, 147, 251, 0.3);
+  background: rgba(76, 147, 251, 0.08);
   color: var(--text-strong);
 }
 

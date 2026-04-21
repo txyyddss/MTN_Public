@@ -51,13 +51,13 @@ const visiblePrinciple = computed(() => principles[currentIndex.value] ?? princi
 .operations-grid {
   display: grid;
   grid-template-columns: 1.3fr 0.9fr;
-  gap: 1.15rem;
+  gap: 1rem;
 }
 
 .principles-card,
 .infrastructure-card {
   display: grid;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .principles-card h2,
@@ -67,7 +67,7 @@ const visiblePrinciple = computed(() => principles[currentIndex.value] ?? princi
 
 .principle-list {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.75rem;
 }
 
 .principle-carousel {
@@ -78,14 +78,14 @@ const visiblePrinciple = computed(() => principles[currentIndex.value] ?? princi
 .principle-row {
   display: grid;
   gap: 0.45rem;
-  padding: 1rem;
-  border-radius: 18px;
-  background: rgba(7, 16, 30, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.95rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .principle-row h3 {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 
 .principle-row p,
@@ -103,17 +103,17 @@ const visiblePrinciple = computed(() => principles[currentIndex.value] ?? princi
 .carousel-status {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .carousel-btn {
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(9, 18, 33, 0.92);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
-  padding: 0.58rem 0.8rem;
+  padding: 0.58rem 0.85rem;
 }
 
 .principle-fade-enter-active,

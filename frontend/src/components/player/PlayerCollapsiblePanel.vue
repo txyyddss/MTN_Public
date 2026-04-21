@@ -73,15 +73,15 @@ const expanded = shallowRef(props.defaultExpanded)
 }
 
 .panel-toggle {
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(9, 18, 33, 0.92);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
   padding: 0.48rem 0.72rem;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   transition:
     border-color var(--transition-fast),
     transform var(--transition-fast),
@@ -89,9 +89,9 @@ const expanded = shallowRef(props.defaultExpanded)
 }
 
 .panel-toggle:hover {
-  border-color: var(--glass-border-strong);
+  border-color: rgba(76, 147, 251, 0.28);
   transform: translateY(-1px);
-  background: rgba(14, 26, 46, 0.94);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .panel-body-shell {

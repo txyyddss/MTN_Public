@@ -102,7 +102,7 @@ const updatedLabel = computed(() => {
 <style scoped>
 .panel-block {
   display: grid;
-  gap: 1rem;
+  gap: 0.95rem;
 }
 
 .panel-head {
@@ -118,16 +118,16 @@ const updatedLabel = computed(() => {
 }
 
 .panel-title {
-  font-size: 1.75rem;
+  font-size: 1.6rem;
 }
 
 .panel-state {
-  padding: 0.5rem 0.75rem;
+  padding: 0.45rem 0.72rem;
   border-radius: 999px;
-  border: 1px solid rgba(121, 183, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -138,7 +138,7 @@ const updatedLabel = computed(() => {
 
 .status-stack {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
 .edition-grid {
@@ -154,7 +154,7 @@ const updatedLabel = computed(() => {
   padding: 0.9rem 0.95rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .status-label {
@@ -170,22 +170,22 @@ const updatedLabel = computed(() => {
 .system-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.7rem;
+  gap: 0.65rem;
 }
 
 .system-card {
   display: grid;
   gap: 0.25rem;
-  padding: 0.95rem;
+  padding: 0.9rem;
   border-radius: 16px;
-  background: rgba(7, 16, 30, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .system-label {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

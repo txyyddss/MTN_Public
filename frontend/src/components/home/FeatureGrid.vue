@@ -47,24 +47,24 @@ const visibleFeature = computed(() => features[currentIndex.value] ?? features[0
 
 <style scoped>
 .features-section {
-  padding: 1rem 0 4.5rem;
+  padding: 0.6rem 0 4rem;
 }
 
 .section-head {
   display: grid;
-  gap: 1rem;
-  margin-bottom: 1.75rem;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.1rem;
+  gap: 0.95rem;
 }
 
 .feature-carousel {
   display: grid;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .carousel-controls {
@@ -77,17 +77,17 @@ const visibleFeature = computed(() => features[currentIndex.value] ?? features[0
 .carousel-status {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .carousel-btn {
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(9, 18, 33, 0.92);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
-  padding: 0.58rem 0.8rem;
+  padding: 0.58rem 0.85rem;
 }
 
 .carousel-fade-enter-active,

@@ -28,7 +28,7 @@ async function initPieChart(): Promise<void> {
       datasets: [
         {
           data: props.oreStats.map((ore) => ore.mined),
-          backgroundColor: ['#3d78ff', '#1d4ed8', '#5b8cff', '#102d7a', '#6cb4ff', '#0a1637'],
+          backgroundColor: ['#4c93fb', '#72acff', '#2d6fd1', '#9bc4ff', '#d8e7ff', '#173d78'],
           borderWidth: 0
         }
       ]
@@ -40,7 +40,7 @@ async function initPieChart(): Promise<void> {
         legend: {
           position: 'right',
           labels: {
-            color: '#d6e4ff',
+            color: '#edf1f7',
             font: { family: 'Instrument Sans' }
           }
         }
@@ -124,8 +124,8 @@ function formatNumber(value: number): string {
   gap: 1rem;
   padding: 0.75rem 0.85rem;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .ore-row span {
@@ -141,7 +141,7 @@ function formatNumber(value: number): string {
   border-radius: 999px;
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 

@@ -36,7 +36,7 @@ const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
   min-height: 3rem;
   border: 1px solid transparent;
   border-radius: 18px;
-  background: rgba(8, 18, 34, 0.72);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
   padding: 0.75rem 0.9rem;
   text-align: center;
@@ -51,13 +51,12 @@ const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
   content: '';
   position: absolute;
   inset: auto 16px 10px;
-  height: 2px;
+  height: 1px;
   border-radius: 999px;
   background: var(--primary);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform var(--transition-panel);
-  box-shadow: 0 0 16px rgba(61, 120, 255, 0.45);
 }
 
 .detail-tab:hover {
@@ -66,8 +65,8 @@ const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
 }
 
 .detail-tab.active {
-  border-color: rgba(61, 120, 255, 0.28);
-  background: rgba(9, 21, 38, 0.94);
+  border-color: rgba(76, 147, 251, 0.28);
+  background: rgba(76, 147, 251, 0.08);
   color: var(--text-strong);
 }
 
@@ -76,10 +75,10 @@ const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
 }
 
 .detail-tab-label {
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 @media (max-width: 720px) {
@@ -100,8 +99,8 @@ const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
   }
 
   .detail-tab-label {
-    font-size: 0.68rem;
-    letter-spacing: 0.09em;
+    font-size: 0.78rem;
+    letter-spacing: -0.01em;
   }
 }
 </style>

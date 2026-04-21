@@ -22,28 +22,28 @@ import { siteContent } from '@/content/siteContent'
 
 <style scoped>
 .cta-section {
-  padding: 0.5rem 0 5.5rem;
+  padding: 0.4rem 0 5rem;
 }
 
 .cta-box {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) auto;
-  gap: 2rem;
-  align-items: end;
+  gap: 1.6rem;
+  align-items: center;
 }
 
 .cta-copy {
   display: grid;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .cta-copy h2 {
-  font-size: clamp(2.2rem, 4vw, 4rem);
-  max-width: 14ch;
+  font-size: clamp(2.1rem, 4vw, 3.8rem);
+  max-width: 12ch;
 }
 
 .cta-copy p {
-  max-width: 58ch;
+  max-width: 46ch;
   color: var(--text-muted);
 }
 
@@ -56,7 +56,7 @@ import { siteContent } from '@/content/siteContent'
 .cta-note {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

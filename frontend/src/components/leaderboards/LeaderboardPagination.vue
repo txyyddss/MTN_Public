@@ -53,15 +53,15 @@ defineEmits<{
 
 .pager-btn {
   min-width: 4.2rem;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(9, 18, 33, 0.92);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
   padding: 0.54rem 0.84rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   transition:
     border-color var(--transition-fast),
     transform var(--transition-fast),
@@ -69,7 +69,7 @@ defineEmits<{
 }
 
 .pager-btn:hover:not(:disabled) {
-  border-color: var(--glass-border-strong);
+  border-color: rgba(76, 147, 251, 0.28);
   transform: translateY(-1px);
 }
 

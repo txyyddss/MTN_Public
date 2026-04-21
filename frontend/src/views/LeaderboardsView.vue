@@ -130,15 +130,15 @@ function formatValue(value: number, type: LeaderboardType): string {
 .tab-chip {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(8, 18, 34, 0.86);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
-  padding: 0.58rem 0.82rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  padding: 0.6rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   transition:
     transform var(--transition-panel),
     border-color var(--transition-fast),
@@ -149,14 +149,13 @@ function formatValue(value: number, type: LeaderboardType): string {
 .tab-chip::after {
   content: '';
   position: absolute;
-  inset: auto 14px 8px;
-  height: 2px;
+  inset: auto 14px 7px;
+  height: 1px;
   border-radius: 999px;
   background: var(--primary);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform var(--transition-panel);
-  box-shadow: 0 0 14px rgba(61, 120, 255, 0.45);
 }
 
 .tab-chip:hover {
@@ -165,8 +164,8 @@ function formatValue(value: number, type: LeaderboardType): string {
 }
 
 .tab-chip.active {
-  border-color: rgba(55, 111, 255, 0.42);
-  background: rgba(10, 21, 38, 0.94);
+  border-color: rgba(76, 147, 251, 0.3);
+  background: rgba(76, 147, 251, 0.08);
   color: var(--text-strong);
 }
 

@@ -99,7 +99,7 @@ onUnmounted(() => {
 <style scoped>
 .panel-block {
   display: grid;
-  gap: 1rem;
+  gap: 0.95rem;
 }
 
 .panel-head {
@@ -119,19 +119,18 @@ onUnmounted(() => {
 }
 
 .panel-title {
-  font-size: 1.75rem;
+  font-size: 1.6rem;
 }
 
 .toggle-view-btn {
-  border: 1px solid var(--glass-border-strong);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: rgba(9, 18, 33, 0.9);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
   padding: 0.58rem 0.86rem;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  letter-spacing: -0.01em;
 }
 
 .connection-hint,
@@ -143,16 +142,16 @@ onUnmounted(() => {
 .connection-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
 .connection-block {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.55rem;
 }
 
 .connection-block-title {
-  font-size: 1.15rem;
+  font-size: 1.08rem;
 }
 
 .address-row {
@@ -164,14 +163,14 @@ onUnmounted(() => {
   padding: 0.9rem 0.92rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  background: rgba(7, 16, 30, 0.86);
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
   text-align: left;
   transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .address-row:hover {
-  border-color: var(--glass-border-strong);
+  border-color: rgba(76, 147, 251, 0.28);
   transform: translateY(-1px);
 }
 
@@ -179,7 +178,7 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: var(--primary);
   font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
 }
 

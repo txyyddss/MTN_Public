@@ -210,9 +210,9 @@ onUnmounted(() => {
   width: 100%;
   min-height: 3.2rem;
   padding: 0 1rem;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 18px;
-  background: rgba(8, 18, 34, 0.86);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-main);
 }
 
@@ -228,14 +228,15 @@ onUnmounted(() => {
   gap: 0.2rem;
   padding: 0.82rem 1rem;
   border-radius: 18px;
-  border: 1px solid var(--glass-border);
-  background: rgba(8, 18, 34, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
   text-align: left;
 }
 
 .toggle-chip.active {
-  border-color: rgba(91, 113, 246, 0.42);
+  border-color: rgba(76, 147, 251, 0.3);
+  background: rgba(76, 147, 251, 0.08);
   color: var(--text-strong);
 }
 
@@ -270,7 +271,7 @@ onUnmounted(() => {
 
 .player-card {
   display: grid;
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
 .player-head {
@@ -282,7 +283,7 @@ onUnmounted(() => {
 .player-avatar {
   width: 72px;
   height: 72px;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   image-rendering: pixelated;
 }
@@ -305,13 +306,13 @@ onUnmounted(() => {
 }
 
 .player-name.online {
-  color: #a9d08e;
+  color: var(--success);
 }
 
 .player-status {
   padding: 0.3rem 0.55rem;
   border-radius: 999px;
-  border: 1px solid rgba(121, 183, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -339,7 +340,7 @@ onUnmounted(() => {
 .player-arrow {
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

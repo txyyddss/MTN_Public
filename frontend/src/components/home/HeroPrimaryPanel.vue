@@ -43,8 +43,8 @@ const factRows = computed(() => props.content.facts)
       <div class="hero-aside">
         <div class="hero-console">
           <div class="hero-console-head">
-            <span class="hud-kicker">Command board</span>
-            <span class="console-status">HUD active</span>
+            <span class="hud-kicker">Server notes</span>
+            <span class="console-status">Live overview</span>
           </div>
 
           <div class="hud-metric-grid">
@@ -61,44 +61,44 @@ const factRows = computed(() => props.content.facts)
 
 <style scoped>
 .hero-panel {
-  padding: 1.8rem;
+  padding: 2rem;
 }
 
 .hero-panel-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.9fr);
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.78fr);
+  gap: 1.35rem;
   align-items: stretch;
 }
 
 .hero-copy {
   display: grid;
   align-content: center;
-  gap: 1rem;
+  gap: 1.05rem;
 }
 
 .hero-title {
-  font-size: clamp(3.2rem, 7vw, 6rem);
-  max-width: 11ch;
+  font-size: clamp(3.15rem, 7vw, 5.8rem);
+  max-width: 9ch;
 }
 
 .hero-body {
-  max-width: 56ch;
+  max-width: 48ch;
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 1.02rem;
 }
 
 .hero-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.85rem;
-  padding-top: 0.25rem;
+  gap: 0.75rem;
+  padding-top: 0.15rem;
 }
 
 .hero-aside {
@@ -107,13 +107,11 @@ const factRows = computed(() => props.content.facts)
 
 .hero-console {
   display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 28%),
-    rgba(6, 14, 26, 0.9);
-  border: 1px solid rgba(121, 183, 255, 0.16);
+  gap: 0.9rem;
+  padding: 1.1rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hero-console-head {
@@ -126,17 +124,17 @@ const factRows = computed(() => props.content.facts)
 .console-status {
   color: var(--text-dim);
   font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .live-dot {
-  width: 0.55rem;
-  height: 0.55rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
   background: var(--success);
-  box-shadow: 0 0 0 6px rgba(93, 226, 164, 0.14);
+  box-shadow: 0 0 0 5px rgba(131, 211, 167, 0.12);
 }
 
 @media (max-width: 960px) {
@@ -147,7 +145,7 @@ const factRows = computed(() => props.content.facts)
 
 @media (max-width: 640px) {
   .hero-title {
-    font-size: 3.2rem;
+    font-size: 3rem;
   }
 
   .hero-actions {

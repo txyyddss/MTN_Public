@@ -54,8 +54,8 @@ const factRows = computed(() => [
   gap: 1rem;
   padding: 0.9rem 1rem;
   border-radius: 18px;
-  background: rgba(7, 16, 30, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .status-label {
