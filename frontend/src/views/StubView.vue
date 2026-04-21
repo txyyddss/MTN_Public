@@ -12,8 +12,8 @@ import { siteContent } from '@/content/siteContent'
       </div>
 
       <div class="placeholder-actions">
-        <RouterLink class="btn-primary" to="/server-intro">{{ siteContent.teamPlaceholder.primaryCta }}</RouterLink>
-        <RouterLink class="btn-secondary" to="/server-intro#community-panel">
+        <a class="btn-primary" href="https://mtn.1919801.xyz/">{{ siteContent.teamPlaceholder.primaryCta }}</a>
+        <RouterLink class="btn-secondary" to="/">
           {{ siteContent.teamPlaceholder.secondaryCta }}
         </RouterLink>
       </div>

@@ -73,7 +73,7 @@ onUnmounted(() => {
             <a
               v-if="item.external"
               :href="item.to"
-              class="nav-link nav-link-external"
+              :class="['nav-link', 'nav-link-external', { 'nav-link-emphasis': item.emphasize }]"
               @click="closeMenu"
             >
               {{ item.label }}
@@ -285,6 +285,19 @@ onUnmounted(() => {
 
 .nav-link-external {
   color: var(--accent);
+}
+
+.nav-link-emphasis {
+  color: #fff4c2;
+  background: linear-gradient(135deg, rgba(182, 126, 23, 0.34), rgba(255, 214, 102, 0.18));
+  border-color: rgba(255, 214, 102, 0.28);
+  box-shadow: 0 10px 28px rgba(182, 126, 23, 0.2);
+}
+
+.nav-link-emphasis:hover {
+  color: #fff9de;
+  border-color: rgba(255, 230, 148, 0.42);
+  background: linear-gradient(135deg, rgba(204, 144, 29, 0.42), rgba(255, 214, 102, 0.22));
 }
 
 .menu-toggle {

@@ -34,9 +34,9 @@ const factRows = computed(() => props.content.facts)
           <router-link class="btn-primary" to="/players">
             {{ props.content.primaryCta }}
           </router-link>
-          <router-link class="btn-secondary" to="/server-intro">
+          <a class="btn-secondary" href="https://mtn.1919801.xyz/">
             {{ props.content.secondaryCta }}
-          </router-link>
+          </a>
         </div>
       </div>
 

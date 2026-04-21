@@ -12,7 +12,7 @@ import { siteContent } from '@/content/siteContent'
           <p>{{ siteContent.home.cta.body }}</p>
         </div>
         <div class="cta-actions">
-          <router-link class="btn-primary" to="/server-intro">{{ siteContent.home.cta.primaryCta }}</router-link>
+          <a class="btn-primary" href="https://mtn.1919801.xyz/">{{ siteContent.home.cta.primaryCta }}</a>
           <p class="cta-note">{{ siteContent.home.cta.note }}</p>
         </div>
       </div>

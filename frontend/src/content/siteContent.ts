@@ -4,6 +4,7 @@ interface NavItem {
   label: string
   to: string
   external?: boolean
+  emphasize?: boolean
 }
 
 interface FeatureCardContent {
@@ -11,16 +12,6 @@ interface FeatureCardContent {
   description: string
   icon: string
   accent: 'copper' | 'moss' | 'redstone'
-}
-
-interface PrincipleContent {
-  title: string
-  description: string
-}
-
-interface IntroStoryBlock {
-  heading: string
-  paragraphs: string[]
 }
 
 export const leaderboardLabels: Record<LeaderboardType, string> = {
@@ -59,10 +50,9 @@ export const siteContent = {
       { label: 'Home', to: '/' },
       { label: 'Players', to: '/players' },
       { label: 'Leaderboards', to: '/leaderboards' },
-      { label: 'Server Intro', to: '/server-intro' },
       { label: 'Core Members', to: '/core-members' },
       { label: 'Gallery', to: '/gallery' },
-      { label: 'Wiki', to: '/wiki', external: true }
+      { label: 'Wiki', to: 'https://mtn.1919801.xyz/', external: true, emphasize: true }
     ] satisfies NavItem[]
   },
   home: {
@@ -72,7 +62,7 @@ export const siteContent = {
       body:
         'Java and Bedrock share one world, one history, and one public record.',
       primaryCta: 'Explore Players',
-      secondaryCta: 'Read The Story',
+      secondaryCta: 'Open Wiki',
       facts: [
         { label: 'Operations', value: 'Non-profit community run' },
         { label: 'Access', value: 'Java and Bedrock' },
@@ -127,65 +117,8 @@ export const siteContent = {
       title: 'Join, build, leave a mark.',
       body:
         'If you want fair survival with visible history, this is the pace.',
-      primaryCta: 'Open Intro',
+      primaryCta: 'Open Wiki',
       note: 'Connection details sit below.'
-    }
-  },
-  intro: {
-    hero: {
-      eyebrow: 'Server introduction',
-      title: 'From private homeserver to public world.',
-      body:
-        'The stack grew, the hardware improved, and the server opened up.'
-    },
-    story: [
-      {
-        heading: 'Where it started',
-        paragraphs: [
-          'MTNetwork began in October 2024 on a homeserver in Shenzhen. The early core was small: mc9957, wor114514, and later txrog.',
-          'It started as a private space for friends, then moved toward a stronger Java-oriented stack and a public community.'
-        ]
-      },
-      {
-        heading: 'How it changed',
-        paragraphs: [
-          'Railway builder HEHAWellgood helped push the world toward public systems, routes, and larger projects.',
-          'That arc still defines MTNetwork: survival first, large work welcomed, and technical effort in service of stability.'
-        ]
-      }
-    ] satisfies IntroStoryBlock[],
-    principles: [
-      {
-        title: 'Fair by default',
-        description:
-          'Non-profit and non-pay-to-win. Everyone starts on equal footing.'
-      },
-      {
-        title: 'Vanilla at the center',
-        description:
-          'The world stays rooted in survival, exploration, and building.'
-      },
-      {
-        title: 'Cross-play where it matters',
-        description:
-          'Java and Bedrock both remain part of the operating model.'
-      },
-      {
-        title: 'Automation friendly',
-        description:
-          'Technical play, automation, and infrastructure builds are welcome.'
-      }
-    ] satisfies PrincipleContent[],
-    infrastructure: {
-      title: 'Live operating context',
-      body:
-        'Status, addresses, and node load stay visible.'
-    },
-    community: {
-      title: 'Official community group',
-      body:
-        'The QR code links to the official QQ group for announcements and questions.',
-      caption: 'Scan to join the MTNetwork QQ group.'
     }
   },
   serverPanels: {
@@ -292,10 +225,10 @@ export const siteContent = {
     eyebrow: 'Core members',
     title: 'The member index is still being prepared.',
     body:
-      'The server story already names several of the people who shaped MTNetwork, but a dedicated member archive has not been compiled yet.',
-    primaryCta: 'Read The Server Intro',
-    secondaryCta: 'Open The Community Panel',
+      'A dedicated member archive has not been compiled yet. Use the wiki for current server documentation and public references.',
+    primaryCta: 'Open Wiki',
+    secondaryCta: 'Back To Home',
     note:
-      'For now, use the server introduction for the early project history and the official community group for current contact.'
+      'The wiki is now the primary public reference for MTNetwork.'
   }
 } as const
