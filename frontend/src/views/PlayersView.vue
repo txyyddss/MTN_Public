@@ -114,14 +114,16 @@ onUnmounted(() => {
       </label>
 
       <div class="control-actions">
-        <button :class="['toggle-chip', { active: !showAll }]" type="button" @click="showAll = false">
-          {{ siteContent.players.recentLabel }}
-          <small>last {{ activeDays }} days</small>
-        </button>
-        <button :class="['toggle-chip', { active: showAll }]" type="button" @click="showAll = true">
-          {{ siteContent.players.allLabel }}
-          <small>full log</small>
-        </button>
+        <div class="segmented-control">
+          <button :class="['switch-btn', { active: !showAll }]" type="button" @click="showAll = false">
+            {{ siteContent.players.recentLabel }}
+            <small>last {{ activeDays }}d</small>
+          </button>
+          <button :class="['switch-btn', { active: showAll }]" type="button" @click="showAll = true">
+            {{ siteContent.players.allLabel }}
+            <small>full log</small>
+          </button>
+        </div>
         <button class="btn-secondary random-button" type="button" :title="siteContent.players.randomTitle" @click="handleRandom">
           Random
         </button>
@@ -189,7 +191,6 @@ onUnmounted(() => {
         </div>
 
         <div class="player-footer">
-          <span class="player-platform">{{ player.type }}</span>
         </div>
       </RouterLink>
     </div>
@@ -243,47 +244,56 @@ onUnmounted(() => {
 
 .control-actions {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 0.55rem;
+  gap: 0.75rem;
   grid-column: 1 / -1;
 }
 
-.toggle-chip {
-  display: grid;
-  gap: 0.2rem;
-  min-height: 2.2rem;
-  padding: 0.45rem 0.72rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+.segmented-control {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.switch-btn {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
   color: var(--text-muted);
-  text-align: left;
-  transition:
-    transform var(--transition-fast),
-    border-color var(--transition-fast),
-    background var(--transition-fast);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
-.toggle-chip:hover {
-  transform: translateY(-1px);
-  border-color: rgba(76, 147, 251, 0.24);
+.switch-btn:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.toggle-chip.active {
-  border-color: rgba(76, 147, 251, 0.3);
-  background: rgba(76, 147, 251, 0.08);
+.switch-btn.active {
+  background: rgba(76, 147, 251, 0.12);
   color: var(--text-strong);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.toggle-chip small {
+.switch-btn small {
   color: var(--text-dim);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
+  font-weight: normal;
 }
 
 .random-button {
-  min-width: 82px;
-  min-height: 2.2rem;
-  padding: 0.45rem 0.72rem;
+  min-width: 72px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.82rem;
+  height: max-content;
 }
 
 .results-line {

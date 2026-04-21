@@ -9,7 +9,7 @@ export const coreMembers: CoreMember[] = [
   },
   {
     name: 'txrog',
-    nicknames: [],
+    nicknames: ['MADIAM2395', 'txro'],
     role: 'Software Admin',
     introduction: 'The software maintainer and developer'
   },

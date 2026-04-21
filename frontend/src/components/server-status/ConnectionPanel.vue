@@ -36,20 +36,48 @@ const javaAddresses = computed(() => {
   const addrs = props.connection?.addresses
   const list: AddressDisplay[] = []
 
+  // Helpers to handle address formatting correctly
+  const formatAddress = (address?: { domain?: string; ip: string; port?: string } | string) => {
+    if (!address) return ''
+    if (typeof address === 'string') return address
+
+    const host = address.domain || address.ip
+    const port = address.port
+
+    if (!port) return host
+
+    // Avoid double porting if host already includes it (e.g., "domain:11451")
+    if (host.includes(`:${port}`)) return host
+
+    // IPv6 logic: only bracket if it's a literal IPv6 (contains ':' but no '.')
+    const isIPv6Literal = host.includes(':') && !host.includes('.')
+    
+    if (isIPv6Literal) {
+      return `[${host}]:${port}`
+    }
+
+    return `${host}:${port}`
+  }
+
+  // SRV Records (v4 and v6)
   if (conn?.java_srv) {
-    list.push({ label: 'SRV', value: conn.java_srv.domain || conn.java_srv.ip, id: 'java-srv' })
+    list.push({ label: 'SRV', value: formatAddress(conn.java_srv), id: 'java-srv' })
   } else if (addrs?.java_ipv4_srv) {
-    list.push({ label: 'SRV', value: addrs.java_ipv4_srv, id: 'java-srv-static' })
+    list.push({ label: 'SRV v4', value: addrs.java_ipv4_srv, id: 'java-srv-static' })
   }
 
+  if (addrs?.java_ipv6_srv) {
+    list.push({ label: 'SRV v6', value: addrs.java_ipv6_srv, id: 'java-srv-v6' })
+  }
+
+  // IPv4 Direct
   if (conn?.java_ipv4) {
-    const val = conn.java_ipv4.port ? `${conn.java_ipv4.domain || conn.java_ipv4.ip}:${conn.java_ipv4.port}` : (conn.java_ipv4.domain || conn.java_ipv4.ip)
-    list.push({ label: 'IPv4', value: val, id: 'java-ipv4' })
+    list.push({ label: 'IPv4', value: formatAddress(conn.java_ipv4), id: 'java-ipv4' })
   }
 
+  // IPv6 Direct
   if (conn?.java_ipv6) {
-    const val = conn.java_ipv6.port ? `[${conn.java_ipv6.domain || conn.java_ipv6.ip}]:${conn.java_ipv6.port}` : (conn.java_ipv6.domain || conn.java_ipv6.ip)
-    list.push({ label: 'IPv6', value: val, id: 'java-ipv6' })
+    list.push({ label: 'IPv6', value: formatAddress(conn.java_ipv6), id: 'java-ipv6' })
   } else if (addrs?.java_ipv6) {
     list.push({ label: 'IPv6', value: addrs.java_ipv6, id: 'java-ipv6-static' })
   }
@@ -62,14 +90,23 @@ const bedrockAddresses = computed(() => {
   const addrs = props.connection?.addresses
   const list: AddressDisplay[] = []
 
+  const formatAddress = (address?: { domain?: string; ip: string; port?: string } | string) => {
+    if (!address) return ''
+    if (typeof address === 'string') return address
+    const host = address.domain || address.ip
+    const port = address.port
+    if (!port) return host
+    if (host.includes(`:${port}`)) return host
+    const isIPv6Literal = host.includes(':') && !host.includes('.')
+    return isIPv6Literal ? `[${host}]:${port}` : `${host}:${port}`
+  }
+
   if (conn?.bedrock_ipv4) {
-    const val = conn.bedrock_ipv4.port ? `${conn.bedrock_ipv4.domain || conn.bedrock_ipv4.ip}:${conn.bedrock_ipv4.port}` : (conn.bedrock_ipv4.domain || conn.bedrock_ipv4.ip)
-    list.push({ label: 'IPv4', value: val, id: 'bedrock-ipv4' })
+    list.push({ label: 'IPv4', value: formatAddress(conn.bedrock_ipv4), id: 'bedrock-ipv4' })
   }
 
   if (conn?.bedrock_ipv6) {
-    const val = conn.bedrock_ipv6.port ? `[${conn.bedrock_ipv6.domain || conn.bedrock_ipv6.ip}]:${conn.bedrock_ipv6.port}` : (conn.bedrock_ipv6.domain || conn.bedrock_ipv6.ip)
-    list.push({ label: 'IPv6', value: val, id: 'bedrock-ipv6' })
+    list.push({ label: 'IPv6', value: formatAddress(conn.bedrock_ipv6), id: 'bedrock-ipv6' })
   } else if (addrs?.bedrock_ipv6) {
     list.push({ label: 'IPv6', value: addrs.bedrock_ipv6, id: 'bedrock-ipv6-static' })
   }
@@ -96,7 +133,7 @@ import { computed } from 'vue'
           <div v-for="addr in javaAddresses" :key="addr.id" class="address-row">
             <div class="address-info">
               <span class="address-label">{{ addr.label }}</span>
-              <code class="address-value">{{ addr.value }}</code>
+              <code class="address-value" :title="addr.value">{{ addr.value }}</code>
             </div>
             <button 
               class="copy-btn" 
@@ -116,7 +153,7 @@ import { computed } from 'vue'
           <div v-for="addr in bedrockAddresses" :key="addr.id" class="address-row">
             <div class="address-info">
               <span class="address-label">{{ addr.label }}</span>
-              <code class="address-value">{{ addr.value }}</code>
+              <code class="address-value" :title="addr.value">{{ addr.value }}</code>
             </div>
             <button 
               class="copy-btn" 
@@ -215,6 +252,7 @@ import { computed } from 'vue'
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
+  flex: 1;
 }
 
 .address-label {
@@ -234,6 +272,7 @@ import { computed } from 'vue'
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
 }
 
 .copy-btn {
@@ -271,6 +310,28 @@ import { computed } from 'vue'
 .skeleton-row { border-style: dashed; background: transparent; }
 .label-skeleton { width: 40px; height: 1rem; }
 .value-skeleton { width: 150px; height: 1rem; }
+
+@media (max-width: 480px) {
+  .address-row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 0.85rem;
+  }
+  
+  .address-info {
+    width: 100%;
+  }
+
+  .address-value {
+    font-size: 0.85rem;
+  }
+
+  .copy-btn {
+    width: 100%;
+    padding: 0.6rem;
+  }
+}
 
 @keyframes animate-pulse {
   0%, 100% { opacity: 1; }
