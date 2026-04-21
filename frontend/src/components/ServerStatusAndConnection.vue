@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 
+import ConnectionPanel from '@/components/server-status/ConnectionPanel.vue'
 import ServerTelemetryPanel from '@/components/server-status/ServerTelemetryPanel.vue'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
 const statusStore = useServerStatusStore()
-const { status, history } = storeToRefs(statusStore)
+const { status, connection, history } = storeToRefs(statusStore)
 </script>
 
 <template>
@@ -21,6 +22,7 @@ const { status, history } = storeToRefs(statusStore)
 
       <div class="layout-grid animate-entry delay-400">
         <ServerTelemetryPanel :status="status" :history="history" />
+        <ConnectionPanel :connection="connection" />
       </div>
     </div>
   </section>
@@ -54,7 +56,7 @@ const { status, history } = storeToRefs(statusStore)
 
 .layout-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.1rem;
 }
 
