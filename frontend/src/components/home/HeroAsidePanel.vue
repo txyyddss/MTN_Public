@@ -5,11 +5,10 @@ import { RouterLink } from 'vue-router'
 import { siteContent } from '@/content/siteContent'
 
 interface Props {
-  isLive: boolean
-  onlineCount: number
-  updatedLabel: string
+  // Props for the quick routes section could be added here if needed in the future
 }
 
+// props are currently unused as the live signal card was removed
 const props = defineProps<Props>()
 
 const linkDescriptions: Record<string, string> = {
@@ -32,32 +31,7 @@ const quickLinks = computed(() =>
 
 <template>
   <aside class="hero-aside">
-    <article class="glass-card hero-aside-card animate-entry delay-100">
-      <div class="hero-aside-head">
-        <div class="hero-aside-copy">
-          <span class="section-kicker">Live surface</span>
-          <h2 class="hero-aside-title">Current server signal.</h2>
-        </div>
-        <span :class="['hero-state-pill', { live: props.isLive }]">
-          {{ props.isLive ? 'Operational' : 'Standby' }}
-        </span>
-      </div>
 
-      <div class="hero-aside-metrics">
-        <div class="hero-metric-card">
-          <span class="hud-metric-label">Players online</span>
-          <strong class="hero-metric-value">{{ props.onlineCount }}</strong>
-        </div>
-        <div class="hero-metric-card">
-          <span class="hud-metric-label">Telemetry</span>
-          <strong class="hero-metric-value">{{ props.updatedLabel }}</strong>
-        </div>
-      </div>
-
-      <p class="hero-aside-note">
-        Live status, connection addresses, and public records are surfaced directly below the fold.
-      </p>
-    </article>
 
     <article class="glass-card hero-aside-card animate-entry delay-200">
       <div class="hero-aside-copy">
@@ -99,65 +73,7 @@ const quickLinks = computed(() =>
   min-height: 0;
 }
 
-.hero-aside-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
 
-.hero-aside-copy {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.hero-aside-title {
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
-  max-width: 12ch;
-}
-
-.hero-state-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.1rem;
-  padding: 0.42rem 0.72rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-muted);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.hero-state-pill.live {
-  color: var(--success);
-}
-
-.hero-aside-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.7rem;
-}
-
-.hero-metric-card {
-  display: grid;
-  gap: 0.3rem;
-  padding: 0.95rem;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.028);
-}
-
-.hero-metric-value {
-  color: var(--text-strong);
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.hero-aside-note {
-  color: var(--text-muted);
-}
 
 .hero-link-list {
   display: grid;
@@ -214,12 +130,6 @@ const quickLinks = computed(() =>
 }
 
 @media (max-width: 640px) {
-  .hero-aside-metrics {
-    grid-template-columns: 1fr;
-  }
 
-  .hero-aside-head {
-    flex-direction: column;
-  }
 }
 </style>

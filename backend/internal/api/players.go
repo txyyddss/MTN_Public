@@ -510,6 +510,13 @@ func (s *Server) RefreshAllMcmmoRanks(ctx context.Context) error {
 		}
 	}
 
+	// Also refresh the broad 'skills' category
+	if entries := s.skillsLeaderboard(ctx); len(entries) > 0 {
+		if err := s.cache.Set(ctx, "lb_skills", entries, 1*time.Hour); err != nil {
+			fmt.Printf("Error caching total skills rank: %v\n", err)
+		}
+	}
+
 	return nil
 }
 
@@ -571,6 +578,16 @@ func (s *Server) RefreshAllStatRanks(ctx context.Context) error {
 				if err := s.cache.Set(ctx, cacheKey, ranked, 1*time.Hour); err != nil {
 					log.Printf("Error caching stat rank for %s:%s: %v", cat, stat, err)
 				}
+			}
+		}
+	}
+
+	// Also refresh the broad major categories
+	majorCategories := []string{"playtime", "mining", "killing", "deaths", "walking", "pvp"}
+	for _, cat := range majorCategories {
+		if entries, ok := s.resolveLeaderboardEntries(ctx, cat); ok && len(entries) > 0 {
+			if err := s.cache.Set(ctx, "lb_"+cat, entries, 1*time.Hour); err != nil {
+				log.Printf("Error caching major rank %s: %v", cat, err)
 			}
 		}
 	}

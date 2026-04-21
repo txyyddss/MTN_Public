@@ -8,10 +8,8 @@ import { siteContent } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
 const statusStore = useServerStatusStore()
-const { status } = storeToRefs(statusStore)
 
-const onlineCount = computed(() => status.value?.java?.players ?? 0)
-const isLive = computed(() => Boolean(status.value?.java?.online))
+// computed properties for isLive and onlineCount removed as they were only used for HeroAsidePanel
 </script>
 
 <template>
@@ -21,10 +19,7 @@ const isLive = computed(() => Boolean(status.value?.java?.online))
         class="animate-entry"
         :content="siteContent.home.hero"
       />
-      <HeroAsidePanel
-        :is-live="isLive"
-        :online-count="onlineCount"
-      />
+      <HeroAsidePanel />
     </div>
   </section>
 </template>

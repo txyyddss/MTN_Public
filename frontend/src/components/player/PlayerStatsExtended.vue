@@ -41,7 +41,19 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
       <span class="meta-chip">{{ activeCategoryLabel }}</span>
     </template>
 
-    <div class="panel-head">
+    <div class="stats-controls">
+      <div class="group-tabs">
+        <button
+          v-for="group in statGroups"
+          :key="group.name"
+          :class="['group-tab', { active: activeGroup.name === group.name }]"
+          type="button"
+          @click="emit('update:activeGroup', group)"
+        >
+          {{ group.name }}
+        </button>
+      </div>
+
       <input
         id="player-stat-search"
         :value="statSearch"
@@ -50,18 +62,6 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
         class="search-input"
         @input="emit('update:statSearch', ($event.target as HTMLInputElement).value)"
       />
-    </div>
-
-    <div class="group-tabs">
-      <button
-        v-for="group in statGroups"
-        :key="group.name"
-        :class="['group-tab', { active: activeGroup.name === group.name }]"
-        type="button"
-        @click="emit('update:activeGroup', group)"
-      >
-        {{ group.name }}
-      </button>
     </div>
 
     <div v-if="groupCategories.length > 0" class="category-tabs">
@@ -98,19 +98,22 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
   gap: 0.85rem;
 }
 
-.panel-head {
+.stats-controls {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .search-input {
-  width: min(360px, 100%);
-  min-height: 2.8rem;
-  padding: 0 0.95rem;
+  width: min(300px, 100%);
+  min-height: 2.5rem;
+  padding: 0 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-main);
+  font-size: 0.9rem;
 }
 
 .group-tabs,
@@ -193,12 +196,12 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 }
 
 @media (max-width: 980px) {
-  .panel-head,
+  .stats-controls,
   .stat-grid {
     grid-template-columns: 1fr;
   }
 
-  .panel-head {
+  .stats-controls {
     align-items: stretch;
     flex-direction: column;
   }

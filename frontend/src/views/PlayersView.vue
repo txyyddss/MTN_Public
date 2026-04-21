@@ -251,9 +251,9 @@ onUnmounted(() => {
 .toggle-chip {
   display: grid;
   gap: 0.2rem;
-  min-height: 2.45rem;
-  padding: 0.52rem 0.78rem;
-  border-radius: 16px;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.72rem;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
@@ -277,13 +277,13 @@ onUnmounted(() => {
 
 .toggle-chip small {
   color: var(--text-dim);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
 }
 
 .random-button {
-  min-width: 92px;
-  min-height: 2.45rem;
-  padding: 0.52rem 0.78rem;
+  min-width: 82px;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.72rem;
 }
 
 .results-line {

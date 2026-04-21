@@ -77,7 +77,6 @@ onUnmounted(() => {
       <span class="page-kicker">{{ siteContent.gallery.eyebrow }}</span>
       <h1>{{ siteContent.gallery.title }}</h1>
       <p class="page-lede">{{ siteContent.gallery.body }}</p>
-      <div class="badge-pill"><strong>{{ images.length }}</strong> {{ siteContent.gallery.capturesLabel }}</div>
     </header>
 
     <div class="waterfall-grid">

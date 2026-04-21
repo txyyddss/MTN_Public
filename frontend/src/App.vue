@@ -17,10 +17,7 @@ const { status } = storeToRefs(serverStatus)
 
 const shellStatus = computed(() => (status.value?.java?.online ? 'Live' : 'Standby'))
 const shellPlayers = computed(() => status.value?.java?.players ?? 0)
-const shellStatusCopy = computed(() =>
-  status.value?.java?.online ? 'Telemetry refreshing every 5 seconds.' : 'Awaiting the next live heartbeat.'
-)
-const footerYear = new Date().getFullYear()
+
 
 function closeMenu(): void {
   menuOpen.value = false
@@ -120,45 +117,7 @@ onUnmounted(() => {
       </RouterView>
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-frame">
-        <div class="footer-copy-block">
-          <span class="hud-kicker">Community-run survival</span>
-          <h2 class="footer-title">A long-term world with visible public history.</h2>
-          <p class="footer-copy">
-            Java and Bedrock share one world, one record, and one operating surface.
-          </p>
-        </div>
 
-        <div class="footer-nav-block">
-          <span class="footer-label">Navigate</span>
-          <div class="footer-links">
-            <template v-for="item in siteContent.app.nav" :key="item.label">
-              <a v-if="item.external" :href="item.to" class="footer-link">
-                {{ item.label }}
-              </a>
-              <RouterLink v-else :to="item.to" class="footer-link">
-                {{ item.label }}
-              </RouterLink>
-            </template>
-          </div>
-        </div>
-
-        <div class="footer-status-card glass-card">
-          <span class="hud-kicker">Live surface</span>
-          <div class="footer-status-line">
-            <strong>{{ shellStatus }}</strong>
-            <span>{{ shellPlayers }} online</span>
-          </div>
-          <p class="footer-status-copy">{{ shellStatusCopy }}</p>
-        </div>
-      </div>
-
-      <div class="container footer-base">
-        <span>© {{ footerYear }} MTNetwork</span>
-        <span>Built for the public archive.</span>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -434,118 +393,7 @@ onUnmounted(() => {
   padding-top: 4.35rem;
 }
 
-.site-footer {
-  position: relative;
-  padding: 1.4rem 0 2.4rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 45%),
-    rgba(4, 5, 7, 0.7);
-}
 
-.site-footer::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(76, 147, 251, 0.35), transparent);
-  opacity: 0.9;
-}
-
-.footer-frame {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr) minmax(280px, 0.8fr);
-  gap: 1rem;
-  align-items: start;
-  padding-bottom: 1.1rem;
-}
-
-.footer-copy-block,
-.footer-nav-block {
-  display: grid;
-  gap: 0.8rem;
-}
-
-.footer-title {
-  font-size: clamp(1.85rem, 4vw, 3rem);
-  max-width: 13ch;
-}
-
-.footer-copy,
-.footer-status-copy {
-  color: var(--text-muted);
-}
-
-.footer-label {
-  color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.footer-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.7rem;
-  padding: 0.72rem 0.95rem;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-muted);
-  transition:
-    transform var(--transition-fast),
-    border-color var(--transition-fast),
-    background var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.footer-link:hover,
-.footer-link.router-link-active {
-  color: var(--text-strong);
-  border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  transform: translateY(-1px);
-}
-
-.footer-status-card {
-  display: grid;
-  gap: 0.85rem;
-  min-height: 100%;
-}
-
-.footer-status-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  color: var(--text-muted);
-}
-
-.footer-status-line strong {
-  color: var(--text-strong);
-  font-size: 1.4rem;
-}
-
-.footer-base {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
 
 @keyframes pulse-map {
   from {
@@ -626,13 +474,7 @@ onUnmounted(() => {
     border-radius: 14px;
   }
 
-  .footer-frame {
-    grid-template-columns: 1fr;
-  }
 
-  .footer-status-card {
-    min-height: auto;
-  }
 }
 
 @media (max-width: 640px) {
@@ -649,9 +491,6 @@ onUnmounted(() => {
     display: none;
   }
 
-  .footer-base {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+
 }
 </style>
