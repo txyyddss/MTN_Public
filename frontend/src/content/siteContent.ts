@@ -1,4 +1,4 @@
-import type { LeaderboardType, StatGroup } from '@/types/api'
+import type { FixedLeaderboardType, StatGroup } from '@/types/api'
 
 interface NavItem {
   label: string
@@ -14,7 +14,7 @@ interface FeatureCardContent {
   accent: 'copper' | 'moss' | 'redstone'
 }
 
-export const leaderboardLabels: Record<LeaderboardType, string> = {
+export const leaderboardLabels: Record<FixedLeaderboardType, string> = {
   skills: 'McMMO Total',
   playtime: 'Playtime',
   mining: 'Blocks Mined',
@@ -49,7 +49,6 @@ export const siteContent = {
     nav: [
       { label: 'Home', to: '/' },
       { label: 'Players', to: '/players' },
-      { label: 'Leaderboards', to: '/leaderboards' },
       { label: 'Core Members', to: '/core-members' },
       { label: 'Gallery', to: '/gallery' },
       { label: 'Wiki', to: 'https://mtn.1919801.xyz/', external: true, emphasize: true }
@@ -125,6 +124,10 @@ export const siteContent = {
     liveStatusTitle: 'Live server status',
     liveStatusFallback: 'Waiting for live telemetry...',
     liveStatusRefresh: 'Refresh cadence: every 5 seconds',
+    historyTitle: 'Weekly online heatmap',
+    historyHint: 'Rolling 7-day hourly presence based on the live sampler.',
+    historyLoading: 'Loading recent online history...',
+    historyEmpty: 'No activity',
     connectionTitle: 'Connection guide',
     connectionLoading: 'Loading connection records...',
     connectionHint:
@@ -176,7 +179,8 @@ export const siteContent = {
       skillTotal: 'McMMO Total',
       xpLevel: 'XP Level',
       ranks: 'Leaderboard ranks',
-      noSkillData: 'No public skill data'
+      noSkillData: 'No public skill data',
+      noHistoryData: 'No recent online samples'
     },
     profile: {
       firstJoin: 'First Join',
@@ -187,6 +191,7 @@ export const siteContent = {
     },
     sections: {
       ores: 'Ore Mining Record',
+      onlineHistory: 'Weekly Online History',
       skills: 'McMMO Skills',
       advancements: 'Completed Advancements',
       extendedStats: 'Extended Statistics',
@@ -217,18 +222,16 @@ export const siteContent = {
     body:
       'A timestamped visual log of the world.',
     capturesLabel: 'captures',
-    action: 'Open Frame',
     close: 'Close',
     frameLabel: 'Frame'
   },
-  teamPlaceholder: {
+  coreMembers: {
     eyebrow: 'Core members',
-    title: 'The member index is still being prepared.',
+    title: 'The people keeping the server running.',
     body:
-      'A dedicated member archive has not been compiled yet. Use the wiki for current server documentation and public references.',
-    primaryCta: 'Open Wiki',
-    secondaryCta: 'Back To Home',
-    note:
-      'The wiki is now the primary public reference for MTNetwork.'
+      'Operations, maintenance, and long-term building are carried by a small core team. This page stays content-driven so updates remain simple.',
+    nicknamesLabel: 'Also known as',
+    roleLabel: 'Role',
+    introLabel: 'Introduction'
   }
 } as const

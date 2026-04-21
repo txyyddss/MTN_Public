@@ -114,13 +114,25 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <p class="results-line animate-entry delay-200">
+    <p v-if="!loading || players.length > 0" class="results-line animate-entry delay-200">
       <span class="badge-pill"><strong>{{ count }}</strong> {{ count === 1 ? 'player' : 'players' }}</span>
       <span>{{ resultsDescriptor }}</span>
     </p>
 
-    <div v-if="loading && players.length === 0" class="glass-card state-card">
-      {{ siteContent.players.loading }}
+    <div v-if="loading && players.length === 0" class="player-grid" aria-hidden="true">
+      <article v-for="index in 6" :key="index" class="player-card glass-card player-card-skeleton">
+        <div class="player-head">
+          <span class="skeleton-avatar player-skeleton-avatar"></span>
+          <div class="player-copy player-skeleton-copy">
+            <span class="skeleton-line player-skeleton-name"></span>
+            <span class="skeleton-line player-skeleton-meta"></span>
+          </div>
+        </div>
+
+        <div class="player-footer">
+          <span class="skeleton-chip"></span>
+        </div>
+      </article>
     </div>
 
     <div v-else-if="players.length === 0" class="glass-card state-card">
@@ -164,7 +176,6 @@ onUnmounted(() => {
 
         <div class="player-footer">
           <span class="player-platform">{{ player.type }}</span>
-          <span class="player-arrow">Open record</span>
         </div>
       </RouterLink>
     </div>
@@ -219,19 +230,29 @@ onUnmounted(() => {
 .control-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.55rem;
   grid-column: 1 / -1;
 }
 
 .toggle-chip {
   display: grid;
   gap: 0.2rem;
-  padding: 0.82rem 1rem;
-  border-radius: 18px;
+  min-height: 2.7rem;
+  padding: 0.64rem 0.84rem;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
   text-align: left;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.toggle-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(76, 147, 251, 0.24);
 }
 
 .toggle-chip.active {
@@ -246,7 +267,9 @@ onUnmounted(() => {
 }
 
 .random-button {
-  min-width: 140px;
+  min-width: 112px;
+  min-height: 2.7rem;
+  padding: 0.64rem 0.9rem;
 }
 
 .results-line {
@@ -272,6 +295,10 @@ onUnmounted(() => {
 .player-card {
   display: grid;
   gap: 1rem;
+}
+
+.player-card-skeleton {
+  min-height: 172px;
 }
 
 .player-head {
@@ -336,8 +363,7 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-.player-platform,
-.player-arrow {
+.player-platform {
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -345,8 +371,22 @@ onUnmounted(() => {
   text-transform: uppercase;
 }
 
-.player-arrow {
-  color: var(--primary);
+.player-skeleton-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+}
+
+.player-skeleton-copy {
+  gap: 0.55rem;
+}
+
+.player-skeleton-name {
+  width: min(11rem, 70%);
+}
+
+.player-skeleton-meta {
+  width: min(14rem, 90%);
 }
 
 @media (max-width: 980px) {

@@ -2,12 +2,17 @@
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import SkillItem from '@/components/SkillItem.vue'
 import { siteContent } from '@/content/siteContent'
+import { createMcmmoLeaderboardTarget } from '@/utils/leaderboards'
 import type { FormattedSkillEntry, McMMOSkills } from '@/types/api'
 
-defineProps<{
+const props = defineProps<{
   mcmmo: McMMOSkills | null
   ranks: Record<string, number>
   filteredMcmmo: FormattedSkillEntry[]
+}>()
+
+const emit = defineEmits<{
+  (event: 'selectLeaderboard', value: ReturnType<typeof createMcmmoLeaderboardTarget>): void
 }>()
 </script>
 
@@ -26,7 +31,9 @@ defineProps<{
         :key="entry.key"
         :name="entry.label"
         :level="entry.level"
-        :rank="ranks[`mcmmo:${entry.key}`]"
+        :clickable="true"
+        :rank="props.ranks[`mcmmo:${entry.key}`]"
+        @select="emit('selectLeaderboard', createMcmmoLeaderboardTarget(entry.key, entry.label))"
       />
     </div>
     <p v-else class="empty-copy">{{ siteContent.playerDetail.summary.noSkillData }}</p>

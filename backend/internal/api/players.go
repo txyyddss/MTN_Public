@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mtn-server/backend/internal/data"
 	"github.com/mtn-server/backend/internal/database"
+	"github.com/mtn-server/backend/internal/history"
 )
 
 // PlayerListResponse represents list of players
@@ -24,13 +25,14 @@ type PlayerListResponse struct {
 
 // PlayerDetailResponse represents detailed player info
 type PlayerDetailResponse struct {
-	Info          *data.PlayerInfo         `json:"info"`
-	Stats         *data.PlayerStats        `json:"stats"`
-	Advancements  *data.PlayerAdvancements `json:"advancements"`
-	McMMO         *database.McmmoSkills    `json:"mcmmo"`
-	LinkedAccount *database.LinkedPlayer   `json:"linked_account"`
-	OreStats      []OreData                `json:"ore_stats"`
-	Ranks         map[string]int           `json:"ranks"`
+	Info          *data.PlayerInfo               `json:"info"`
+	Stats         *data.PlayerStats              `json:"stats"`
+	Advancements  *data.PlayerAdvancements       `json:"advancements"`
+	McMMO         *database.McmmoSkills          `json:"mcmmo"`
+	LinkedAccount *database.LinkedPlayer         `json:"linked_account"`
+	OreStats      []OreData                      `json:"ore_stats"`
+	Ranks         map[string]int                 `json:"ranks"`
+	OnlineHeatmap *history.PlayerHeatmapResponse `json:"online_heatmap,omitempty"`
 }
 
 // handlePlayers returns active players or search results.
@@ -181,6 +183,14 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 	// Compute ranks for major categories AND all sub-items
 	ranks := s.computeAllRanks(c.Request.Context(), uuid, stats, mcmmoSkills)
 
+	var onlineHeatmap *history.PlayerHeatmapResponse
+	if s.history != nil {
+		playerHeatmap, err := s.history.GetPlayerHeatmap(c.Request.Context(), uuid, time.Now())
+		if err == nil {
+			onlineHeatmap = playerHeatmap
+		}
+	}
+
 	c.JSON(http.StatusOK, PlayerDetailResponse{
 		Info:          info,
 		Stats:         stats,
@@ -189,6 +199,7 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 		LinkedAccount: linkedAccount,
 		OreStats:      oreStats,
 		Ranks:         ranks,
+		OnlineHeatmap: onlineHeatmap,
 	})
 }
 
@@ -381,68 +392,24 @@ func getOreCategory(ore string) string {
 
 // RefreshAllMcmmoRanks calculates and caches rankings for all mcMMO skills for all players.
 func (s *Server) RefreshAllMcmmoRanks(ctx context.Context) error {
-	if s.mcmmoDB == nil || s.cache == nil {
+	if s.cache == nil {
 		return fmt.Errorf("mcmmo db or cache unavailable")
 	}
 
-	skills, err := s.mcmmoDB.GetAllSkills(ctx)
+	skills, err := s.loadAllMcmmoSkills(ctx)
 	if err != nil {
 		return fmt.Errorf("get all skills: %w", err)
 	}
 
-	skillNames := []string{
-		"taming", "mining", "woodcutting", "repair", "unarmed",
-		"herbalism", "excavation", "archery", "swords", "axes",
-		"acrobatics", "fishing", "alchemy", "crossbows", "tridents",
-		"maces", "spears",
-	}
-
-	for _, skillName := range skillNames {
+	for _, skillName := range mcmmoSkillNames {
 		var entries []LeaderboardEntry
 		for _, sk := range skills {
 			if !s.isValidPlayer(sk.UUID) {
 				continue
 			}
 
-			val := 0
-			switch skillName {
-			case "taming":
-				val = sk.Taming
-			case "mining":
-				val = sk.Mining
-			case "woodcutting":
-				val = sk.Woodcutting
-			case "repair":
-				val = sk.Repair
-			case "unarmed":
-				val = sk.Unarmed
-			case "herbalism":
-				val = sk.Herbalism
-			case "excavation":
-				val = sk.Excavation
-			case "archery":
-				val = sk.Archery
-			case "swords":
-				val = sk.Swords
-			case "axes":
-				val = sk.Axes
-			case "acrobatics":
-				val = sk.Acrobatics
-			case "fishing":
-				val = sk.Fishing
-			case "alchemy":
-				val = sk.Alchemy
-			case "crossbows":
-				val = sk.Crossbows
-			case "tridents":
-				val = sk.Tridents
-			case "maces":
-				val = sk.Maces
-			case "spears":
-				val = sk.Spears
-			}
-
-			if val > 0 {
+			val, ok := mcmmoSkillValue(sk, skillName)
+			if ok && val > 0 {
 				name := sk.User
 				if info := s.store.GetPlayer(sk.UUID); info != nil {
 					name = info.LastKnownName

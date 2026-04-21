@@ -92,7 +92,18 @@ onUnmounted(() => {
       </section>
     </div>
 
-    <p v-else class="loading-copy">{{ siteContent.serverPanels.connectionLoading }}</p>
+    <div v-else class="connection-grid" aria-hidden="true">
+      <section v-for="section in 2" :key="section" class="connection-block">
+        <span class="skeleton-line connection-title-skeleton"></span>
+
+        <div v-for="index in 3" :key="index" class="address-row address-row-skeleton">
+          <span class="skeleton-line address-badge-skeleton"></span>
+          <span class="skeleton-line address-value-skeleton"></span>
+        </div>
+      </section>
+
+      <p class="loading-copy">{{ siteContent.serverPanels.connectionLoading }}</p>
+    </div>
   </article>
 </template>
 
@@ -191,6 +202,31 @@ onUnmounted(() => {
   color: var(--primary);
   font-family: var(--mono);
   font-size: 0.82rem;
+}
+
+.address-row-skeleton {
+  cursor: default;
+}
+
+.address-row-skeleton:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.connection-title-skeleton {
+  width: 7rem;
+}
+
+.address-badge-skeleton {
+  width: 3.5rem;
+}
+
+.address-value-skeleton {
+  width: min(12rem, 70%);
+}
+
+.loading-copy {
+  grid-column: 1 / -1;
 }
 
 .fade-enter-active,

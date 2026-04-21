@@ -6,13 +6,13 @@ import ServerTelemetryPanel from '@/components/server-status/ServerTelemetryPane
 import { useServerStatusStore } from '@/stores/serverStatus'
 
 const statusStore = useServerStatusStore()
-const { status, connection } = storeToRefs(statusStore)
+const { status, connection, history } = storeToRefs(statusStore)
 </script>
 
 <template>
   <section class="server-status-section">
     <div class="container layout-grid animate-entry delay-300">
-      <ServerTelemetryPanel :status="status" />
+      <ServerTelemetryPanel :status="status" :history="history" />
       <ServerConnectionPanel :connection="connection" />
     </div>
   </section>

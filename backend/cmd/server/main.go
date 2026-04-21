@@ -18,6 +18,7 @@ import (
 	"github.com/mtn-server/backend/internal/cache"
 	"github.com/mtn-server/backend/internal/data"
 	"github.com/mtn-server/backend/internal/database"
+	"github.com/mtn-server/backend/internal/history"
 	"github.com/mtn-server/backend/internal/lucky"
 	"github.com/mtn-server/backend/internal/monitor"
 )
@@ -74,6 +75,7 @@ func main() {
 	// Initialize MySQL databases
 	var mcmmoDB *database.McmmoDB
 	var floodDB *database.FloodgateDB
+	var historyDB *database.HistoryDB
 
 	mcmmoDB, err = database.NewMcmmoDB(cfg.McmmoMySQL)
 	if err != nil {
@@ -93,6 +95,23 @@ func main() {
 		defer floodDB.Close()
 	}
 
+	if cfg.HistoryMySQL.DSN != "" {
+		historyDB, err = database.NewHistoryDB(cfg.HistoryMySQL)
+		if err != nil {
+			log.Printf("Warning: History DB unavailable: %v", err)
+			historyDB = nil
+		} else {
+			if err := historyDB.EnsureSchema(ctx); err != nil {
+				log.Printf("Warning: History DB schema setup failed: %v", err)
+				historyDB.Close()
+				historyDB = nil
+			} else {
+				log.Println("History DB connected")
+				defer historyDB.Close()
+			}
+		}
+	}
+
 	// Initialize Lucky client
 	luckyClient := lucky.New(cfg.Lucky, cfg.Addresses)
 	if err := luckyClient.Refresh(ctx); err != nil {
@@ -103,6 +122,18 @@ func main() {
 
 	// Start server status monitor
 	mon := monitor.NewMonitor(cfg)
+
+	var historyService *history.Service
+	if historyDB != nil {
+		historyService, err = history.NewService(historyDB, cacheClient, cfg.History)
+		if err != nil {
+			log.Printf("Warning: Presence history unavailable: %v", err)
+		} else {
+			mon.SetPresenceRecorder(historyService)
+			go historyService.Start(ctx)
+			log.Println("Presence history service started")
+		}
+	}
 
 	// Add static addresses from config
 	if cfg.Addresses.JavaIPv4SRV != "" {
@@ -160,6 +191,7 @@ func main() {
 
 	// Create API server
 	srv := api.NewServer(cfg, store, mcmmoDB, floodDB, luckyClient, mon, cacheClient)
+	srv.SetPresenceHistory(historyService)
 	router := srv.SetupRouter()
 
 	// Start periodic mcMMO and Stats ranking refresh

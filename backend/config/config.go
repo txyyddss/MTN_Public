@@ -14,6 +14,8 @@ type Config struct {
 	Redis            RedisConfig           `json:"redis"`
 	McmmoMySQL       MySQLConfig           `json:"mcmmo_mysql"`
 	FloodgateMySQL   MySQLConfig           `json:"floodgate_mysql"`
+	HistoryMySQL     MySQLConfig           `json:"history_mysql"`
+	History          HistoryConfig         `json:"history"`
 	Lucky            LuckyConfig           `json:"lucky"`
 	LocalConnection  LocalConnectionConfig `json:"local_connection"`
 	Addresses        AddressesConfig       `json:"addresses"`
@@ -46,6 +48,12 @@ type MySQLConfig struct {
 	DSN string `json:"dsn"`
 }
 
+// HistoryConfig holds online history settings.
+type HistoryConfig struct {
+	Timezone      string `json:"timezone"`
+	RetentionDays int    `json:"retention_days"`
+}
+
 // LuckyConfig holds Lucky STUN/DDNS API settings.
 type LuckyConfig struct {
 	ServerURL string `json:"server_url"`
@@ -75,6 +83,10 @@ func Load(path string) (*Config, error) {
 		StatusRefreshSec: 5,
 		DataRefreshSec:   300,
 		ActiveDays:       7,
+		History: HistoryConfig{
+			Timezone:      "Local",
+			RetentionDays: 7,
+		},
 	}
 
 	if err := json.Unmarshal(data, cfg); err != nil {

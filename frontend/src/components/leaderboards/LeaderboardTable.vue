@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@/composables/useMediaQuery'
 import { getAvatarUrl } from '@/utils/minecraft'
-import type { LeaderboardEntry, LeaderboardType } from '@/types/api'
+import type { LeaderboardEntry } from '@/types/api'
 
 defineProps<{
   entries: LeaderboardEntry[]
-  currentType: LeaderboardType
-  formatValue: (value: number, type: LeaderboardType) => string
+  formatValue: (value: number) => string
   isOnline: (uuid: string) => boolean
   rankLabel: string
   playerLabel: string
@@ -30,7 +29,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
           <div class="mobile-player-copy">
             <span :class="['player-name', 'minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
             <span class="mobile-score-label">{{ scoreLabel }}</span>
-            <strong class="mobile-card-score">{{ formatValue(entry.value, currentType) }}</strong>
+            <strong class="mobile-card-score">{{ formatValue(entry.value) }}</strong>
           </div>
         </RouterLink>
       </article>
@@ -51,11 +50,11 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
             <RouterLink :to="`/player/${entry.uuid}`" class="player-link">
               <img :src="getAvatarUrl(entry.name)" :alt="entry.name" class="avatar" loading="lazy" />
               <span class="player-meta">
-                <span :class="['player-name', 'minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
-              </span>
-            </RouterLink>
-          </td>
-          <td class="value-cell">{{ formatValue(entry.value, currentType) }}</td>
+              <span :class="['player-name', 'minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
+            </span>
+          </RouterLink>
+        </td>
+          <td class="value-cell">{{ formatValue(entry.value) }}</td>
         </tr>
       </tbody>
     </table>

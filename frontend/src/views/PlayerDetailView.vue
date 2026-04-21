@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
 import PlayerAdvancementList from '@/components/player/PlayerAdvancementList.vue'
-import PlayerDetailHero from '@/components/player/PlayerDetailHero.vue'
+import PlayerDetailHeader from '@/components/player/PlayerDetailHeader.vue'
+import PlayerInlineLeaderboard from '@/components/player/PlayerInlineLeaderboard.vue'
 import PlayerDetailOverview from '@/components/player/PlayerDetailOverview.vue'
 import PlayerDetailTabs from '@/components/player/PlayerDetailTabs.vue'
 import PlayerStatsExtended from '@/components/player/PlayerStatsExtended.vue'
@@ -14,7 +15,10 @@ import { usePlayerStats } from '@/composables/usePlayerStats'
 import { preloadImages, PreloadPriority } from '@/utils/preloader'
 import { playerStatGroups, siteContent } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
-import type { PlayerDetailTab, PlayerDetailTabOption } from '@/types/playerDetail'
+import type { LeaderboardTarget } from '@/types/api'
+import type { FixedLeaderboardType } from '@/types/api'
+import type { PlayerDetailTab, PlayerDetailTabOption, PlayerRankHighlight } from '@/types/playerDetail'
+import { createFixedLeaderboardTarget } from '@/utils/leaderboards'
 import { getSkinUrl } from '@/utils/minecraft'
 
 const route = useRoute()
@@ -22,7 +26,7 @@ const statusStore = useServerStatusStore()
 const { status } = storeToRefs(statusStore)
 
 const uuid = computed(() => route.params.uuid as string)
-const { loading, info, stats, advancements, mcmmo, linkedAccount, oreStats, ranks } = usePlayerDetail(uuid)
+const { loading, info, stats, advancements, mcmmo, linkedAccount, oreStats, ranks, onlineHeatmap } = usePlayerDetail(uuid)
 const { formatStatName, formatStatValue, getStatIconPath, getFilteredStats, getFilteredMcmmo } = usePlayerStats(stats)
 const { totalAdvancements, completedAdvancements, categorizedAdvancements, getAdvancementMetadata, getAdvIconPath } =
   useAdvancements(advancements)
@@ -31,6 +35,8 @@ const selectedCategory = ref('minecraft:custom')
 const statSearch = ref('')
 const activeGroup = ref(playerStatGroups[0])
 const activeTab = ref<PlayerDetailTab>('overview')
+const selectedLeaderboard = shallowRef<LeaderboardTarget | null>(null)
+const leaderboardPanelAnchor = useTemplateRef<HTMLDivElement>('leaderboardPanelAnchor')
 
 const tabOptions: PlayerDetailTabOption[] = [
   { value: 'overview', label: siteContent.playerDetail.tabs.overview },
@@ -40,10 +46,10 @@ const tabOptions: PlayerDetailTabOption[] = [
 
 const onlinePlayers = computed(() => status.value?.online_players ?? [])
 const isOnline = computed(() => onlinePlayers.value.includes(uuid.value))
+const isLeaderboardPlayerOnline = (playerUuid: string): boolean => onlinePlayers.value.includes(playerUuid)
 
 const filteredStats = computed(() => getFilteredStats(selectedCategory.value, statSearch.value))
 const filteredMcmmo = computed(() => getFilteredMcmmo(mcmmo.value))
-const skillTotal = computed(() => mcmmo.value?.total ?? 0)
 
 const groupCategories = computed(() => {
   if (!stats.value) {
@@ -53,20 +59,26 @@ const groupCategories = computed(() => {
   return activeGroup.value.categories.filter((category) => stats.value?.[category] && category !== 'minecraft:custom')
 })
 
-const rankHighlights = computed(() =>
+const rankHighlights = computed<PlayerRankHighlight[]>(() =>
   [
-    { label: 'McMMO', rank: ranks.value.skills },
-    { label: 'Mining', rank: ranks.value.mining },
-    { label: 'Playtime', rank: ranks.value.playtime },
-    { label: 'Kills', rank: ranks.value.killing },
-    { label: 'Walking', rank: ranks.value.walking },
-    { label: 'PvP', rank: ranks.value.pvp }
+    { label: 'McMMO', rank: ranks.value.skills, key: 'skills' as FixedLeaderboardType },
+    { label: 'Mining', rank: ranks.value.mining, key: 'mining' as FixedLeaderboardType },
+    { label: 'Playtime', rank: ranks.value.playtime, key: 'playtime' as FixedLeaderboardType },
+    { label: 'Kills', rank: ranks.value.killing, key: 'killing' as FixedLeaderboardType },
+    { label: 'Walking', rank: ranks.value.walking, key: 'walking' as FixedLeaderboardType },
+    { label: 'PvP', rank: ranks.value.pvp, key: 'pvp' as FixedLeaderboardType }
   ]
-    .filter((entry): entry is { label: string; rank: number } => typeof entry.rank === 'number' && entry.rank > 0)
+    .filter((entry): entry is { label: string; rank: number; key: FixedLeaderboardType } => typeof entry.rank === 'number' && entry.rank > 0)
     .sort((left, right) => left.rank - right.rank)
     .slice(0, 4)
-    .map((entry) => ({ label: entry.label, value: `#${entry.rank}` }))
+    .map((entry) => ({
+      label: entry.label,
+      value: `#${entry.rank}`,
+      target: createFixedLeaderboardTarget(entry.key)
+    }))
 )
+
+const topRankHighlight = computed(() => rankHighlights.value[0] ?? null)
 
 watch(
   [activeGroup, stats],
@@ -86,6 +98,7 @@ watch(
     activeGroup.value = playerStatGroups[0]
     selectedCategory.value = 'minecraft:custom'
     statSearch.value = ''
+    selectedLeaderboard.value = null
   },
   { immediate: true }
 )
@@ -118,12 +131,41 @@ function formatPlaytime(ticks: number): string {
 
   return `${(ticks / 20 / 3600).toFixed(1)}h`
 }
+
+async function handleSelectLeaderboard(target: LeaderboardTarget): Promise<void> {
+  selectedLeaderboard.value = target
+  await nextTick()
+  leaderboardPanelAnchor.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function closeLeaderboard(): void {
+  selectedLeaderboard.value = null
+}
 </script>
 
 <template>
   <div class="player-detail container page-shell">
-    <div v-if="loading" class="glass-card state-card">
-      {{ siteContent.playerDetail.loading }}
+    <div v-if="loading" class="detail-layout" aria-hidden="true">
+      <section class="glass-card detail-header-skeleton">
+        <span class="skeleton-line skeleton-title-line"></span>
+        <span class="skeleton-line skeleton-name-line"></span>
+        <span class="skeleton-line skeleton-copy-line"></span>
+        <div class="detail-skeleton-badges">
+          <span class="skeleton-chip"></span>
+          <span class="skeleton-chip"></span>
+          <span class="skeleton-chip"></span>
+        </div>
+      </section>
+
+      <section class="glass-card detail-tabs-skeleton">
+        <span v-for="index in 3" :key="index" class="skeleton-block detail-tab-skeleton"></span>
+      </section>
+
+      <section class="glass-card detail-panel-skeleton">
+        <div class="detail-skeleton-grid">
+          <span v-for="index in 6" :key="index" class="skeleton-block detail-card-skeleton"></span>
+        </div>
+      </section>
     </div>
 
     <div v-else-if="!info" class="glass-card state-card">
@@ -133,18 +175,17 @@ function formatPlaytime(ticks: number): string {
     </div>
 
     <div v-else class="detail-layout">
-      <PlayerDetailHero
+      <PlayerDetailHeader
         :info="info"
         :is-online="isOnline"
         :linked-account="linkedAccount"
-        :completed-advancements="completedAdvancements"
-        :total-advancements="totalAdvancements"
-        :skill-total="skillTotal"
-        :rank-highlights="rankHighlights"
-        :format-playtime="formatPlaytime"
       />
 
       <PlayerDetailTabs v-model:active-tab="activeTab" :tabs="tabOptions" />
+
+      <div v-if="selectedLeaderboard" ref="leaderboardPanelAnchor">
+        <PlayerInlineLeaderboard :target="selectedLeaderboard" :is-online="isLeaderboardPlayerOnline" @close="closeLeaderboard" />
+      </div>
 
       <Transition name="panel-swap" mode="out-in">
         <PlayerDetailOverview
@@ -159,9 +200,12 @@ function formatPlaytime(ticks: number): string {
           :filtered-mcmmo="filteredMcmmo"
           :completed-advancements="completedAdvancements"
           :total-advancements="totalAdvancements"
+          :online-heatmap="onlineHeatmap"
           :rank-highlights="rankHighlights"
+          :top-rank-highlight="topRankHighlight"
           :format-date="formatDate"
           :format-playtime="formatPlaytime"
+          @select-leaderboard="handleSelectLeaderboard"
         />
 
         <section v-else-if="activeTab === 'advancements'" key="advancements" class="tab-panel">
@@ -188,6 +232,7 @@ function formatPlaytime(ticks: number): string {
             :format-stat-name="formatStatName"
             :format-stat-value="formatStatValue"
             :get-stat-icon-path="getStatIconPath"
+            @select-leaderboard="handleSelectLeaderboard"
           />
         </section>
       </Transition>
@@ -210,5 +255,58 @@ function formatPlaytime(ticks: number): string {
 .state-card {
   display: grid;
   gap: 0.85rem;
+}
+
+.detail-header-skeleton,
+.detail-panel-skeleton {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.detail-tabs-skeleton {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.detail-tab-skeleton {
+  min-height: 3rem;
+  border-radius: 18px;
+}
+
+.detail-skeleton-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.skeleton-title-line {
+  width: 10rem;
+}
+
+.skeleton-name-line {
+  width: min(24rem, 70%);
+  height: 2.6rem;
+}
+
+.skeleton-copy-line {
+  width: min(28rem, 85%);
+}
+
+.detail-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.detail-card-skeleton {
+  min-height: 8rem;
+  border-radius: 18px;
+}
+
+@media (max-width: 860px) {
+  .detail-skeleton-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -4,11 +4,12 @@ import { useServerStatusStore } from '@/stores/serverStatus'
 
 export function useServerStatus() {
   const store = useServerStatusStore()
-  const { status, connection, isLoading } = storeToRefs(store)
+  const { status, connection, history, isLoading } = storeToRefs(store)
 
   return {
     status,
     connection,
+    history,
     isLoading,
     refresh: store.refresh,
     startPolling: store.startPolling,

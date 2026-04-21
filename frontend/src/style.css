@@ -115,6 +115,10 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -383,6 +387,45 @@ code {
   justify-items: start;
 }
 
+.skeleton-block,
+.skeleton-line,
+.skeleton-chip,
+.skeleton-avatar {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.skeleton-block::after,
+.skeleton-line::after,
+.skeleton-chip::after,
+.skeleton-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  animation: skeletonSweep 1.2s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 0.9rem;
+  border-radius: 999px;
+}
+
+.skeleton-chip {
+  width: 6.5rem;
+  height: 2rem;
+  border-radius: 999px;
+}
+
+.skeleton-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 16px;
+}
+
 .hud-data-row {
   display: flex;
   align-items: center;
@@ -597,6 +640,16 @@ textarea::placeholder {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes skeletonSweep {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
   }
 }
 

@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import HourlyPresenceHeatmap from '@/components/heatmap/HourlyPresenceHeatmap.vue'
 import PlayerPieChart from '@/components/PlayerPieChart.vue'
+import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import PlayerSidebar from '@/components/player/PlayerSidebar.vue'
 import PlayerSkills from '@/components/player/PlayerSkills.vue'
 import { useRevealOnScroll } from '@/composables/useRevealOnScroll'
 import { siteContent } from '@/content/siteContent'
-import type { FormattedSkillEntry, LinkedAccount, McMMOSkills, PlayerInfo, OreStat } from '@/types/api'
+import type { LeaderboardTarget } from '@/types/api'
+import type { FormattedSkillEntry, LinkedAccount, McMMOSkills, PlayerInfo, OreStat, PlayerOnlineHeatmap } from '@/types/api'
+import type { PlayerRankHighlight } from '@/types/playerDetail'
 
 const props = defineProps<{
   info: PlayerInfo
@@ -18,9 +22,15 @@ const props = defineProps<{
   filteredMcmmo: FormattedSkillEntry[]
   completedAdvancements: number
   totalAdvancements: number
-  rankHighlights: Array<{ label: string; value: string }>
+  onlineHeatmap: PlayerOnlineHeatmap | null
+  rankHighlights: PlayerRankHighlight[]
+  topRankHighlight: PlayerRankHighlight | null
   formatDate: (value: number) => string
   formatPlaytime: (value: number) => string
+}>()
+
+const emit = defineEmits<{
+  (event: 'selectLeaderboard', value: LeaderboardTarget): void
 }>()
 
 const { revealed } = useRevealOnScroll<HTMLElement>('overviewSection')
@@ -38,15 +48,17 @@ const linkedAccountName = computed(() => {
 })
 
 const overviewMetrics = computed(() => [
-  { label: siteContent.playerDetail.profile.firstJoin, value: props.formatDate(props.info.first_played) },
-  { label: siteContent.playerDetail.profile.lastSeen, value: props.formatDate(props.info.last_seen) },
+  { label: siteContent.playerDetail.profile.firstJoin, value: props.formatDate(props.info.first_played), target: null },
+  { label: siteContent.playerDetail.profile.lastSeen, value: props.formatDate(props.info.last_seen), target: null },
   {
     label: siteContent.playerDetail.summary.advancements,
-    value: `${props.completedAdvancements}/${props.totalAdvancements || 0}`
+    value: `${props.completedAdvancements}/${props.totalAdvancements || 0}`,
+    target: null
   },
   {
     label: siteContent.playerDetail.summary.ranks,
-    value: props.rankHighlights[0]?.value ?? 'Unranked'
+    value: props.topRankHighlight?.value ?? 'Unranked',
+    target: props.topRankHighlight?.target ?? null
   }
 ])
 </script>
@@ -85,25 +97,59 @@ const overviewMetrics = computed(() => [
         </div>
 
         <div class="hud-metric-grid overview-metric-grid">
-          <article v-for="metric in overviewMetrics" :key="metric.label" class="hud-metric-card">
+          <component
+            :is="metric.target ? 'button' : 'article'"
+            v-for="metric in overviewMetrics"
+            :key="metric.label"
+            :class="['hud-metric-card', { 'metric-action': Boolean(metric.target) }]"
+            type="button"
+            @click="metric.target && emit('selectLeaderboard', metric.target)"
+          >
             <span class="hud-metric-label">{{ metric.label }}</span>
             <strong class="hud-metric-value">{{ metric.value }}</strong>
-          </article>
+          </component>
         </div>
 
         <div v-if="rankHighlights.length > 1" class="overview-rank-row">
           <span class="hud-caption">{{ siteContent.playerDetail.summary.ranks }}</span>
           <div class="overview-rank-chips">
-            <span v-for="highlight in rankHighlights.slice(1)" :key="highlight.label" class="badge-pill">
+            <button
+              v-for="highlight in rankHighlights.slice(1)"
+              :key="highlight.label"
+              type="button"
+              class="badge-pill overview-rank-button"
+              @click="emit('selectLeaderboard', highlight.target)"
+            >
               {{ highlight.label }}
               <strong>{{ highlight.value }}</strong>
-            </span>
+            </button>
           </div>
         </div>
       </article>
 
       <PlayerPieChart class="hover-rise" :ore-stats="oreStats" />
-      <PlayerSkills class="hover-rise" :mcmmo="mcmmo" :ranks="ranks" :filtered-mcmmo="filteredMcmmo" />
+      <PlayerCollapsiblePanel class="panel-card hover-rise" :title="siteContent.playerDetail.sections.onlineHistory">
+        <template #summary>
+          <span class="meta-chip">{{ onlineHeatmap?.timezone ?? 'Local' }}</span>
+        </template>
+
+        <HourlyPresenceHeatmap
+          v-if="onlineHeatmap"
+          :days="onlineHeatmap.days"
+          :hours="onlineHeatmap.hours"
+          :cells="onlineHeatmap.cells"
+          :timezone="onlineHeatmap.timezone"
+          variant="player"
+        />
+        <p v-else class="empty-copy">{{ siteContent.playerDetail.summary.noHistoryData }}</p>
+      </PlayerCollapsiblePanel>
+      <PlayerSkills
+        class="hover-rise"
+        :mcmmo="mcmmo"
+        :ranks="ranks"
+        :filtered-mcmmo="filteredMcmmo"
+        @select-leaderboard="emit('selectLeaderboard', $event)"
+      />
     </div>
   </section>
 </template>
@@ -124,6 +170,11 @@ const overviewMetrics = computed(() => [
 }
 
 .overview-summary {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.panel-card {
   display: grid;
   gap: 0.85rem;
 }
@@ -151,6 +202,41 @@ const overviewMetrics = computed(() => [
 .overview-rank-row {
   display: grid;
   gap: 0.5rem;
+}
+
+.meta-chip {
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.empty-copy {
+  color: var(--text-muted);
+}
+
+.metric-action,
+.overview-rank-button {
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.metric-action {
+  width: 100%;
+}
+
+.metric-action:hover,
+.overview-rank-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(76, 147, 251, 0.28);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 @media (max-width: 1080px) {

@@ -13,7 +13,6 @@ export function usePreloader() {
         if (import.meta.env.DEV) {
             preloadScripts([
                 '/src/views/PlayersView.vue',
-                '/src/views/LeaderboardsView.vue',
                 '/src/views/PlayerDetailView.vue'
             ])
         }

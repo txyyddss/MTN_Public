@@ -3,6 +3,7 @@ package monitor
 
 import (
 	"context"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -55,15 +56,21 @@ type MonitoredAddr struct {
 	Dynamic bool
 }
 
+// PresenceRecorder stores live player presence samples.
+type PresenceRecorder interface {
+	RecordSample(ctx context.Context, sampledAt time.Time, onlineUUIDs []string, onlinePlayers int) error
+}
+
 // Monitor periodically polls server status.
 type Monitor struct {
 	targets  []MonitoredAddr
 	interval time.Duration
 	cfg      *config.Config // Keep config for query ports
 
-	mu     sync.RWMutex
-	status *ServerStatus
-	cancel context.CancelFunc
+	mu       sync.RWMutex
+	status   *ServerStatus
+	recorder PresenceRecorder
+	cancel   context.CancelFunc
 }
 
 // NewMonitor creates a new server status monitor for multiple addresses.
@@ -149,6 +156,13 @@ func (m *Monitor) GetStatus() *ServerStatus {
 	return m.status
 }
 
+// SetPresenceRecorder configures an optional sample recorder.
+func (m *Monitor) SetPresenceRecorder(recorder PresenceRecorder) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.recorder = recorder
+}
+
 func (m *Monitor) poll(ctx context.Context) {
 	s := &ServerStatus{
 		Connections: make(map[string]*ConnectionStatus),
@@ -200,6 +214,15 @@ func (m *Monitor) poll(ctx context.Context) {
 	s.OnlinePlayers = onlineUUIDs
 	s.BedrockStats = m.pollBedrock(ctx, javaResult)
 	s.System = getSystemStats()
+
+	m.mu.RLock()
+	recorder := m.recorder
+	m.mu.RUnlock()
+	if recorder != nil && js != nil {
+		if err := recorder.RecordSample(ctx, s.Updated, onlineUUIDs, js.Players); err != nil {
+			log.Printf("Presence recorder error: %v", err)
+		}
+	}
 
 	m.mu.Lock()
 	m.status = s

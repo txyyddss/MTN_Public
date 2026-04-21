@@ -68,6 +68,26 @@ export interface ConnectionResponse {
   addresses: ConnectionAddresses
 }
 
+export interface HeatmapDay {
+  date: string
+  weekday: string
+}
+
+export interface ServerHistoryResponse {
+  timezone: string
+  days: HeatmapDay[]
+  hours: number[]
+  cells: number[][]
+  weekly_max_players: number
+}
+
+export interface PlayerOnlineHeatmap {
+  timezone: string
+  days: HeatmapDay[]
+  hours: number[]
+  cells: boolean[][]
+}
+
 export interface PlayerInfo {
   uuid: string
   xp_level: number
@@ -166,6 +186,7 @@ export interface PlayerDetailResponse {
   linked_account: LinkedAccount | null
   ore_stats: OreStat[]
   ranks: Record<string, number>
+  online_heatmap?: PlayerOnlineHeatmap | null
 }
 
 export interface PlayerListResponse {
@@ -178,7 +199,7 @@ export interface RandomPlayerResponse {
   uuid: string
 }
 
-export type LeaderboardType =
+export type FixedLeaderboardType =
   | 'skills'
   | 'playtime'
   | 'mining'
@@ -186,6 +207,19 @@ export type LeaderboardType =
   | 'deaths'
   | 'walking'
   | 'pvp'
+
+export type LeaderboardType = FixedLeaderboardType
+
+export type DynamicLeaderboardType = `mcmmo:${McMMOSkillKey}` | `stat:${string}:${string}`
+
+export type LeaderboardKey = FixedLeaderboardType | DynamicLeaderboardType
+
+export interface LeaderboardTarget {
+  key: LeaderboardKey
+  title: string
+  scoreLabel: string
+  formatValue?: (value: number) => string
+}
 
 export interface LeaderboardEntry {
   uuid: string
@@ -195,7 +229,7 @@ export interface LeaderboardEntry {
 }
 
 export interface LeaderboardResponse {
-  type: LeaderboardType
+  type: LeaderboardKey
   entries: LeaderboardEntry[]
   count: number
 }

@@ -7,6 +7,11 @@ const props = defineProps<{
   rank?: number
   icon?: string
   formatValue?: (value: number | string) => string
+  clickable?: boolean
+}>()
+
+const emit = defineEmits<{
+  (event: 'select'): void
 }>()
 
 const displayValue = computed(() => {
@@ -26,7 +31,7 @@ function handleImageError(event: Event): void {
 </script>
 
 <template>
-  <div class="stat-box">
+  <button :class="['stat-box', { clickable: props.clickable }]" type="button" @click="emit('select')">
     <div v-if="icon" class="stat-icon-wrap">
       <img :src="icon" class="stat-icon" @error="handleImageError" />
     </div>
@@ -35,7 +40,7 @@ function handleImageError(event: Event): void {
       <span class="stat-value">{{ displayValue }}</span>
     </div>
     <div v-if="rank" class="stat-rank">#{{ rank }}</div>
-  </div>
+  </button>
 </template>
 
 <style scoped>
@@ -47,6 +52,19 @@ function handleImageError(event: Event): void {
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.stat-box.clickable:hover {
+  transform: translateY(-1px);
+  border-color: rgba(76, 147, 251, 0.28);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .stat-icon-wrap {

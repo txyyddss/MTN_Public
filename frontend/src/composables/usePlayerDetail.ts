@@ -9,6 +9,7 @@ import type {
   PlayerAdvancement,
   PlayerDetailResponse,
   PlayerInfo,
+  PlayerOnlineHeatmap,
   PlayerStatBuckets
 } from '@/types/api'
 
@@ -21,6 +22,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
   const linkedAccount = ref<LinkedAccount | null>(null)
   const oreStats = ref<OreStat[]>([])
   const ranks = ref<Record<string, number>>({})
+  const onlineHeatmap = ref<PlayerOnlineHeatmap | null>(null)
 
   async function fetchDetail(playerUuid = toValue(uuid)): Promise<void> {
     if (!playerUuid) {
@@ -31,6 +33,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
       linkedAccount.value = null
       oreStats.value = []
       ranks.value = {}
+      onlineHeatmap.value = null
       loading.value = false
       return
     }
@@ -46,6 +49,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
       linkedAccount.value = json.linked_account
       oreStats.value = json.ore_stats ?? []
       ranks.value = json.ranks ?? {}
+      onlineHeatmap.value = json.online_heatmap ?? null
     } catch (error) {
       console.error('Failed to load player detail', error)
       info.value = null
@@ -55,6 +59,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
       linkedAccount.value = null
       oreStats.value = []
       ranks.value = {}
+      onlineHeatmap.value = null
     } finally {
       loading.value = false
     }
@@ -77,6 +82,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
     linkedAccount,
     oreStats,
     ranks,
+    onlineHeatmap,
     fetchDetail
   }
 }

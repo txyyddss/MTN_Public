@@ -2,12 +2,12 @@ import { computed, ref, shallowRef, watch } from 'vue'
 
 import { API_BASE_URL } from '@/config'
 import { fetchWithCache } from '@/utils/dataCache'
-import type { LeaderboardEntry, LeaderboardResponse, LeaderboardType } from '@/types/api'
+import type { LeaderboardEntry, LeaderboardKey, LeaderboardResponse } from '@/types/api'
 
 const PAGE_SIZE = 20
 
-export function useLeaderboards(initialType: LeaderboardType) {
-  const currentType = shallowRef<LeaderboardType>(initialType)
+export function useLeaderboards(initialKey: LeaderboardKey) {
+  const currentKey = shallowRef<LeaderboardKey>(initialKey)
   const currentPage = shallowRef(1)
   const entries = ref<LeaderboardEntry[]>([])
   const totalCount = shallowRef(0)
@@ -19,7 +19,8 @@ export function useLeaderboards(initialType: LeaderboardType) {
     loading.value = true
 
     try {
-      const url = `${API_BASE_URL}/api/leaderboards/${currentType.value}?page=${currentPage.value}`
+      const encodedKey = encodeURIComponent(currentKey.value)
+      const url = `${API_BASE_URL}/api/leaderboards/${encodedKey}?page=${currentPage.value}`
       const json = await fetchWithCache<LeaderboardResponse>(url)
       entries.value = json.entries ?? []
       totalCount.value = json.count ?? 0
@@ -32,12 +33,12 @@ export function useLeaderboards(initialType: LeaderboardType) {
     }
   }
 
-  function setType(type: LeaderboardType): void {
-    if (currentType.value === type) {
+  function setKey(key: LeaderboardKey): void {
+    if (currentKey.value === key) {
       return
     }
 
-    currentType.value = type
+    currentKey.value = key
     currentPage.value = 1
   }
 
@@ -58,7 +59,7 @@ export function useLeaderboards(initialType: LeaderboardType) {
   }
 
   watch(
-    () => [currentType.value, currentPage.value],
+    () => [currentKey.value, currentPage.value],
     () => {
       void fetchLeaderboard()
     },
@@ -66,7 +67,7 @@ export function useLeaderboards(initialType: LeaderboardType) {
   )
 
   return {
-    currentType,
+    currentKey,
     currentPage,
     entries,
     loading,
@@ -75,6 +76,6 @@ export function useLeaderboards(initialType: LeaderboardType) {
     totalPages,
     goToNextPage,
     goToPreviousPage,
-    setType
+    setKey
   }
 }

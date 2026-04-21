@@ -17,6 +17,13 @@
     "floodgate_mysql": {
         "dsn": "user:password@tcp(localhost:3306)/Floodgate?parseTime=true"
     },
+    "history_mysql": {
+        "dsn": "user:password@tcp(localhost:3306)/MTNHistory"
+    },
+    "history": {
+        "timezone": "Asia/Shanghai",
+        "retention_days": 7
+    },
     "lucky": {
         "server_url": "http://127.0.0.1:16601/entrance",
         "token": "your_lucky_token"

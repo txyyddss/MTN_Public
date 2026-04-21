@@ -94,7 +94,6 @@ onUnmounted(() => {
         <img :src="`/gallery-images/${image}`" :alt="`${siteContent.gallery.frameLabel} ${index + 1}`" loading="lazy" />
         <div class="gallery-meta">
           <strong>{{ images.length - index }}</strong>
-          <span>{{ siteContent.gallery.action }}</span>
         </div>
       </button>
     </div>

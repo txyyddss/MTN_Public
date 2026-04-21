@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import StatBox from '@/components/StatBox.vue'
 import { siteContent } from '@/content/siteContent'
+import { createStatLeaderboardTarget } from '@/utils/leaderboards'
 import type { PlayerStatBuckets, StatGroup } from '@/types/api'
 
 const props = defineProps<{
@@ -24,6 +25,7 @@ const emit = defineEmits<{
   (event: 'update:activeGroup', value: StatGroup): void
   (event: 'update:selectedCategory', value: string): void
   (event: 'update:statSearch', value: string): void
+  (event: 'selectLeaderboard', value: ReturnType<typeof createStatLeaderboardTarget>): void
 }>()
 
 function rankForStat(name: string): number | undefined {
@@ -80,8 +82,10 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
         :key="name"
         :name="formatStatName(name)"
         :value="formatStatValue(value, name)"
+        clickable
         :icon="getStatIconPath(selectedCategory, name)"
         :rank="rankForStat(name)"
+        @select="emit('selectLeaderboard', createStatLeaderboardTarget(selectedCategory, name, formatStatName(name), (rawValue) => formatStatValue(rawValue, name)))"
       />
     </div>
     <p v-else class="empty-copy">{{ siteContent.playerDetail.sections.emptyStats }}</p>

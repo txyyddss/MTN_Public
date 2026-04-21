@@ -2,6 +2,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -12,19 +13,22 @@ import (
 	"github.com/mtn-server/backend/internal/cache"
 	"github.com/mtn-server/backend/internal/data"
 	"github.com/mtn-server/backend/internal/database"
+	"github.com/mtn-server/backend/internal/history"
 	"github.com/mtn-server/backend/internal/lucky"
 	"github.com/mtn-server/backend/internal/monitor"
 )
 
 // Server holds all dependencies for the API.
 type Server struct {
-	cfg         *config.Config
-	store       *data.Store
-	mcmmoDB     *database.McmmoDB
-	floodDB     *database.FloodgateDB
-	luckyClient *lucky.Client
-	monitor     *monitor.Monitor
-	cache       *cache.Client
+	cfg               *config.Config
+	store             *data.Store
+	mcmmoDB           *database.McmmoDB
+	mcmmoSkillsLoader func(context.Context) ([]database.McmmoSkills, error)
+	floodDB           *database.FloodgateDB
+	luckyClient       *lucky.Client
+	monitor           *monitor.Monitor
+	cache             *cache.Client
+	history           *history.Service
 }
 
 // NewServer creates an API server with all dependencies.
@@ -37,15 +41,26 @@ func NewServer(
 	mon *monitor.Monitor,
 	cacheClient *cache.Client,
 ) *Server {
-	return &Server{
-		cfg:         cfg,
-		store:       store,
-		mcmmoDB:     mcmmoDB,
-		floodDB:     floodDB,
-		luckyClient: luckyClient,
-		monitor:     mon,
-		cache:       cacheClient,
+	var skillsLoader func(context.Context) ([]database.McmmoSkills, error)
+	if mcmmoDB != nil {
+		skillsLoader = mcmmoDB.GetAllSkills
 	}
+
+	return &Server{
+		cfg:               cfg,
+		store:             store,
+		mcmmoDB:           mcmmoDB,
+		mcmmoSkillsLoader: skillsLoader,
+		floodDB:           floodDB,
+		luckyClient:       luckyClient,
+		monitor:           mon,
+		cache:             cacheClient,
+	}
+}
+
+// SetPresenceHistory wires the history service into the API server.
+func (s *Server) SetPresenceHistory(historyService *history.Service) {
+	s.history = historyService
 }
 
 // SetupRouter creates the Gin router with all routes.
@@ -71,6 +86,7 @@ func (s *Server) SetupRouter() *gin.Engine {
 		api.GET("/players/:uuid", s.handlePlayerDetail)
 		api.GET("/leaderboards/:type", s.handleLeaderboard)
 		api.GET("/status", s.handleStatus)
+		api.GET("/status/history", s.handleStatusHistory)
 		api.GET("/connection", s.handleConnection)
 	}
 

@@ -42,13 +42,15 @@ const cardStyle = computed(() => ({
 <style scoped>
 .feature-card {
   display: grid;
-  gap: 1.2rem;
-  min-height: 220px;
+  gap: 0.95rem;
+  min-height: 184px;
+  padding: 1rem;
 }
 
 .feature-card.compact {
   min-height: auto;
-  gap: 0.9rem;
+  gap: 0.78rem;
+  padding: 0.95rem;
 }
 
 .feature-topline {
@@ -59,13 +61,13 @@ const cardStyle = computed(() => ({
 }
 
 .feature-index {
-  width: 2.7rem;
-  height: 2.7rem;
+  width: 2.35rem;
+  height: 2.35rem;
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
   font-family: var(--mono);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
 }
@@ -80,15 +82,16 @@ const cardStyle = computed(() => ({
 
 .feature-copy {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.58rem;
 }
 
 .feature-title {
-  font-size: 1.45rem;
+  font-size: 1.22rem;
 }
 
 .feature-description {
   color: var(--text-muted);
+  font-size: 0.92rem;
 }
 
 .accent-copper {

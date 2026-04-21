@@ -16,43 +16,32 @@ const factRows = computed(() => props.content.facts)
 
 <template>
   <article class="hero-panel glass-card">
-    <div class="hero-panel-grid">
-      <div class="hero-copy">
-        <span class="page-kicker">{{ props.content.eyebrow }}</span>
-        <h1 class="hero-title">{{ props.content.title }}</h1>
-        <p class="hero-body">{{ props.content.body }}</p>
+    <div class="hero-copy">
+      <span class="page-kicker">{{ props.content.eyebrow }}</span>
+      <h1 class="hero-title">{{ props.content.title }}</h1>
+      <p class="hero-body">{{ props.content.body }}</p>
 
-        <div class="hero-badges">
-          <span class="hud-chip">
-            <span class="live-dot"></span>
-            {{ props.onlineCount }} online
-          </span>
-          <span class="hud-chip">Updated {{ props.updatedLabel }}</span>
-        </div>
-
-        <div class="hero-actions">
-          <router-link class="btn-primary" to="/players">
-            {{ props.content.primaryCta }}
-          </router-link>
-          <a class="btn-secondary" href="https://mtn.1919801.xyz/">
-            {{ props.content.secondaryCta }}
-          </a>
-        </div>
+      <div class="hero-badges">
+        <span class="hud-chip">
+          <span class="live-dot"></span>
+          {{ props.onlineCount }} online
+        </span>
+        <span class="hud-chip">Updated {{ props.updatedLabel }}</span>
       </div>
 
-      <div class="hero-aside">
-        <div class="hero-console">
-          <div class="hero-console-head">
-            <span class="hud-kicker">Server notes</span>
-            <span class="console-status">Live overview</span>
-          </div>
+      <div class="hero-actions">
+        <router-link class="btn-primary" to="/players">
+          {{ props.content.primaryCta }}
+        </router-link>
+        <a class="btn-secondary" href="https://mtn.1919801.xyz/">
+          {{ props.content.secondaryCta }}
+        </a>
+      </div>
 
-          <div class="hud-metric-grid">
-            <div v-for="fact in factRows" :key="fact.label" class="hud-metric-card">
-              <span class="hud-metric-label">{{ fact.label }}</span>
-              <strong class="hud-metric-value">{{ fact.value }}</strong>
-            </div>
-          </div>
+      <div class="hero-facts">
+        <div v-for="fact in factRows" :key="fact.label" class="hero-fact-card">
+          <span class="hud-metric-label">{{ fact.label }}</span>
+          <strong class="hud-metric-value">{{ fact.value }}</strong>
         </div>
       </div>
     </div>
@@ -61,20 +50,12 @@ const factRows = computed(() => props.content.facts)
 
 <style scoped>
 .hero-panel {
-  padding: 2rem;
-}
-
-.hero-panel-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.78fr);
-  gap: 1.35rem;
-  align-items: stretch;
+  padding: 1.75rem;
 }
 
 .hero-copy {
   display: grid;
-  align-content: center;
-  gap: 1.05rem;
+  gap: 0.95rem;
 }
 
 .hero-title {
@@ -101,32 +82,20 @@ const factRows = computed(() => props.content.facts)
   padding-top: 0.15rem;
 }
 
-.hero-aside {
+.hero-facts {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding-top: 0.2rem;
 }
 
-.hero-console {
+.hero-fact-card {
   display: grid;
-  gap: 0.9rem;
-  padding: 1.1rem;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.025);
+  gap: 0.35rem;
+  padding: 0.82rem 0.88rem;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hero-console-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.console-status {
-  color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .live-dot {
@@ -138,7 +107,7 @@ const factRows = computed(() => props.content.facts)
 }
 
 @media (max-width: 960px) {
-  .hero-panel-grid {
+  .hero-facts {
     grid-template-columns: 1fr;
   }
 }

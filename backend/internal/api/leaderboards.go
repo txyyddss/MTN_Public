@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mtn-server/backend/internal/database"
 )
 
 // LeaderboardEntry holds a single leaderboard row.
@@ -23,6 +25,26 @@ type LeaderboardResponse struct {
 	Type    string             `json:"type"`
 	Entries []LeaderboardEntry `json:"entries"`
 	Count   int                `json:"count"`
+}
+
+var mcmmoSkillNames = []string{
+	"taming",
+	"mining",
+	"woodcutting",
+	"repair",
+	"unarmed",
+	"herbalism",
+	"excavation",
+	"archery",
+	"swords",
+	"axes",
+	"acrobatics",
+	"fishing",
+	"alchemy",
+	"crossbows",
+	"tridents",
+	"maces",
+	"spears",
 }
 
 // handleLeaderboard returns leaderboard data by type.
@@ -45,22 +67,8 @@ func (s *Server) handleLeaderboard(c *gin.Context) {
 		}
 	}
 
-	switch lbType {
-	case "skills":
-		entries = s.skillsLeaderboard(c.Request.Context())
-	case "playtime":
-		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:play_time")
-	case "mining":
-		entries = s.minedTotalLeaderboard(c.Request.Context())
-	case "killing":
-		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:mob_kills")
-	case "deaths":
-		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:deaths")
-	case "walking":
-		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:walk_one_cm")
-	case "pvp":
-		entries = s.statLeaderboard(c.Request.Context(), "minecraft:custom", "minecraft:player_kills")
-	default:
+	entries, ok := s.resolveLeaderboardEntries(c.Request.Context(), lbType)
+	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid leaderboard type"})
 		return
 	}
@@ -70,6 +78,35 @@ func (s *Server) handleLeaderboard(c *gin.Context) {
 	}
 
 	s.sendPaginatedLeaderboard(c, lbType, entries, page, pageSize)
+}
+
+func (s *Server) resolveLeaderboardEntries(ctx context.Context, lbType string) ([]LeaderboardEntry, bool) {
+	switch lbType {
+	case "skills":
+		return s.skillsLeaderboard(ctx), true
+	case "playtime":
+		return s.statLeaderboard(ctx, "minecraft:custom", "minecraft:play_time"), true
+	case "mining":
+		return s.minedTotalLeaderboard(ctx), true
+	case "killing":
+		return s.statLeaderboard(ctx, "minecraft:custom", "minecraft:mob_kills"), true
+	case "deaths":
+		return s.statLeaderboard(ctx, "minecraft:custom", "minecraft:deaths"), true
+	case "walking":
+		return s.statLeaderboard(ctx, "minecraft:custom", "minecraft:walk_one_cm"), true
+	case "pvp":
+		return s.statLeaderboard(ctx, "minecraft:custom", "minecraft:player_kills"), true
+	}
+
+	if skillName, ok := parseMcmmoLeaderboardType(lbType); ok {
+		return s.mcmmoSkillLeaderboard(ctx, skillName), true
+	}
+
+	if category, stat, ok := parseStatLeaderboardType(lbType); ok {
+		return s.statLeaderboard(ctx, category, stat), true
+	}
+
+	return nil, false
 }
 
 func (s *Server) sendPaginatedLeaderboard(c *gin.Context, lbType string, entries []LeaderboardEntry, page, pageSize int) {
@@ -91,12 +128,8 @@ func (s *Server) sendPaginatedLeaderboard(c *gin.Context, lbType string, entries
 }
 
 func (s *Server) skillsLeaderboard(ctx context.Context) []LeaderboardEntry {
-	if s.mcmmoDB == nil {
-		return nil
-	}
-
-	skills, err := s.mcmmoDB.GetAllSkills(ctx)
-	if err != nil {
+	skills, err := s.loadAllMcmmoSkills(ctx)
+	if err != nil || len(skills) == 0 {
 		return nil
 	}
 
@@ -117,6 +150,37 @@ func (s *Server) skillsLeaderboard(ctx context.Context) []LeaderboardEntry {
 			UUID:  sk.UUID,
 			Name:  name,
 			Value: int64(sk.Total),
+		})
+	}
+
+	return rankEntries(entries)
+}
+
+func (s *Server) mcmmoSkillLeaderboard(ctx context.Context, skillName string) []LeaderboardEntry {
+	skills, err := s.loadAllMcmmoSkills(ctx)
+	if err != nil || len(skills) == 0 {
+		return nil
+	}
+
+	var entries []LeaderboardEntry
+	for _, sk := range skills {
+		value, ok := mcmmoSkillValue(sk, skillName)
+		if !ok || value <= 0 {
+			continue
+		}
+		if !s.isValidPlayer(sk.UUID) {
+			continue
+		}
+
+		name := sk.User
+		if info := s.store.GetPlayer(sk.UUID); info != nil {
+			name = info.LastKnownName
+		}
+
+		entries = append(entries, LeaderboardEntry{
+			UUID:  sk.UUID,
+			Name:  name,
+			Value: int64(value),
 		})
 	}
 
@@ -187,4 +251,88 @@ func rankEntries(entries []LeaderboardEntry) []LeaderboardEntry {
 	}
 
 	return entries
+}
+
+func (s *Server) loadAllMcmmoSkills(ctx context.Context) ([]database.McmmoSkills, error) {
+	if s.mcmmoSkillsLoader == nil {
+		return nil, nil
+	}
+
+	return s.mcmmoSkillsLoader(ctx)
+}
+
+func parseMcmmoLeaderboardType(lbType string) (string, bool) {
+	skillName, ok := strings.CutPrefix(lbType, "mcmmo:")
+	if !ok || skillName == "" {
+		return "", false
+	}
+
+	for _, candidate := range mcmmoSkillNames {
+		if candidate == skillName {
+			return skillName, true
+		}
+	}
+
+	return "", false
+}
+
+func parseStatLeaderboardType(lbType string) (string, string, bool) {
+	remainder, ok := strings.CutPrefix(lbType, "stat:")
+	if !ok || remainder == "" {
+		return "", "", false
+	}
+
+	parts := strings.Split(remainder, ":")
+	if len(parts) < 4 {
+		return "", "", false
+	}
+
+	category := strings.Join(parts[:2], ":")
+	stat := strings.Join(parts[2:], ":")
+	if category == "" || stat == "" {
+		return "", "", false
+	}
+
+	return category, stat, true
+}
+
+func mcmmoSkillValue(sk database.McmmoSkills, skillName string) (int, bool) {
+	switch skillName {
+	case "taming":
+		return sk.Taming, true
+	case "mining":
+		return sk.Mining, true
+	case "woodcutting":
+		return sk.Woodcutting, true
+	case "repair":
+		return sk.Repair, true
+	case "unarmed":
+		return sk.Unarmed, true
+	case "herbalism":
+		return sk.Herbalism, true
+	case "excavation":
+		return sk.Excavation, true
+	case "archery":
+		return sk.Archery, true
+	case "swords":
+		return sk.Swords, true
+	case "axes":
+		return sk.Axes, true
+	case "acrobatics":
+		return sk.Acrobatics, true
+	case "fishing":
+		return sk.Fishing, true
+	case "alchemy":
+		return sk.Alchemy, true
+	case "crossbows":
+		return sk.Crossbows, true
+	case "tridents":
+		return sk.Tridents, true
+	case "maces":
+		return sk.Maces, true
+	case "spears":
+		return sk.Spears, true
+	default:
+		return 0, false
+	}
 }
