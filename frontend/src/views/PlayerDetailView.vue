@@ -13,7 +13,14 @@ import { useAdvancements } from '@/composables/useAdvancements'
 import { usePlayerDetail } from '@/composables/usePlayerDetail'
 import { usePlayerStats } from '@/composables/usePlayerStats'
 import { preloadImages, PreloadPriority } from '@/utils/preloader'
-import { playerStatGroups, siteContent } from '@/content/siteContent'
+import {
+  formatDurationHoursShort,
+  getLeaderboardLabel,
+  getLocaleValue,
+  useCurrentLocale,
+  usePlayerStatGroups,
+  useSiteContent
+} from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 import type { LeaderboardTarget } from '@/types/api'
 import type { FixedLeaderboardType } from '@/types/api'
@@ -24,6 +31,9 @@ import { getSkinUrl } from '@/utils/minecraft'
 const route = useRoute()
 const statusStore = useServerStatusStore()
 const { status } = storeToRefs(statusStore)
+const siteContent = useSiteContent()
+const currentLocale = useCurrentLocale()
+const playerStatGroups = usePlayerStatGroups()
 
 const uuid = computed(() => route.params.uuid as string)
 const { loading, info, stats, advancements, mcmmo, linkedAccount, oreStats, ranks, onlineHeatmap } = usePlayerDetail(uuid)
@@ -33,16 +43,16 @@ const { totalAdvancements, completedAdvancements, categorizedAdvancements, getAd
 
 const selectedCategory = ref('minecraft:custom')
 const statSearch = ref('')
-const activeGroup = ref(playerStatGroups[0])
+const activeGroup = ref(playerStatGroups.value[0])
 const activeTab = ref<PlayerDetailTab>('overview')
 const selectedLeaderboard = shallowRef<LeaderboardTarget | null>(null)
 const leaderboardPanelAnchor = useTemplateRef<HTMLDivElement>('leaderboardPanelAnchor')
 
-const tabOptions: PlayerDetailTabOption[] = [
-  { value: 'overview', label: siteContent.playerDetail.tabs.overview },
-  { value: 'advancements', label: siteContent.playerDetail.tabs.advancements },
-  { value: 'statistics', label: siteContent.playerDetail.tabs.statistics }
-]
+const tabOptions = computed<PlayerDetailTabOption[]>(() => [
+  { value: 'overview', label: siteContent.value.playerDetail.tabs.overview },
+  { value: 'advancements', label: siteContent.value.playerDetail.tabs.advancements },
+  { value: 'statistics', label: siteContent.value.playerDetail.tabs.statistics }
+])
 
 const onlinePlayers = computed(() => status.value?.online_players ?? [])
 const isOnline = computed(() => onlinePlayers.value.includes(uuid.value))
@@ -59,24 +69,26 @@ const groupCategories = computed(() => {
   return activeGroup.value.categories.filter((category) => stats.value?.[category] && category !== 'minecraft:custom')
 })
 
-const rankHighlights = computed<PlayerRankHighlight[]>(() =>
-  [
-    { label: 'McMMO', rank: ranks.value.skills, key: 'skills' as FixedLeaderboardType },
-    { label: 'Mining', rank: ranks.value.mining, key: 'mining' as FixedLeaderboardType },
-    { label: 'Playtime', rank: ranks.value.playtime, key: 'playtime' as FixedLeaderboardType },
-    { label: 'Kills', rank: ranks.value.killing, key: 'killing' as FixedLeaderboardType },
-    { label: 'Walking', rank: ranks.value.walking, key: 'walking' as FixedLeaderboardType },
-    { label: 'PvP', rank: ranks.value.pvp, key: 'pvp' as FixedLeaderboardType }
+const rankHighlights = computed<PlayerRankHighlight[]>(() => {
+  void currentLocale.value
+
+  return [
+    { rank: ranks.value.skills, key: 'skills' as FixedLeaderboardType },
+    { rank: ranks.value.mining, key: 'mining' as FixedLeaderboardType },
+    { rank: ranks.value.playtime, key: 'playtime' as FixedLeaderboardType },
+    { rank: ranks.value.killing, key: 'killing' as FixedLeaderboardType },
+    { rank: ranks.value.walking, key: 'walking' as FixedLeaderboardType },
+    { rank: ranks.value.pvp, key: 'pvp' as FixedLeaderboardType }
   ]
-    .filter((entry): entry is { label: string; rank: number; key: FixedLeaderboardType } => typeof entry.rank === 'number' && entry.rank > 0)
+    .filter((entry): entry is { rank: number; key: FixedLeaderboardType } => typeof entry.rank === 'number' && entry.rank > 0)
     .sort((left, right) => left.rank - right.rank)
     .slice(0, 4)
     .map((entry) => ({
-      label: entry.label,
+      label: getLeaderboardLabel(entry.key),
       value: `#${entry.rank}`,
       target: createFixedLeaderboardTarget(entry.key)
     }))
-)
+})
 
 const topRankHighlight = computed(() => rankHighlights.value[0] ?? null)
 
@@ -92,10 +104,19 @@ watch(
 )
 
 watch(
+  playerStatGroups,
+  (groups) => {
+    const activeSignature = activeGroup.value.categories.join('|')
+    activeGroup.value = groups.find((group) => group.categories.join('|') === activeSignature) ?? groups[0]
+  },
+  { immediate: true }
+)
+
+watch(
   uuid,
   () => {
     activeTab.value = 'overview'
-    activeGroup.value = playerStatGroups[0]
+    activeGroup.value = playerStatGroups.value[0]
     selectedCategory.value = 'minecraft:custom'
     statSearch.value = ''
     selectedLeaderboard.value = null
@@ -122,10 +143,10 @@ watch(
 
 function formatDate(value: number): string {
   if (!value) {
-    return 'N/A'
+    return siteContent.value.players.lastSeenUnavailable
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(getLocaleValue(), {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric'
@@ -134,10 +155,10 @@ function formatDate(value: number): string {
 
 function formatDateTime(value: number): string {
   if (!value) {
-    return 'N/A'
+    return siteContent.value.players.lastSeenUnavailable
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(getLocaleValue(), {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
@@ -147,11 +168,9 @@ function formatDateTime(value: number): string {
 }
 
 function formatPlaytime(ticks: number): string {
-  if (!ticks) {
-    return '0h'
-  }
-
-  return `${(ticks / 20 / 3600).toFixed(1)}h`
+  const hours = ticks / 20 / 3600
+  void currentLocale.value
+  return formatDurationHoursShort(hours.toFixed(1))
 }
 
 async function handleSelectLeaderboard(target: LeaderboardTarget): Promise<void> {

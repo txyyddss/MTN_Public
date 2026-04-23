@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { siteContent } from '@/content/siteContent'
+import type { HeroContent } from '@/content/siteContent'
 
 interface Props {
-  content: typeof siteContent.home.hero
+  content: HeroContent
 }
 
 const props = defineProps<Props>()

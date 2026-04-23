@@ -1,238 +1,127 @@
+import { computed } from 'vue'
+
+import { SUPPORTED_LOCALES, i18n, setLocale, useCurrentLocale } from '@/i18n'
+import en from '@/i18n/messages/en'
 import type { FixedLeaderboardType, StatGroup } from '@/types/api'
+import type { CoreMember } from '@/types/coreMembers'
 
-interface NavItem {
-  label: string
-  to: string
-  external?: boolean
-  emphasize?: boolean
+export type LocaleMessages = typeof en
+export type SiteContent = LocaleMessages['siteContent']
+export type NavItem = SiteContent['app']['nav'][number]
+export type FeatureCardContent = SiteContent['home']['features'][number]
+export type HeroContent = SiteContent['home']['hero']
+type SiteFormatKey = keyof SiteContent['formats']
+
+function getMessages(): LocaleMessages {
+  return i18n.global.getLocaleMessage(i18n.global.locale.value) as LocaleMessages
 }
 
-interface FeatureCardContent {
-  title: string
-  description: string
-  icon: string
-  accent: 'copper' | 'moss' | 'redstone'
+function touchLocale(): void {
+  void i18n.global.locale.value
 }
 
-export const leaderboardLabels: Record<FixedLeaderboardType, string> = {
-  skills: 'McMMO Total',
-  playtime: 'Playtime',
-  mining: 'Blocks Mined',
-  killing: 'Mob Kills',
-  deaths: 'Deaths',
-  walking: 'Distance Walked',
-  pvp: 'Player Kills'
+function formatSitePattern(key: SiteFormatKey, values: Record<string, string | number> = {}): string {
+  touchLocale()
+  return i18n.global.t(`siteContent.formats.${key}`, values)
 }
 
-export const playerStatGroups: StatGroup[] = [
-  { name: 'Global Statistics', categories: ['minecraft:custom'] },
-  {
-    name: 'Items And Blocks',
-    categories: [
-      'minecraft:mined',
-      'minecraft:broken',
-      'minecraft:crafted',
-      'minecraft:used',
-      'minecraft:picked_up',
-      'minecraft:dropped'
-    ]
-  },
-  { name: 'Combat And Mobs', categories: ['minecraft:killed', 'minecraft:killed_by'] }
-]
+export function useSiteContent() {
+  return computed(() => {
+    touchLocale()
+    return getMessages().siteContent
+  })
+}
 
-export const siteContent = {
-  app: {
-    loader: {
-      kicker: 'SURVIVAL ATLAS',
-      title: 'Mapping the world...'
-    },
-    nav: [
-      { label: 'Home', to: '/' },
-      { label: 'Players', to: '/players' },
-      { label: 'Core Members', to: '/core-members' },
-      { label: 'Gallery', to: '/gallery' },
-      { label: 'Wiki', to: 'https://mtn.1919801.xyz/', external: true, emphasize: true }
-    ] satisfies NavItem[]
-  },
-  home: {
-    hero: {
-      eyebrow: 'Community-run survival, founded in 2024',
-      title: 'Long-term survival. No shortcut economy.',
-      body:
-        'Java and Bedrock share one world, one history, and one public record.',
-      primaryCta: 'Explore Players',
-      secondaryCta: 'Open Wiki',
-      facts: [
-        { label: 'Operations', value: 'Non-profit community run' },
-        { label: 'Access', value: 'Java and Bedrock' },
-        { label: 'Node', value: 'Dedicated hardware in Shenzhen' }
-      ]
-    },
-    features: [
-      {
-        title: 'Community-run operations',
-        description:
-          'Non-profit, community-run, and built around equal footing.',
-        icon: '01',
-        accent: 'copper'
-      },
-      {
-        title: 'Vanilla-first survival',
-        description:
-          'Core survival stays intact. Tweaks support fairness, not replacement gameplay.',
-        icon: '02',
-        accent: 'moss'
-      },
-      {
-        title: 'Cross-play access',
-        description:
-          'Java and Bedrock join the same world with shared public records.',
-        icon: '03',
-        accent: 'redstone'
-      },
-      {
-        title: 'Dedicated infrastructure',
-        description:
-          'Dedicated hardware in Shenzhen, surfaced live by the site.',
-        icon: '04',
-        accent: 'copper'
-      },
-      {
-        title: 'Builders with range',
-        description:
-          'Railways, cities, farms, and large shared builds over resets.',
-        icon: '05',
-        accent: 'moss'
-      },
-      {
-        title: 'Public records',
-        description:
-          'Players, rankings, stats, and screenshots stay public.',
-        icon: '06',
-        accent: 'redstone'
-      }
-    ] satisfies FeatureCardContent[],
-    cta: {
-      title: 'Join, build, leave a mark.',
-      body:
-        'If you want fair survival with visible history, this is the pace.',
-      primaryCta: 'Open Wiki',
-      note: 'Connection details sit below.'
-    }
-  },
-  serverPanels: {
-    liveStatusTitle: 'Live server status',
-    liveStatusFallback: 'Waiting for live telemetry...',
-    liveStatusRefresh: 'Refresh cadence: every 5 seconds',
-    historyTitle: 'Weekly online heatmap',
-    historyHint: 'Rolling 7-day hourly presence based on the live sampler.',
-    historyLoading: 'Loading recent online history...',
-    historyEmpty: 'No activity',
-    connectionTitle: 'Connection guide',
-    connectionLoading: 'Loading connection records...',
-    connectionHint:
-      'Prefer IPv6 when your device and network support it.',
-    simpleView: 'Compact',
-    fullView: 'Detailed',
-    javaTitle: 'Java Edition',
-    bedrockTitle: 'Bedrock Edition',
-    copyPrefix: 'Copied',
-    labels: {
-      platform: 'Platform',
-      cpu: 'CPU',
-      load: 'Load',
-      ram: 'RAM',
-      offline: 'Offline'
-    }
-  },
-  players: {
-    title: 'Player Directory',
-    body:
-      'Search the roster, browse the archive, or jump to a random record.',
-    loading: 'Loading the latest player records...',
-    emptyTitle: 'No players matched this search',
-    emptyBody: 'Try a different name fragment or return to the recent-player view.',
-    reset: 'Reset Filters',
-    searchPlaceholder: 'Search by player name or UUID',
-    recentLabel: 'Recent',
-    allLabel: 'Archive',
-    randomTitle: 'Open a random player record',
-    onlineNow: 'Online now',
-    firstSeenFallback: 'Unknown player'
-  },
-  playerDetail: {
-    loading: 'Loading the player record...',
-    emptyTitle: 'Player record unavailable',
-    emptyBody: 'The requested UUID does not have a complete record in the public archive.',
-    back: 'Back To Players',
-    tabs: {
-      overview: 'Overview',
-      advancements: 'Advancements',
-      statistics: 'Statistics'
-    },
-    summary: {
-      onlineNow: 'Online now',
-      archiveRecord: 'Archive record',
-      linkedTo: 'Linked to',
-      playtime: 'Playtime',
-      advancements: 'Advancements',
-      skillTotal: 'McMMO Total',
-      skillLeaderboard: 'Skill leaderboard',
-      xpLevel: 'XP Level',
-      ranks: 'Leaderboard ranks',
-      noSkillData: 'No public skill data',
-      noHistoryData: 'No recent online samples'
-    },
-    profile: {
-      firstJoin: 'First Join',
-      lastSeen: 'Last Seen',
-      playtime: 'Playtime',
-      xpLevel: 'XP Level',
-      linkedTo: 'Linked Account'
-    },
-    sections: {
-      ores: 'Ore Mining Record',
-      onlineHistory: 'Weekly Online History',
-      skills: 'McMMO Skills',
-      advancements: 'Completed Advancements',
-      extendedStats: 'Extended Statistics',
-      total: 'Total',
-      searchPlaceholder: 'Search a stat, for example diamond or walk',
-      emptyStats: 'No statistics matched the current category and search.',
-      challenge: 'Challenge',
-      goal: 'Goal',
-      task: 'Task'
-    }
-  },
-  leaderboards: {
-    title: 'Leaderboards',
-    body:
-      'Rankings generated from live backend data.',
-    loading: 'Refreshing leaderboard data...',
-    emptyTitle: 'No leaderboard data yet',
-    emptyBody: 'This category does not have enough public data to rank players right now.',
-    columns: {
-      rank: 'Rank',
-      player: 'Player',
-      score: 'Score'
-    }
-  },
-  gallery: {
-    eyebrow: 'World archive',
-    title: 'Captured moments from the server',
-    body:
-      'A timestamped visual log of the world.',
-    capturesLabel: 'captures',
-    close: 'Close',
-    frameLabel: 'Frame'
-  },
-  coreMembers: {
-    eyebrow: 'Core members',
-    title: 'The people keeping the server running.',
-    body:
-      'Operations, maintenance, and long-term building are carried by a small core team. This page stays content-driven so updates remain simple.',
-    nicknamesLabel: 'Also known as',
-    roleLabel: 'Role',
-    introLabel: 'Introduction'
-  }
-} as const
+export function useCoreMembers() {
+  return computed(() => {
+    touchLocale()
+    return getMessages().coreMembers as unknown as CoreMember[]
+  })
+}
+
+export function usePlayerStatGroups() {
+  return computed(() => {
+    touchLocale()
+    return getMessages().playerStatGroups as unknown as StatGroup[]
+  })
+}
+
+export function useLocaleOptions() {
+  return computed(() => {
+    touchLocale()
+    return getMessages().siteContent.app.locale.options
+  })
+}
+
+export function getLocaleValue(): string {
+  return i18n.global.locale.value
+}
+
+export function getLeaderboardLabel(key: FixedLeaderboardType): string {
+  return getMessages().leaderboardLabels[key] ?? key
+}
+
+export function getStatTranslation(key: string): string | undefined {
+  return (getMessages().statTranslations as Record<string, string>)[key]
+}
+
+export function getStatCategoryLabel(key: string): string | undefined {
+  return (getMessages().statCategories as Record<string, string>)[key]
+}
+
+export function getSkillLabel(key: string): string | undefined {
+  return (getMessages().skillLabels as Record<string, string>)[key]
+}
+
+export function getPlatformLabel(platform: string): string {
+  return getMessages().platformLabels[platform as keyof LocaleMessages['platformLabels']] ?? platform
+}
+
+export function getOreLabel(ore: string): string {
+  const normalizedKey = ore.trim().toLowerCase().replace(/\s+/g, '_')
+  return getMessages().oreLabels[normalizedKey as keyof LocaleMessages['oreLabels']] ?? ore
+}
+
+export function getAdvancementTypeLabel(type: 'task' | 'goal' | 'challenge'): string {
+  return getMessages().advancementTypes[type] ?? type
+}
+
+export function getAdvancementCategoryLabel(key: string): string {
+  return getMessages().advancementCategories[key as keyof LocaleMessages['advancementCategories']] ?? key.replace(/[_-]/g, ' ')
+}
+
+export function getAdvancementName(key: string, fallback: string): string {
+  return (getMessages().advancementNames as Record<string, string>)[key] ?? fallback
+}
+
+export function formatPlayerCount(count: number): string {
+  const localizedCount = count.toLocaleString(getLocaleValue())
+  const nounKey: SiteFormatKey = count === 1 ? 'playerSingular' : 'playerPlural'
+  return formatSitePattern('playerCount', { count: localizedCount, noun: formatSitePattern(nounKey) })
+}
+
+export function formatDurationHoursShort(value: string | number): string {
+  return formatSitePattern('durationHoursShort', { value })
+}
+
+export function formatDurationHoursWide(value: string | number): string {
+  return formatSitePattern('durationHoursWide', { value })
+}
+
+export function formatDurationMinutesShort(value: string | number): string {
+  return formatSitePattern('durationMinutesShort', { value })
+}
+
+export function formatDistanceKilometers(value: string | number): string {
+  return formatSitePattern('distanceKilometers', { value })
+}
+
+export function formatDistanceMeters(value: string | number): string {
+  return formatSitePattern('distanceMeters', { value })
+}
+
+export function formatLeaderboardTitle(label: string): string {
+  return formatSitePattern('leaderboardTitle', { label })
+}
+
+export { SUPPORTED_LOCALES, setLocale, useCurrentLocale }

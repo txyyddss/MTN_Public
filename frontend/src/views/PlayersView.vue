@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
 import { API_BASE_URL } from '@/config'
-import { siteContent } from '@/content/siteContent'
+import { formatPlayerCount, getLocaleValue, getPlatformLabel, useSiteContent } from '@/content/siteContent'
 import { usePlayers } from '@/composables/usePlayers'
 import { useServerStatusStore } from '@/stores/serverStatus'
 import type { RandomPlayerResponse } from '@/types/api'
@@ -13,6 +13,7 @@ import { getAvatarUrl } from '@/utils/minecraft'
 const router = useRouter()
 const statusStore = useServerStatusStore()
 const { status } = storeToRefs(statusStore)
+const siteContent = useSiteContent()
 
 const onlinePlayers = computed(() => status.value?.online_players ?? [])
 const {
@@ -30,28 +31,30 @@ const {
 
 const resultsDescriptor = computed(() => {
   if (searchQuery.value) {
-    return `matching "${searchQuery.value}"`
+    return siteContent.value.players.resultMatching.replace('{query}', searchQuery.value)
   }
 
   if (!showAll.value) {
-    return `active within the last ${activeDays.value} days`
+    return siteContent.value.players.resultActiveWindow.replace('{days}', String(activeDays.value))
   }
 
-  return 'in the full archive'
+  return siteContent.value.players.resultArchive
 })
 
 function formatLastSeen(value: number): string {
   if (!value) {
-    return 'Last seen unavailable'
+    return siteContent.value.players.lastSeenUnavailable
   }
 
-  return `Last seen ${new Intl.DateTimeFormat(undefined, {
+  const formatted = new Intl.DateTimeFormat(getLocaleValue(), {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  }).format(new Date(value))}`
+  }).format(new Date(value))
+
+  return siteContent.value.players.lastSeen.replace('{value}', formatted)
 }
 
 async function handleRandom(): Promise<void> {
@@ -92,19 +95,19 @@ onUnmounted(() => {
 <template>
   <div class="players-view container page-shell">
     <header class="page-header animate-entry">
-      <span class="page-kicker">Public player records</span>
+      <span class="page-kicker">{{ siteContent.players.kicker }}</span>
       <h1>{{ siteContent.players.title }}</h1>
       <p class="page-lede">{{ siteContent.players.body }}</p>
     </header>
 
     <section class="controls-row glass-card animate-entry delay-100">
       <div class="controls-copy">
-        <span class="hud-kicker">Roster query</span>
-        <p class="controls-note">Search the live archive or move between recent and full-history views.</p>
+        <span class="hud-kicker">{{ siteContent.players.controlsKicker }}</span>
+        <p class="controls-note">{{ siteContent.players.controlsNote }}</p>
       </div>
 
       <label class="search-field">
-        <span>Search</span>
+        <span>{{ siteContent.players.searchLabel }}</span>
         <input
           id="player-search"
           v-model="searchQuery"
@@ -117,21 +120,21 @@ onUnmounted(() => {
         <div class="segmented-control">
           <button :class="['switch-btn', { active: !showAll }]" type="button" @click="showAll = false">
             {{ siteContent.players.recentLabel }}
-            <small>last {{ activeDays }}d</small>
+            <small>{{ siteContent.players.recentDetail.replace('{days}', String(activeDays)) }}</small>
           </button>
           <button :class="['switch-btn', { active: showAll }]" type="button" @click="showAll = true">
             {{ siteContent.players.allLabel }}
-            <small>full log</small>
+            <small>{{ siteContent.players.allDetail }}</small>
           </button>
         </div>
         <button class="btn-secondary random-button" type="button" :title="siteContent.players.randomTitle" @click="handleRandom">
-          Random
+          {{ siteContent.players.randomLabel }}
         </button>
       </div>
     </section>
 
     <p v-if="!loading || players.length > 0" class="results-line animate-entry delay-200">
-      <span class="badge-pill"><strong>{{ count }}</strong> {{ count === 1 ? 'player' : 'players' }}</span>
+      <span class="badge-pill">{{ formatPlayerCount(count) }}</span>
       <span>{{ resultsDescriptor }}</span>
     </p>
 
@@ -180,12 +183,12 @@ onUnmounted(() => {
                 {{ player.last_known_name || siteContent.players.firstSeenFallback }}
               </h2>
               <span :class="['player-status', { online: isOnline(player.uuid) }]">
-                {{ isOnline(player.uuid) ? siteContent.players.onlineNow : player.type }}
+                {{ isOnline(player.uuid) ? siteContent.players.onlineNow : getPlatformLabel(player.type) }}
               </span>
             </div>
 
             <p class="player-meta">
-              {{ isOnline(player.uuid) ? 'Visible in the live player list.' : formatLastSeen(player.last_seen) }}
+              {{ isOnline(player.uuid) ? siteContent.players.visibleInLiveList : formatLastSeen(player.last_seen) }}
             </p>
           </div>
         </div>
@@ -236,10 +239,16 @@ onUnmounted(() => {
   width: 100%;
   min-height: 3.2rem;
   padding: 0 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--control-border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--control-bg);
   color: var(--text-main);
+}
+
+.search-field input:focus {
+  outline: none;
+  border-color: var(--control-border-active);
+  background: var(--control-bg-hover);
 }
 
 .control-actions {
@@ -252,10 +261,10 @@ onUnmounted(() => {
 
 .segmented-control {
   display: flex;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--control-surface);
   border-radius: 12px;
   padding: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--control-border);
 }
 
 .switch-btn {
@@ -264,23 +273,24 @@ onUnmounted(() => {
   gap: 0.4rem;
   padding: 0.35rem 0.65rem;
   border-radius: 9px;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--control-text);
   font-size: 0.82rem;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .switch-btn:hover:not(.active) {
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.03);
+  color: var(--control-text-hover);
+  background: var(--control-bg-hover);
 }
 
 .switch-btn.active {
-  background: rgba(76, 147, 251, 0.12);
-  color: var(--text-strong);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border-color: var(--control-border-active);
+  background: var(--control-bg-active);
+  color: var(--control-text-active);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
 }
 
 .switch-btn small {

@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { useMediaQuery } from '@/composables/useMediaQuery'
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 
 const imageModules = import.meta.glob('/public/gallery-images/*.{png,jpg,jpeg,webp}', { eager: true })
 const images = Object.keys(imageModules)
@@ -12,6 +12,7 @@ const images = Object.keys(imageModules)
 
 const { matches: isPhone } = useMediaQuery('(max-width: 720px)')
 const selectedIndex = ref<number | null>(null)
+const siteContent = useSiteContent()
 const selectedImage = computed(() => (selectedIndex.value === null ? null : images[selectedIndex.value]))
 const selectedLabel = computed(() =>
   selectedIndex.value === null ? '' : `${siteContent.gallery.frameLabel} ${images.length - selectedIndex.value}`
@@ -100,12 +101,12 @@ onUnmounted(() => {
     <Transition name="lightbox-fade">
       <div v-if="selectedImage" class="lightbox-overlay" @click="closeLightbox">
         <div class="lightbox-shell" @click.stop>
-          <button class="lightbox-nav" type="button" aria-label="Previous image" @click="previousImage">&lt;</button>
+          <button class="lightbox-nav" type="button" :aria-label="siteContent.gallery.previousImage" @click="previousImage">&lt;</button>
           <div class="lightbox-image-wrap">
             <p class="lightbox-label">{{ selectedLabel }}</p>
             <img :src="`/gallery-images/${selectedImage}`" :alt="selectedLabel" class="lightbox-image" />
           </div>
-          <button class="lightbox-nav" type="button" aria-label="Next image" @click="nextImage">&gt;</button>
+          <button class="lightbox-nav" type="button" :aria-label="siteContent.gallery.nextImage" @click="nextImage">&gt;</button>
         </div>
         <button class="lightbox-close" type="button" @click="closeLightbox">
           {{ siteContent.gallery.close }}

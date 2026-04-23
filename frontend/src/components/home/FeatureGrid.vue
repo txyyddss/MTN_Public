@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
 
 import FeatureGridCard from '@/components/home/FeatureGridCard.vue'
 import { useMediaQuery } from '@/composables/useMediaQuery'
 import { useRevealOnScroll } from '@/composables/useRevealOnScroll'
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 
-const features = siteContent.home.features
+const siteContent = useSiteContent()
+const features = computed(() => siteContent.value.home.features)
 const { matches: isPhone } = useMediaQuery('(max-width: 680px)')
 const currentIndex = shallowRef(0)
 const carouselTrack = useTemplateRef<HTMLDivElement>('carouselTrack')
@@ -48,7 +49,7 @@ function syncCurrentIndex(): void {
     return
   }
 
-  currentIndex.value = Math.max(0, Math.min(features.length - 1, Math.round(track.scrollLeft / getStepSize())))
+  currentIndex.value = Math.max(0, Math.min(features.value.length - 1, Math.round(track.scrollLeft / getStepSize())))
 }
 
 function scrollToIndex(index: number, behavior: ScrollBehavior = 'smooth'): void {
@@ -69,12 +70,12 @@ function scheduleRotation(): void {
   stopRotation()
   clearResumeTimer()
 
-  if (!isPhone.value || !revealed.value || features.length <= 1) {
+  if (!isPhone.value || !revealed.value || features.value.length <= 1) {
     return
   }
 
   rotationTimer = window.setInterval(() => {
-    scrollToIndex((currentIndex.value + 1) % features.length)
+    scrollToIndex((currentIndex.value + 1) % features.value.length)
   }, 3600)
 }
 
@@ -121,9 +122,9 @@ onUnmounted(() => {
   <section class="features-section">
     <div class="container">
       <div class="section-head animate-entry">
-        <span class="section-kicker">Operating principles</span>
-        <h2 class="section-title">What this world is built for.</h2>
-        <p class="section-copy">Fair rules, stable survival, shared history made visible.</p>
+        <span class="section-kicker">{{ siteContent.home.featuresIntro.kicker }}</span>
+        <h2 class="section-title">{{ siteContent.home.featuresIntro.title }}</h2>
+        <p class="section-copy">{{ siteContent.home.featuresIntro.body }}</p>
       </div>
 
       <div v-if="!isPhone" class="features-grid">

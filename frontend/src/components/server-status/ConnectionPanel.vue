@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 import type { ConnectionResponse } from '@/types/api'
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 
 const props = defineProps<Props>()
 const copiedId = ref<string | null>(null)
+const siteContent = useSiteContent()
 
 async function copyToClipboard(text: string, id: string) {
   try {
@@ -114,7 +115,6 @@ const bedrockAddresses = computed(() => {
   return list
 })
 
-import { computed } from 'vue'
 </script>
 
 <template>
@@ -122,7 +122,7 @@ import { computed } from 'vue'
     <div class="panel-head">
       <div class="panel-heading">
         <span class="section-kicker">{{ siteContent.serverPanels.connectionTitle }}</span>
-        <h3 class="panel-title">Connection routing</h3>
+        <h3 class="panel-title">{{ siteContent.serverPanels.connectionPanelTitle }}</h3>
       </div>
     </div>
 
@@ -141,7 +141,7 @@ import { computed } from 'vue'
               @click="copyToClipboard(addr.value, addr.id)"
               :class="{ copied: copiedId === addr.id }"
             >
-              {{ copiedId === addr.id ? 'Copied' : 'Copy' }}
+              {{ copiedId === addr.id ? siteContent.serverPanels.copied : siteContent.serverPanels.copy }}
             </button>
           </div>
         </div>
@@ -161,7 +161,7 @@ import { computed } from 'vue'
               @click="copyToClipboard(addr.value, addr.id)"
               :class="{ copied: copiedId === addr.id }"
             >
-              {{ copiedId === addr.id ? 'Copied' : 'Copy' }}
+              {{ copiedId === addr.id ? siteContent.serverPanels.copied : siteContent.serverPanels.copy }}
             </button>
           </div>
         </div>

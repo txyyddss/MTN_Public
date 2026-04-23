@@ -1,13 +1,25 @@
 import { type Ref } from 'vue'
 
-import { CUSTOM_STAT_TRANSLATIONS } from '@/utils/statTranslations'
 import iconMap from '@/assets/icon_map.json'
+import {
+  formatDistanceKilometers,
+  formatDistanceMeters,
+  formatDurationHoursShort,
+  formatDurationMinutesShort,
+  getLocaleValue,
+  getSkillLabel,
+  getStatCategoryLabel,
+  getStatTranslation,
+  useCurrentLocale
+} from '@/content/siteContent'
 import type { FormattedSkillEntry, McMMOSkills, PlayerStatBuckets } from '@/types/api'
 import { MCMMO_SKILL_KEYS } from '@/types/api'
 
 const typedIconMap = iconMap as Record<string, string>
 
 export function usePlayerStats(stats: Ref<PlayerStatBuckets | null>) {
+  const currentLocale = useCurrentLocale()
+
   const fuzzyMatch = (text: string, query: string): boolean => {
     let queryIndex = 0
 
@@ -21,46 +33,44 @@ export function usePlayerStats(stats: Ref<PlayerStatBuckets | null>) {
   }
 
   const formatNumber = (value: number): string => {
-    if (value >= 1_000_000) {
-      return `${(value / 1_000_000).toFixed(1)}M`
-    }
-
-    if (value >= 1_000) {
-      return `${(value / 1_000).toFixed(1)}K`
-    }
-
-    return value.toLocaleString()
+    return new Intl.NumberFormat(getLocaleValue(), {
+      notation: value >= 10_000 ? 'compact' : 'standard',
+      maximumFractionDigits: value >= 10_000 ? 1 : 0
+    }).format(value)
   }
 
   const formatStatName = (name: string): string => {
     const id = name.replace('minecraft:', '')
 
     if (id === 'custom') {
-      return 'Global'
+      return getStatCategoryLabel('custom') ?? 'Global'
     }
 
-    return CUSTOM_STAT_TRANSLATIONS[id] ?? id.replace(/_/g, ' ')
+    return getStatTranslation(id) ?? id.replace(/_/g, ' ')
   }
 
   const formatStatValue = (value: number, name: string): string => {
     const id = name.replace('minecraft:', '')
+    void currentLocale.value
 
     if (id.includes('time') || id.includes('one_minute') || id.includes('since')) {
       const hours = value / 20 / 3600
       if (hours > 1) {
-        return `${hours.toFixed(1)}h`
+        return formatDurationHoursShort(hours.toFixed(1))
       }
 
-      return `${(value / 20 / 60).toFixed(0)}m`
+      const minutes = value / 20 / 60
+      return formatDurationMinutesShort(minutes.toFixed(0))
     }
 
     if (id.endsWith('_one_cm')) {
       const kilometers = value / 100000
       if (kilometers > 1) {
-        return `${kilometers.toFixed(2)}km`
+        return formatDistanceKilometers(kilometers.toFixed(2))
       }
 
-      return `${(value / 100).toFixed(1)}m`
+      const meters = value / 100
+      return formatDistanceMeters(meters.toFixed(1))
     }
 
     return formatNumber(value)
@@ -110,7 +120,7 @@ export function usePlayerStats(stats: Ref<PlayerStatBuckets | null>) {
     if (category === 'minecraft:custom') {
       entries = entries.filter(([name]) => {
         const id = name.replace('minecraft:', '')
-        return Boolean(CUSTOM_STAT_TRANSLATIONS[id])
+        return Boolean(getStatTranslation(id))
       })
     }
 
@@ -135,7 +145,7 @@ export function usePlayerStats(stats: Ref<PlayerStatBuckets | null>) {
     return [...MCMMO_SKILL_KEYS]
       .map((key) => ({
         key,
-        label: key.charAt(0).toUpperCase() + key.slice(1),
+        label: getSkillLabel(key) ?? key.charAt(0).toUpperCase() + key.slice(1),
         level: mcmmo[key]
       }))
       .filter((entry) => entry.level > 0)

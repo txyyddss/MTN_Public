@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
-import { siteContent } from '@/content/siteContent'
+import { getAdvancementTypeLabel, useSiteContent } from '@/content/siteContent'
 import type { AdvancementMetadata, PlayerAdvancement } from '@/types/api'
 
 defineProps<{
@@ -11,6 +11,8 @@ defineProps<{
   getAdvancementMetadata: (key: string) => AdvancementMetadata
   getAdvIconPath: (key: string) => string
 }>()
+
+const siteContent = useSiteContent()
 
 function handleImageError(event: Event): void {
   const image = event.target as HTMLImageElement | null
@@ -35,7 +37,7 @@ function handleImageError(event: Event): void {
           </div>
           <div class="advancement-copy">
             <strong>{{ getAdvancementMetadata(advancement.key).name }}</strong>
-            <small>{{ getAdvancementMetadata(advancement.key).type }}</small>
+            <small>{{ getAdvancementTypeLabel(getAdvancementMetadata(advancement.key).type) }}</small>
           </div>
         </article>
       </div>

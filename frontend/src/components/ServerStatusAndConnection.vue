@@ -3,21 +3,21 @@ import { storeToRefs } from 'pinia'
 
 import ConnectionPanel from '@/components/server-status/ConnectionPanel.vue'
 import ServerTelemetryPanel from '@/components/server-status/ServerTelemetryPanel.vue'
+import { useSiteContent } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
 const statusStore = useServerStatusStore()
 const { status, connection, history } = storeToRefs(statusStore)
+const siteContent = useSiteContent()
 </script>
 
 <template>
   <section class="server-status-section">
     <div class="container server-status-shell">
       <div class="server-status-intro animate-entry delay-300">
-        <span class="section-kicker">Operations surface</span>
-        <h2 class="server-status-title">Live infrastructure and connection routing.</h2>
-        <p class="server-status-copy">
-          Check the node state, recent player activity, and the right address for your client before joining.
-        </p>
+        <span class="section-kicker">{{ siteContent.home.serverIntro.kicker }}</span>
+        <h2 class="server-status-title">{{ siteContent.home.serverIntro.title }}</h2>
+        <p class="server-status-copy">{{ siteContent.home.serverIntro.body }}</p>
       </div>
 
       <div class="layout-grid animate-entry delay-400">

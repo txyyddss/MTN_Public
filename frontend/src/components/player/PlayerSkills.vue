@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import SkillItem from '@/components/SkillItem.vue'
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 import { createMcmmoLeaderboardTarget } from '@/utils/leaderboards'
 import type { FormattedSkillEntry, McMMOSkills } from '@/types/api'
 
@@ -14,6 +14,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'selectLeaderboard', value: ReturnType<typeof createMcmmoLeaderboardTarget>): void
 }>()
+
+const siteContent = useSiteContent()
 </script>
 
 <template>

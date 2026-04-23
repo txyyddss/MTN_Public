@@ -1,5 +1,9 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+import { useSiteContent } from '@/content/siteContent'
+
+const props = defineProps<{
   currentPage: number
   totalPages: number
 }>()
@@ -8,20 +12,27 @@ defineEmits<{
   (event: 'previous'): void
   (event: 'next'): void
 }>()
+
+const siteContent = useSiteContent()
+const statusLabel = computed(() =>
+  siteContent.value.leaderboards.paginationStatus
+    .replace('{page}', String(props.currentPage))
+    .replace('{total}', String(props.totalPages))
+)
 </script>
 
 <template>
-  <nav class="pager animate-entry delay-300" aria-label="Leaderboard pagination">
+  <nav class="pager animate-entry delay-300" :aria-label="siteContent.leaderboards.paginationAria">
     <button
       type="button"
       class="pager-btn"
       :disabled="currentPage <= 1"
       @click="$emit('previous')"
     >
-      Prev
+      {{ siteContent.leaderboards.paginationPrev }}
     </button>
 
-    <span class="pager-status">Page {{ currentPage }} / {{ totalPages }}</span>
+    <span class="pager-status">{{ statusLabel }}</span>
 
     <button
       type="button"
@@ -29,7 +40,7 @@ defineEmits<{
       :disabled="currentPage >= totalPages"
       @click="$emit('next')"
     >
-      Next
+      {{ siteContent.leaderboards.paginationNext }}
     </button>
   </nav>
 </template>
@@ -53,10 +64,10 @@ defineEmits<{
 
 .pager-btn {
   min-width: 4.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--control-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
+  background: var(--control-bg);
+  color: var(--control-text);
   padding: 0.54rem 0.84rem;
   font-family: var(--sans);
   font-size: 0.86rem;
@@ -69,7 +80,9 @@ defineEmits<{
 }
 
 .pager-btn:hover:not(:disabled) {
-  border-color: rgba(76, 147, 251, 0.28);
+  border-color: var(--control-border-active);
+  background: var(--control-bg-hover);
+  color: var(--control-text-hover);
   transform: translateY(-1px);
 }
 

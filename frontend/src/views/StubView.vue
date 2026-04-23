@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
+
+const siteContent = useSiteContent()
 </script>
 
 <template>

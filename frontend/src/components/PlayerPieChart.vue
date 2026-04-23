@@ -2,7 +2,7 @@
 import { nextTick, onUnmounted, ref, watch } from 'vue'
 
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
-import { siteContent } from '@/content/siteContent'
+import { getLocaleValue, getOreLabel, useCurrentLocale, useSiteContent } from '@/content/siteContent'
 import type { OreStat } from '@/types/api'
 
 const props = defineProps<{
@@ -11,6 +11,8 @@ const props = defineProps<{
 
 const pieChartCanvas = ref<HTMLCanvasElement | null>(null)
 let chartInstance: import('chart.js').Chart | null = null
+const siteContent = useSiteContent()
+const currentLocale = useCurrentLocale()
 
 async function initPieChart(): Promise<void> {
   if (!pieChartCanvas.value || props.oreStats.length === 0) {
@@ -24,7 +26,7 @@ async function initPieChart(): Promise<void> {
   chartInstance = new Chart(pieChartCanvas.value, {
     type: 'pie',
     data: {
-      labels: props.oreStats.map((ore) => ore.name),
+      labels: props.oreStats.map((ore) => getOreLabel(ore.name)),
       datasets: [
         {
           data: props.oreStats.map((ore) => ore.mined),
@@ -58,27 +60,29 @@ watch(
   { deep: true, immediate: true }
 )
 
+watch(currentLocale, async () => {
+  await nextTick()
+  await initPieChart()
+})
+
 onUnmounted(() => {
   chartInstance?.destroy()
 })
 
 function formatNumber(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`
-  }
+  void currentLocale.value
 
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(1)}K`
-  }
-
-  return value.toLocaleString()
+  return new Intl.NumberFormat(getLocaleValue(), {
+    notation: value >= 10_000 ? 'compact' : 'standard',
+    maximumFractionDigits: value >= 10_000 ? 1 : 0
+  }).format(value)
 }
 </script>
 
 <template>
   <PlayerCollapsiblePanel v-if="oreStats.length > 0" class="panel-card" :title="siteContent.playerDetail.sections.ores">
     <template #summary>
-      <span class="meta-chip">Top {{ Math.min(oreStats.length, 8) }}</span>
+      <span class="meta-chip">{{ siteContent.playerDetail.sections.top.replace('{count}', String(Math.min(oreStats.length, 8))) }}</span>
     </template>
 
     <div class="ore-layout">
@@ -87,7 +91,7 @@ function formatNumber(value: number): string {
       </div>
       <div class="ore-list">
         <div v-for="ore in oreStats.slice(0, 8)" :key="ore.name" class="ore-row">
-          <span>{{ ore.name }}</span>
+          <span>{{ getOreLabel(ore.name) }}</span>
           <strong>{{ formatNumber(ore.mined) }}</strong>
         </div>
       </div>

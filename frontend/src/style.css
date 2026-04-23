@@ -38,9 +38,27 @@
   --glass-shadow: 0 26px 60px rgba(0, 0, 0, 0.34);
   --panel-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
 
-  --sans: 'Instrument Sans', sans-serif;
-  --heading: 'Instrument Sans', sans-serif;
-  --display: 'Instrument Sans', sans-serif;
+  --control-surface: rgba(255, 255, 255, 0.025);
+  --control-bg: rgba(255, 255, 255, 0.03);
+  --control-bg-hover: rgba(255, 255, 255, 0.055);
+  --control-bg-active: rgba(76, 147, 251, 0.08);
+  --control-border: rgba(255, 255, 255, 0.08);
+  --control-border-hover: rgba(255, 255, 255, 0.12);
+  --control-border-active: rgba(76, 147, 251, 0.28);
+  --control-text: var(--text-muted);
+  --control-text-hover: var(--text-main);
+  --control-text-active: var(--text-strong);
+  --control-line: var(--primary);
+  --chip-bg: rgba(255, 255, 255, 0.035);
+  --chip-border: rgba(255, 255, 255, 0.1);
+  --heatmap-cell-empty-bg: rgba(255, 255, 255, 0.045);
+  --heatmap-cell-empty-border: rgba(255, 255, 255, 0.1);
+  --heatmap-player-active: rgb(64, 125, 216);
+  --heatmap-player-active-border: rgba(103, 166, 255, 0.62);
+
+  --sans: 'Instrument Sans', 'Noto Sans SC', sans-serif;
+  --heading: 'Instrument Sans', 'Noto Sans SC', sans-serif;
+  --display: 'Instrument Sans', 'Noto Sans SC', sans-serif;
   --mono: 'IBM Plex Mono', monospace;
   --minecraft: 'Minecraft', sans-serif;
 
@@ -315,8 +333,8 @@ code {
   gap: 0.55rem;
   padding: 0.48rem 0.8rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -485,15 +503,15 @@ code {
 
 .btn-secondary,
 .hud-button {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.045);
+  border-color: var(--control-border-hover);
+  background: var(--control-surface);
   color: var(--text-main);
 }
 
 .btn-secondary:hover,
 .hud-button:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--control-border-active);
+  background: var(--control-bg-active);
   transform: translateY(-1px);
 }
 

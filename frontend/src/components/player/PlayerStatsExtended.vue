@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import StatBox from '@/components/StatBox.vue'
-import { siteContent } from '@/content/siteContent'
+import { getStatCategoryLabel, useSiteContent } from '@/content/siteContent'
 import { createStatLeaderboardTarget } from '@/utils/leaderboards'
 import type { PlayerStatBuckets, StatGroup } from '@/types/api'
 
@@ -32,7 +32,11 @@ function rankForStat(name: string): number | undefined {
   return props.ranks[`stat:${props.selectedCategory}:${name}`]
 }
 
-const activeCategoryLabel = computed(() => props.selectedCategory.replace('minecraft:', '').replace(/_/g, ' '))
+const siteContent = useSiteContent()
+const activeCategoryLabel = computed(() => {
+  const key = props.selectedCategory.replace('minecraft:', '')
+  return getStatCategoryLabel(key) ?? key.replace(/_/g, ' ')
+})
 </script>
 
 <template>
@@ -72,7 +76,7 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
         type="button"
         @click="emit('update:selectedCategory', category)"
       >
-        {{ category.replace('minecraft:', '').replace(/_/g, ' ') }}
+        {{ getStatCategoryLabel(category.replace('minecraft:', '')) ?? category.replace('minecraft:', '').replace(/_/g, ' ') }}
       </button>
     </div>
 
@@ -109,11 +113,17 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
   width: min(300px, 100%);
   min-height: 2.5rem;
   padding: 0 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--control-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--control-bg);
   color: var(--text-main);
   font-size: 0.9rem;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--control-border-active);
+  background: var(--control-bg-hover);
 }
 
 .group-tabs,
@@ -127,10 +137,10 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 .category-tab {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--control-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-muted);
+  background: var(--control-bg);
+  color: var(--control-text);
   padding: 0.58rem 0.86rem;
   font-family: var(--sans);
   font-size: 0.84rem;
@@ -151,7 +161,7 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
   inset: auto 14px 8px;
   height: 1px;
   border-radius: 999px;
-  background: var(--primary);
+  background: var(--control-line);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform var(--transition-panel);
@@ -159,15 +169,17 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
 
 .group-tab:hover,
 .category-tab:hover {
-  color: var(--text-main);
+  color: var(--control-text-hover);
+  border-color: var(--control-border-hover);
+  background: var(--control-bg-hover);
   transform: translateY(-1px);
 }
 
 .group-tab.active,
 .category-tab.active {
-  border-color: rgba(76, 147, 251, 0.3);
-  background: rgba(76, 147, 251, 0.08);
-  color: var(--text-strong);
+  border-color: var(--control-border-active);
+  background: var(--control-bg-active);
+  color: var(--control-text-active);
 }
 
 .group-tab.active::after,
@@ -191,7 +203,8 @@ const activeCategoryLabel = computed(() => props.selectedCategory.replace('minec
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
   text-transform: capitalize;
 }
 

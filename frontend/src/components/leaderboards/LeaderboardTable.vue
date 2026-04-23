@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSiteContent } from '@/content/siteContent'
 import { useMediaQuery } from '@/composables/useMediaQuery'
 import { getAvatarUrl } from '@/utils/minecraft'
 import type { LeaderboardEntry } from '@/types/api'
@@ -13,6 +14,7 @@ defineProps<{
 }>()
 
 const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
+const siteContent = useSiteContent()
 </script>
 
 <template>
@@ -21,7 +23,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
       <article v-for="entry in entries" :key="entry.uuid" class="mobile-board-card hover-rise">
         <div class="mobile-board-topline">
           <span class="mobile-rank">#{{ entry.rank }}</span>
-          <span v-if="isOnline(entry.uuid)" class="mobile-presence">Online</span>
+          <span v-if="isOnline(entry.uuid)" class="mobile-presence">{{ siteContent.players.onlineNow }}</span>
         </div>
 
         <RouterLink :to="`/player/${entry.uuid}`" class="mobile-player-link">
@@ -50,10 +52,10 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
             <RouterLink :to="`/player/${entry.uuid}`" class="player-link">
               <img :src="getAvatarUrl(entry.name)" :alt="entry.name" class="avatar" loading="lazy" />
               <span class="player-meta">
-              <span :class="['player-name', 'minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
-            </span>
-          </RouterLink>
-        </td>
+                <span :class="['player-name', 'minecraft-font', { online: isOnline(entry.uuid) }]">{{ entry.name }}</span>
+              </span>
+            </RouterLink>
+          </td>
           <td class="value-cell">{{ formatValue(entry.value) }}</td>
         </tr>
       </tbody>
@@ -156,7 +158,7 @@ const { matches: isMobile } = useMediaQuery('(max-width: 720px)')
     gap: 0.75rem;
   }
 
-.mobile-board-card {
+  .mobile-board-card {
     display: grid;
     gap: 0.7rem;
     padding: 0.85rem 0.9rem;

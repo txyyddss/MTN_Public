@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { coreMembers } from '@/content/coreMembers'
-import { siteContent } from '@/content/siteContent'
+import { useCoreMembers, useSiteContent } from '@/content/siteContent'
+
+const siteContent = useSiteContent()
+const coreMembers = useCoreMembers()
 </script>
 
 <template>
@@ -29,7 +31,7 @@ import { siteContent } from '@/content/siteContent'
         <div class="member-section">
           <span class="member-label">{{ siteContent.coreMembers.nicknamesLabel }}</span>
           <div class="member-chip-row">
-            <span v-if="member.nicknames.length === 0" class="meta-chip">None</span>
+            <span v-if="member.nicknames.length === 0" class="meta-chip">{{ siteContent.coreMembers.noneLabel }}</span>
             <span v-for="nickname in member.nicknames" :key="nickname" class="meta-chip">
               {{ nickname }}
             </span>

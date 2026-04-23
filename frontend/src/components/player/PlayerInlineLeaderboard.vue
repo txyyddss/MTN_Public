@@ -4,7 +4,7 @@ import { computed, watch } from 'vue'
 import LeaderboardPagination from '@/components/leaderboards/LeaderboardPagination.vue'
 import LeaderboardTable from '@/components/leaderboards/LeaderboardTable.vue'
 import { useLeaderboards } from '@/composables/useLeaderboards'
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 import type { LeaderboardTarget } from '@/types/api'
 
 const props = defineProps<{
@@ -15,6 +15,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'close'): void
 }>()
+const siteContent = useSiteContent()
 
 const { currentPage, entries, goToNextPage, goToPreviousPage, loading, totalPages, setKey } = useLeaderboards(props.target.key)
 
@@ -27,10 +28,10 @@ watch(
 
 const resultLabel = computed(() => {
   if (loading.value) {
-    return siteContent.leaderboards.loading
+    return siteContent.value.leaderboards.loading
   }
 
-  return `${entries.value.length} visible entries`
+  return siteContent.value.leaderboards.visibleEntries.replace('{count}', String(entries.value.length))
 })
 
 function formatEntryValue(value: number): string {
@@ -46,13 +47,13 @@ function formatEntryValue(value: number): string {
   <section class="glass-card inline-board animate-entry-soft">
     <div class="inline-board-head">
       <div class="inline-board-copy">
-        <span class="hud-kicker">Leaderboard</span>
+        <span class="hud-kicker">{{ siteContent.leaderboards.kicker }}</span>
         <h3 class="inline-board-title">{{ target.title }}</h3>
         <p class="inline-board-note">{{ resultLabel }}</p>
       </div>
 
       <button type="button" class="btn-secondary inline-board-close" @click="emit('close')">
-        Close
+        {{ siteContent.leaderboards.close }}
       </button>
     </div>
 

@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
-
 import HeroAsidePanel from '@/components/home/HeroAsidePanel.vue'
 import HeroPrimaryPanel from '@/components/home/HeroPrimaryPanel.vue'
-import { siteContent } from '@/content/siteContent'
-import { useServerStatusStore } from '@/stores/serverStatus'
+import { useSiteContent } from '@/content/siteContent'
 
-const statusStore = useServerStatusStore()
-
-// computed properties for isLive and onlineCount removed as they were only used for HeroAsidePanel
+const siteContent = useSiteContent()
 </script>
 
 <template>

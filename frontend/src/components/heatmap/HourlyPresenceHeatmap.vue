@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { formatPlayerCount, useSiteContent } from '@/content/siteContent'
 import type { HeatmapDay } from '@/types/api'
 
 const props = defineProps<{
@@ -12,28 +13,46 @@ const props = defineProps<{
   weeklyMaxPlayers?: number
 }>()
 
+const siteContent = useSiteContent()
 const isEmpty = computed(() => props.days.length === 0 || props.hours.length === 0 || props.cells.length === 0)
+const emptyCellStyle = {
+  backgroundColor: 'var(--heatmap-cell-empty-bg)',
+  borderColor: 'var(--heatmap-cell-empty-border)'
+}
+
+function interpolateChannel(start: number, end: number, ratio: number): number {
+  return Math.round(start + (end - start) * ratio)
+}
+
+function getWeekdayLabel(weekday: string): string {
+  const key = weekday.toLowerCase()
+  return siteContent.value.heatmap.weekdays[key as keyof typeof siteContent.value.heatmap.weekdays] ?? weekday
+}
 
 function getCellStyle(value: number | boolean): { backgroundColor: string; borderColor: string } {
   if (props.variant === 'player') {
     return value
-      ? { backgroundColor: 'rgb(76, 147, 251)', borderColor: 'rgba(76, 147, 251, 0.68)' }
-      : { backgroundColor: '#ffffff', borderColor: 'rgba(255, 255, 255, 0.5)' }
+      ? {
+          backgroundColor: 'var(--heatmap-player-active)',
+          borderColor: 'var(--heatmap-player-active-border)'
+        }
+      : emptyCellStyle
   }
 
   const numericValue = typeof value === 'number' ? value : 0
   if (numericValue <= 0 || !props.weeklyMaxPlayers) {
-    return { backgroundColor: '#ffffff', borderColor: 'rgba(255, 255, 255, 0.5)' }
+    return emptyCellStyle
   }
 
   const ratio = Math.min(numericValue / props.weeklyMaxPlayers, 1)
-  const red = Math.round(255 + (76 - 255) * ratio)
-  const green = Math.round(255 + (147 - 255) * ratio)
-  const blue = Math.round(255 + (251 - 255) * ratio)
+  const red = interpolateChannel(24, 76, ratio)
+  const green = interpolateChannel(42, 147, ratio)
+  const blue = interpolateChannel(68, 251, ratio)
+  const alpha = 0.28 + ratio * 0.5
 
   return {
     backgroundColor: `rgb(${red}, ${green}, ${blue})`,
-    borderColor: `rgba(${red}, ${green}, ${blue}, 0.85)`
+    borderColor: `rgba(${red}, ${green}, ${blue}, ${alpha.toFixed(2)})`
   }
 }
 
@@ -43,12 +62,12 @@ function getTooltip(day: HeatmapDay, hourLabel: number, value: number | boolean)
   const range = `${hourStart}:00-${hourEnd}:00`
 
   if (props.variant === 'player') {
-    return `${day.date} ${range} (${props.timezone}) · ${value ? 'Online' : 'Offline'}`
+    const statusLabel = value ? siteContent.value.heatmap.online : siteContent.value.heatmap.offline
+    return `${day.date} ${range} (${props.timezone}) · ${statusLabel}`
   }
 
   const numericValue = typeof value === 'number' ? value : 0
-  const playerLabel = numericValue === 1 ? 'player' : 'players'
-  return `${day.date} ${range} (${props.timezone}) · ${numericValue} ${playerLabel}`
+  return `${day.date} ${range} (${props.timezone}) · ${formatPlayerCount(numericValue)}`
 }
 </script>
 
@@ -61,7 +80,7 @@ function getTooltip(day: HeatmapDay, hourLabel: number, value: number | boolean)
 
         <template v-for="(day, rowIndex) in days" :key="day.date">
           <div class="heatmap-day">
-            <strong>{{ day.weekday }}</strong>
+            <strong>{{ getWeekdayLabel(day.weekday) }}</strong>
             <small>{{ day.date.slice(5) }}</small>
           </div>
 

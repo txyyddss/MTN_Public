@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import HourlyPresenceHeatmap from '@/components/heatmap/HourlyPresenceHeatmap.vue'
-import { siteContent } from '@/content/siteContent'
+import { formatPlayerCount, getLocaleValue, useSiteContent } from '@/content/siteContent'
 import type { ServerHistoryResponse, StatusResponse } from '@/types/api'
 
 interface Props {
@@ -11,13 +11,14 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const siteContent = useSiteContent()
 
 function formatEditionTotal(count: number | undefined, online: boolean | undefined): string {
   if (!online) {
-    return siteContent.serverPanels.labels.offline
+    return siteContent.value.serverPanels.labels.offline
   }
 
-  return `${count ?? 0} ${count === 1 ? 'player' : 'players'}`
+  return formatPlayerCount(count ?? 0)
 }
 
 function formatMemory(bytes: number): string {
@@ -26,11 +27,11 @@ function formatMemory(bytes: number): string {
 
 const editionRows = computed(() => [
   {
-    label: 'Java Edition',
+    label: siteContent.value.serverPanels.javaTitle,
     value: formatEditionTotal(props.status?.java?.players, props.status?.java?.online)
   },
   {
-    label: 'Bedrock Edition',
+    label: siteContent.value.serverPanels.bedrockTitle,
     value: formatEditionTotal(props.status?.bedrock?.players, props.status?.bedrock?.online)
   }
 ])
@@ -42,14 +43,14 @@ const systemRows = computed(() => {
   }
 
   return [
-    { label: siteContent.serverPanels.labels.platform, value: system.platform },
-    { label: siteContent.serverPanels.labels.cpu, value: system.cpu_model },
+    { label: siteContent.value.serverPanels.labels.platform, value: system.platform },
+    { label: siteContent.value.serverPanels.labels.cpu, value: system.cpu_model },
     {
-      label: siteContent.serverPanels.labels.load,
+      label: siteContent.value.serverPanels.labels.load,
       value: `${system.load_1.toFixed(2)} / ${system.load_5.toFixed(2)} / ${system.load_15.toFixed(2)}`
     },
     {
-      label: siteContent.serverPanels.labels.ram,
+      label: siteContent.value.serverPanels.labels.ram,
       value: `${formatMemory(system.mem_used)} / ${system.mem_percent.toFixed(0)}%`
     }
   ]
@@ -60,16 +61,25 @@ const updatedLabel = computed(() => {
     return null
   }
 
-  return new Date(props.status.updated).toLocaleString()
+  return new Intl.DateTimeFormat(getLocaleValue(), {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }).format(new Date(props.status.updated))
 })
 
 const historySummary = computed(() => {
   if (!props.history) {
-    return siteContent.serverPanels.historyLoading
+    return siteContent.value.serverPanels.historyLoading
   }
 
   const peak = props.history.weekly_max_players
-  return peak > 0 ? `Peak ${peak}` : siteContent.serverPanels.historyEmpty
+  return peak > 0
+    ? siteContent.value.serverPanels.historyPeak.replace('{peak}', String(peak))
+    : siteContent.value.serverPanels.historyEmpty
 })
 </script>
 
@@ -78,10 +88,10 @@ const historySummary = computed(() => {
     <div class="panel-head">
       <div class="panel-heading">
         <span class="section-kicker">{{ siteContent.serverPanels.liveStatusTitle }}</span>
-        <h3 class="panel-title">Node load</h3>
+        <h3 class="panel-title">{{ siteContent.serverPanels.liveStatusPanelTitle }}</h3>
       </div>
       <span class="panel-state" :class="{ live: props.status?.java?.online }">
-        {{ props.status?.java?.online ? 'Operational' : 'Standby' }}
+        {{ props.status?.java?.online ? siteContent.serverPanels.operational : siteContent.serverPanels.standby }}
       </span>
     </div>
 
@@ -125,7 +135,7 @@ const historySummary = computed(() => {
 
       <p class="panel-foot">
         {{ siteContent.serverPanels.liveStatusRefresh }}
-        <span v-if="updatedLabel"> / Last update {{ updatedLabel }}</span>
+        <span v-if="updatedLabel"> / {{ siteContent.serverPanels.lastUpdate }} {{ updatedLabel }}</span>
       </p>
     </div>
 

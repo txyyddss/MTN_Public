@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSiteContent } from '@/content/siteContent'
 import type { PlayerDetailTab, PlayerDetailTabOption } from '@/types/playerDetail'
 
 defineProps<{
@@ -6,10 +7,11 @@ defineProps<{
 }>()
 
 const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
+const siteContent = useSiteContent()
 </script>
 
 <template>
-  <nav class="detail-tabs glass-card animate-entry-soft" aria-label="Player detail sections">
+  <nav class="detail-tabs glass-card animate-entry-soft" :aria-label="siteContent.playerDetail.tabsAria">
     <button
       v-for="tab in tabs"
       :key="tab.value"
@@ -34,10 +36,10 @@ const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
   position: relative;
   overflow: hidden;
   min-height: 3rem;
-  border: 1px solid transparent;
+  border: 1px solid var(--control-border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-muted);
+  background: var(--control-bg);
+  color: var(--control-text);
   padding: 0.75rem 0.9rem;
   text-align: center;
   transition:
@@ -53,21 +55,23 @@ const activeTab = defineModel<PlayerDetailTab>('activeTab', { required: true })
   inset: auto 16px 10px;
   height: 1px;
   border-radius: 999px;
-  background: var(--primary);
+  background: var(--control-line);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform var(--transition-panel);
 }
 
 .detail-tab:hover {
-  color: var(--text-main);
+  color: var(--control-text-hover);
+  border-color: var(--control-border-hover);
+  background: var(--control-bg-hover);
   transform: translateY(-1px);
 }
 
 .detail-tab.active {
-  border-color: rgba(76, 147, 251, 0.28);
-  background: rgba(76, 147, 251, 0.08);
-  color: var(--text-strong);
+  border-color: var(--control-border-active);
+  background: var(--control-bg-active);
+  color: var(--control-text-active);
 }
 
 .detail-tab.active::after {

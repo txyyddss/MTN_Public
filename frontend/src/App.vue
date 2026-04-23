@@ -3,21 +3,26 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
+import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
 import { usePreloader } from '@/composables/usePreloader'
-import { siteContent } from '@/content/siteContent'
+import { formatPlayerCount, useSiteContent } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
 const menuOpen = ref(false)
 const isLoading = ref(true)
 const route = useRoute()
+const siteContent = useSiteContent()
 
 const { initPreloading } = usePreloader()
 const serverStatus = useServerStatusStore()
 const { status } = storeToRefs(serverStatus)
 
-const shellStatus = computed(() => (status.value?.java?.online ? 'Live' : 'Standby'))
+const isLive = computed(() => Boolean(status.value?.java?.online))
+const shellStatus = computed(() =>
+  isLive.value ? siteContent.value.serverPanels.operational : siteContent.value.serverPanels.standby
+)
 const shellPlayers = computed(() => status.value?.java?.players ?? 0)
-
+const shellPlayersLabel = computed(() => formatPlayerCount(shellPlayers.value))
 
 function closeMenu(): void {
   menuOpen.value = false
@@ -51,7 +56,7 @@ onUnmounted(() => {
       <div class="loader-mark glass-card">
         <div class="loader-topline">
           <span class="hud-kicker">{{ siteContent.app.loader.kicker }}</span>
-          <span class="loader-status">Boot sequence</span>
+          <span class="loader-status">{{ siteContent.app.loader.status }}</span>
         </div>
         <div class="loader-grid">
           <span></span>
@@ -73,12 +78,12 @@ onUnmounted(() => {
               <span class="brand-text-mtn">MTN</span><span class="brand-text-etwork">etwork</span>
             </span>
           </RouterLink>
-          <span class="brand-subline">Survival atlas</span>
+          <span class="brand-subline">{{ siteContent.app.brandSubline }}</span>
         </div>
 
         <div class="nav-center">
           <div :class="['nav-links', { open: menuOpen }]">
-            <template v-for="item in siteContent.app.nav" :key="item.label">
+            <template v-for="item in siteContent.app.nav" :key="item.id">
               <a
                 v-if="item.external"
                 :href="item.to"
@@ -91,18 +96,21 @@ onUnmounted(() => {
                 {{ item.label }}
               </RouterLink>
             </template>
+
+            <LocaleSwitcher mobile class="nav-locale-switch" />
           </div>
         </div>
 
         <div class="shell-readout">
           <span class="hud-chip">
-            <span class="status-dot" :class="{ active: shellStatus === 'Live' }"></span>
+            <span class="status-dot" :class="{ active: isLive }"></span>
             {{ shellStatus }}
           </span>
-          <span class="hud-chip">{{ shellPlayers }} online</span>
+          <span class="hud-chip">{{ shellPlayersLabel }}</span>
+          <LocaleSwitcher />
         </div>
 
-        <button class="menu-toggle" type="button" aria-label="Toggle navigation" @click="toggleMenu">
+        <button class="menu-toggle" type="button" :aria-label="siteContent.app.menuToggleAria" @click="toggleMenu">
           <span :class="{ active: menuOpen }"></span>
           <span :class="{ active: menuOpen }"></span>
         </button>
@@ -306,15 +314,15 @@ onUnmounted(() => {
   margin: 0;
   padding: 0.28rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--control-border);
+  background: var(--control-surface);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
 }
 
 .nav-link {
   padding: 0.55rem 0.85rem;
   border-radius: 10px;
-  color: var(--text-muted);
+  color: var(--control-text);
   font-size: 0.88rem;
   font-family: var(--sans);
   font-weight: 500;
@@ -328,9 +336,9 @@ onUnmounted(() => {
 
 .nav-link:hover,
 .nav-link.router-link-active {
-  color: var(--text-strong);
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.055);
+  color: var(--control-text-active);
+  border-color: var(--control-border-active);
+  background: var(--control-bg-active);
 }
 
 .nav-link-external {
@@ -354,9 +362,9 @@ onUnmounted(() => {
   display: none;
   width: 42px;
   height: 42px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--control-border-hover);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--control-surface);
   position: relative;
 }
 
@@ -391,6 +399,10 @@ onUnmounted(() => {
   flex: 1;
   position: relative;
   padding-top: 4.35rem;
+}
+
+.nav-locale-switch {
+  display: none;
 }
 
 
@@ -450,9 +462,10 @@ onUnmounted(() => {
     width: auto;
     flex-direction: column;
     align-items: stretch;
+    gap: 0.35rem;
     margin: 0;
     padding: 0.85rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--control-border);
     border-radius: 20px;
     background: rgba(14, 15, 18, 0.94);
     box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
@@ -474,6 +487,9 @@ onUnmounted(() => {
     border-radius: 14px;
   }
 
+  .nav-locale-switch {
+    display: flex;
+  }
 
 }
 

@@ -1,6 +1,7 @@
 import { computed, type Ref } from 'vue'
 
 import advancementData from '@/assets/advancements.json'
+import { getAdvancementCategoryLabel, getAdvancementName, useCurrentLocale } from '@/content/siteContent'
 import type { AdvancementMetadata, PlayerAdvancement } from '@/types/api'
 
 const typedAdvancementData = advancementData as Record<string, AdvancementMetadata>
@@ -13,6 +14,7 @@ const fallbackMetadata = (key: string): AdvancementMetadata => ({
 })
 
 export function useAdvancements(advancements: Ref<PlayerAdvancement[] | null>) {
+  const currentLocale = useCurrentLocale()
   const totalAdvancements = computed(() => advancements.value?.length ?? 0)
   const completedAdvancements = computed(() => advancements.value?.filter((advancement) => advancement.done).length ?? 0)
 
@@ -21,6 +23,8 @@ export function useAdvancements(advancements: Ref<PlayerAdvancement[] | null>) {
       return {}
     }
 
+    void currentLocale.value
+
     const result: Record<string, PlayerAdvancement[]> = {}
 
     for (const advancement of advancements.value) {
@@ -28,14 +32,14 @@ export function useAdvancements(advancements: Ref<PlayerAdvancement[] | null>) {
         continue
       }
 
-      let category = 'Others'
+      let category = 'others'
       const parts = advancement.key.split('/')
 
       if (parts.length > 1) {
-        category = parts[0].replace('minecraft:', '').replace(/[_-]/g, ' ')
+        category = parts[0].replace('minecraft:', '')
       }
 
-      const label = category.charAt(0).toUpperCase() + category.slice(1)
+      const label = getAdvancementCategoryLabel(category)
       if (!result[label]) {
         result[label] = []
       }
@@ -47,14 +51,18 @@ export function useAdvancements(advancements: Ref<PlayerAdvancement[] | null>) {
   })
 
   const getAdvancementMetadata = (key: string): AdvancementMetadata => {
+    void currentLocale.value
+
     const metadata = typedAdvancementData[key]
     if (!metadata) {
       return fallbackMetadata(key)
     }
 
+    const fallbackName = metadata.name.replace(/\u807d/g, ' ').replace(/\s+/g, ' ').trim()
+
     return {
       ...metadata,
-      name: metadata.name.replace(/\u807d/g, ' ').replace(/\s+/g, ' ').trim()
+      name: getAdvancementName(key, fallbackName)
     }
   }
 

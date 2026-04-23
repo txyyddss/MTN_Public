@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import SkinViewer from '@/components/SkinViewer.vue'
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 import type { LinkedAccount, PlayerInfo } from '@/types/api'
 import { getSkinUrl } from '@/utils/minecraft'
 
@@ -11,10 +11,12 @@ defineProps<{
   linkedAccount: LinkedAccount | null
   formatPlaytime: (value: number) => string
 }>()
+
+const siteContent = useSiteContent()
 </script>
 
 <template>
-  <PlayerCollapsiblePanel class="profile-card" sticky title="Profile">
+  <PlayerCollapsiblePanel class="profile-card" sticky :title="siteContent.playerDetail.profileCardTitle">
     <div class="avatar-header">
       <div class="skin-wrapper">
         <SkinViewer :skin-url="getSkinUrl(info.last_known_name, info.type)" :width="220" :height="260" />

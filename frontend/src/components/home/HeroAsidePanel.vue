@@ -2,41 +2,28 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 
-interface Props {
-  // Props for the quick routes section could be added here if needed in the future
-}
-
-// props are currently unused as the live signal card was removed
-const props = defineProps<Props>()
-
-const linkDescriptions: Record<string, string> = {
-  Players: 'Browse the current archive and jump into individual records.',
-  'Core Members': 'See who runs operations and keeps the server moving.',
-  Gallery: 'Open the visual world log.',
-  Wiki: 'Read the server handbook and gameplay details.'
-}
+const siteContent = useSiteContent()
 
 const quickLinks = computed(() =>
-  siteContent.app.nav
-    .filter((item) => item.label !== 'Home')
+  siteContent.value.app.nav
+    .filter((item) => item.id !== 'home')
     .map((item, index) => ({
       ...item,
       index: `0${index + 1}`.slice(-2),
-      description: linkDescriptions[item.label] ?? 'Open this route.'
+      description: siteContent.value.home.quickRoutes.descriptions[item.id as keyof typeof siteContent.value.home.quickRoutes.descriptions]
+        ?? siteContent.value.home.quickRoutes.fallback
     }))
 )
 </script>
 
 <template>
   <aside class="hero-aside">
-
-
     <article class="glass-card hero-aside-card animate-entry delay-200">
       <div class="hero-aside-copy">
-        <span class="section-kicker">Quick routes</span>
-        <h2 class="hero-aside-title">Move through the archive.</h2>
+        <span class="section-kicker">{{ siteContent.home.quickRoutes.kicker }}</span>
+        <h2 class="hero-aside-title">{{ siteContent.home.quickRoutes.title }}</h2>
       </div>
 
       <div class="hero-link-list">
@@ -72,8 +59,6 @@ const quickLinks = computed(() =>
   gap: 1rem;
   min-height: 0;
 }
-
-
 
 .hero-link-list {
   display: grid;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSiteContent } from '@/content/siteContent'
 import type { LinkedAccount, PlayerInfo } from '@/types/api'
 
 defineProps<{
@@ -6,15 +7,17 @@ defineProps<{
   isOnline: boolean
   linkedAccount: LinkedAccount | null
 }>()
+
+const siteContent = useSiteContent()
 </script>
 
 <template>
   <section class="glass-card detail-header animate-entry">
     <div class="detail-header-copy">
-      <span class="page-kicker">Public player dossier</span>
+      <span class="page-kicker">{{ siteContent.playerDetail.header.kicker }}</span>
       <h1 :class="['detail-player-name', 'minecraft-font', { online: isOnline }]">{{ info.last_known_name }}</h1>
       <p class="detail-player-copy">
-        {{ isOnline ? 'Live presence detected in the server status feed.' : 'Historical record and progression summary.' }}
+        {{ isOnline ? siteContent.playerDetail.header.liveBody : siteContent.playerDetail.header.archiveBody }}
       </p>
     </div>
   </section>

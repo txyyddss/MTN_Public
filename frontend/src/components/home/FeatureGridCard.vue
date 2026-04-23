@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { siteContent } from '@/content/siteContent'
-
-type HomeFeature = (typeof siteContent.home.features)[number]
+import { type FeatureCardContent, useSiteContent } from '@/content/siteContent'
 
 interface Props {
-  feature: HomeFeature
+  feature: FeatureCardContent
   index: number
   compact?: boolean
 }
 
 const props = defineProps<Props>()
+const siteContent = useSiteContent()
 
 const cardClasses = computed(() => [
   'feature-card',
@@ -30,7 +29,7 @@ const cardStyle = computed(() => ({
   <article :class="cardClasses" :style="cardStyle">
     <div class="feature-topline">
       <div class="feature-index">{{ props.feature.icon }}</div>
-      <span class="feature-mode">System</span>
+      <span class="feature-mode">{{ siteContent.home.featureMode }}</span>
     </div>
     <div class="feature-copy">
       <h3 class="feature-title">{{ props.feature.title }}</h3>

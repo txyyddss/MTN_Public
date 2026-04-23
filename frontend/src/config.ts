@@ -3,4 +3,6 @@
  * Uses environment variables where available.
  */
 
-export const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || ''
+const rawBaseUrl = import.meta.env.VITE_BACKEND_URL || ''
+
+export const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '')

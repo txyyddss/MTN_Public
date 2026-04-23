@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
+
+const siteContent = useSiteContent()
 </script>
 
 <template>
@@ -7,7 +9,7 @@ import { siteContent } from '@/content/siteContent'
     <div class="container">
       <div class="cta-box glass-card">
         <div class="cta-copy">
-          <span class="section-kicker">Next step</span>
+          <span class="section-kicker">{{ siteContent.home.cta.kicker }}</span>
           <h2>{{ siteContent.home.cta.title }}</h2>
           <p>{{ siteContent.home.cta.body }}</p>
         </div>

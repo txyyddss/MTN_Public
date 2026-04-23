@@ -7,7 +7,7 @@ import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.v
 import PlayerSidebar from '@/components/player/PlayerSidebar.vue'
 import PlayerSkills from '@/components/player/PlayerSkills.vue'
 import { useRevealOnScroll } from '@/composables/useRevealOnScroll'
-import { siteContent } from '@/content/siteContent'
+import { useSiteContent } from '@/content/siteContent'
 import type { LeaderboardTarget } from '@/types/api'
 import type { FormattedSkillEntry, LinkedAccount, McMMOSkills, PlayerInfo, OreStat, PlayerOnlineHeatmap } from '@/types/api'
 import type { PlayerRankHighlight } from '@/types/playerDetail'
@@ -35,18 +35,19 @@ const emit = defineEmits<{
 }>()
 
 const { revealed } = useRevealOnScroll<HTMLElement>('overviewSection')
+const siteContent = useSiteContent()
 
 const overviewMetrics = computed(() => [
-  { label: siteContent.playerDetail.profile.firstJoin, value: props.formatDate(props.info.first_played), target: null },
-  { label: siteContent.playerDetail.profile.lastSeen, value: props.formatDateTime(props.info.last_seen), target: null },
+  { label: siteContent.value.playerDetail.profile.firstJoin, value: props.formatDate(props.info.first_played), target: null },
+  { label: siteContent.value.playerDetail.profile.lastSeen, value: props.formatDateTime(props.info.last_seen), target: null },
   {
-    label: siteContent.playerDetail.summary.advancements,
+    label: siteContent.value.playerDetail.summary.advancements,
     value: `${props.completedAdvancements}/${props.totalAdvancements || 0}`,
     target: null
   },
   {
-    label: siteContent.playerDetail.summary.skillLeaderboard,
-    value: props.topRankHighlight?.value ?? 'Unranked',
+    label: siteContent.value.playerDetail.summary.skillLeaderboard,
+    value: props.topRankHighlight?.value ?? siteContent.value.playerDetail.summary.unranked,
     target: props.topRankHighlight?.target ?? null
   }
 ])
@@ -108,7 +109,7 @@ const overviewMetrics = computed(() => [
       <PlayerPieChart class="hover-rise" :ore-stats="oreStats" />
       <PlayerCollapsiblePanel class="panel-card hover-rise" :title="siteContent.playerDetail.sections.onlineHistory">
         <template #summary>
-          <span class="meta-chip">{{ onlineHeatmap?.timezone ?? 'Local' }}</span>
+          <span class="meta-chip">{{ onlineHeatmap?.timezone ?? siteContent.playerDetail.timezoneFallback }}</span>
         </template>
 
         <HourlyPresenceHeatmap

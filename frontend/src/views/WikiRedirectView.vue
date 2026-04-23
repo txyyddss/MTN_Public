@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
+import { useSiteContent } from '@/content/siteContent'
+
 const wikiUrl = 'https://mtn.1919801.xyz/'
+const siteContent = useSiteContent()
 
 onMounted(() => {
   window.location.replace(wikiUrl)
@@ -11,10 +14,10 @@ onMounted(() => {
 <template>
   <div class="wiki-redirect container page-shell">
     <div class="glass-card redirect-card">
-      <span class="section-kicker">Wiki</span>
-      <h1>Redirecting to the MTNetwork wiki.</h1>
-      <p>If the redirect does not start automatically, use the link below.</p>
-      <a class="btn-primary" :href="wikiUrl">Open Wiki</a>
+      <span class="section-kicker">{{ siteContent.wikiRedirect.kicker }}</span>
+      <h1>{{ siteContent.wikiRedirect.title }}</h1>
+      <p>{{ siteContent.wikiRedirect.body }}</p>
+      <a class="btn-primary" :href="wikiUrl">{{ siteContent.wikiRedirect.cta }}</a>
     </div>
   </div>
 </template>
