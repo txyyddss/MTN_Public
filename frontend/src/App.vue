@@ -9,7 +9,6 @@ import { formatPlayerCount, useSiteContent } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
 const menuOpen = ref(false)
-const isLoading = ref(true)
 const route = useRoute()
 const siteContent = useSiteContent()
 
@@ -39,9 +38,9 @@ watch(
   }
 )
 
-onMounted(async () => {
-  await Promise.allSettled([serverStatus.refresh(), initPreloading()])
-  isLoading.value = false
+onMounted(() => {
+  void serverStatus.refresh()
+  void initPreloading()
   serverStatus.startPolling()
 })
 
@@ -52,23 +51,6 @@ onUnmounted(() => {
 
 <template>
   <div class="app-shell">
-    <div :class="['loader-overlay', { hidden: !isLoading }]">
-      <div class="loader-mark glass-card">
-        <div class="loader-topline">
-          <span class="hud-kicker">{{ siteContent.app.loader.kicker }}</span>
-          <span class="loader-status">{{ siteContent.app.loader.status }}</span>
-        </div>
-        <div class="loader-grid">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        <h2 class="loader-title">{{ siteContent.app.loader.title }}</h2>
-        <div class="loader-scanline"></div>
-      </div>
-    </div>
-
     <header class="top-bar">
       <div class="top-bar-glow"></div>
       <nav class="container nav-frame">
@@ -87,12 +69,12 @@ onUnmounted(() => {
               <a
                 v-if="item.external"
                 :href="item.to"
-                :class="['nav-link', 'nav-link-external', { 'nav-link-emphasis': item.emphasize }]"
+                :class="['nav-link', 'nav-link-external', 'action-inline', 'action-press', { 'nav-link-emphasis': item.emphasize }]"
                 @click="closeMenu"
               >
                 {{ item.label }}
               </a>
-              <RouterLink v-else :to="item.to" class="nav-link" @click="closeMenu">
+              <RouterLink v-else :to="item.to" class="nav-link action-inline action-press" @click="closeMenu">
                 {{ item.label }}
               </RouterLink>
             </template>
@@ -110,7 +92,7 @@ onUnmounted(() => {
           <LocaleSwitcher />
         </div>
 
-        <button class="menu-toggle" type="button" :aria-label="siteContent.app.menuToggleAria" @click="toggleMenu">
+        <button class="menu-toggle action-inline action-press" type="button" :aria-label="siteContent.app.menuToggleAria" @click="toggleMenu">
           <span :class="{ active: menuOpen }"></span>
           <span :class="{ active: menuOpen }"></span>
         </button>
@@ -134,82 +116,6 @@ onUnmounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.loader-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at 50% 18%, rgba(76, 147, 251, 0.18), transparent 30%),
-    linear-gradient(180deg, rgba(10, 11, 14, 0.96), rgba(0, 0, 0, 1));
-  transition: opacity 0.4s ease;
-}
-
-.loader-overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.loader-mark {
-  width: min(430px, calc(100vw - 2rem));
-  display: grid;
-  gap: 1.1rem;
-  text-align: center;
-}
-
-.loader-topline {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-}
-
-.loader-status {
-  color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.loader-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.6rem;
-}
-
-.loader-grid span {
-  height: 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  animation: pulse-map 1.2s ease-in-out infinite alternate;
-}
-
-.loader-grid span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.loader-grid span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.loader-grid span:nth-child(4) {
-  animation-delay: 0.45s;
-}
-
-.loader-title {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 600;
-}
-
-.loader-scanline {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(141, 184, 255, 0.85), transparent);
-  animation: loader-sweep 1.8s linear infinite;
 }
 
 .top-bar {
@@ -328,9 +234,11 @@ onUnmounted(() => {
   font-weight: 500;
   letter-spacing: -0.01em;
   transition:
+    transform var(--transition-fast),
     background var(--transition-fast),
     border-color var(--transition-fast),
-    color var(--transition-fast);
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
   border: 1px solid transparent;
 }
 
@@ -366,6 +274,11 @@ onUnmounted(() => {
   border-radius: 999px;
   background: var(--control-surface);
   position: relative;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .menu-toggle span {
@@ -374,7 +287,10 @@ onUnmounted(() => {
   right: 12px;
   height: 2px;
   background: var(--text-main);
-  transition: transform var(--transition-fast), top var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    top var(--transition-fast),
+    opacity var(--transition-fast);
 }
 
 .menu-toggle span:first-child {
@@ -403,37 +319,6 @@ onUnmounted(() => {
 
 .nav-locale-switch {
   display: none;
-}
-
-
-
-@keyframes pulse-map {
-  from {
-    transform: translateY(0);
-    opacity: 0.65;
-  }
-
-  to {
-    transform: translateY(-4px);
-    opacity: 1;
-    box-shadow: 0 8px 18px rgba(76, 147, 251, 0.18);
-  }
-}
-
-@keyframes loader-sweep {
-  from {
-    transform: translateX(-25%);
-    opacity: 0.35;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  to {
-    transform: translateX(25%);
-    opacity: 0.35;
-  }
 }
 
 @media (max-width: 980px) {
@@ -494,11 +379,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
-  .loader-topline {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .nav-frame {
     min-height: 54px;
   }

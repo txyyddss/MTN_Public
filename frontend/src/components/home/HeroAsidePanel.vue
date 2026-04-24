@@ -28,15 +28,15 @@ const quickLinks = computed(() =>
 
       <div class="hero-link-list">
         <template v-for="link in quickLinks" :key="link.label">
-          <a v-if="link.external" :href="link.to" class="hero-link-row">
-            <span class="hero-link-index">{{ link.index }}</span>
+          <a v-if="link.external" :href="link.to" class="hero-link-row action-card action-press">
+            <span class="hero-link-index action-chip">{{ link.index }}</span>
             <span class="hero-link-copy">
               <strong>{{ link.label }}</strong>
               <span>{{ link.description }}</span>
             </span>
           </a>
-          <RouterLink v-else :to="link.to" class="hero-link-row">
-            <span class="hero-link-index">{{ link.index }}</span>
+          <RouterLink v-else :to="link.to" class="hero-link-row action-card action-press">
+            <span class="hero-link-index action-chip">{{ link.index }}</span>
             <span class="hero-link-copy">
               <strong>{{ link.label }}</strong>
               <span>{{ link.description }}</span>

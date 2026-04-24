@@ -111,6 +111,7 @@ onUnmounted(() => {
         <input
           id="player-search"
           v-model="searchQuery"
+          class="action-field"
           name="player-search"
           :placeholder="siteContent.players.searchPlaceholder"
         />
@@ -118,11 +119,11 @@ onUnmounted(() => {
 
       <div class="control-actions">
         <div class="segmented-control">
-          <button :class="['switch-btn', { active: !showAll }]" type="button" @click="showAll = false">
+          <button :class="['switch-btn', 'action-inline', 'action-press', { active: !showAll }]" type="button" @click="showAll = false">
             {{ siteContent.players.recentLabel }}
             <small>{{ siteContent.players.recentDetail.replace('{days}', String(activeDays)) }}</small>
           </button>
-          <button :class="['switch-btn', { active: showAll }]" type="button" @click="showAll = true">
+          <button :class="['switch-btn', 'action-inline', 'action-press', { active: showAll }]" type="button" @click="showAll = true">
             {{ siteContent.players.allLabel }}
             <small>{{ siteContent.players.allDetail }}</small>
           </button>
@@ -167,14 +168,14 @@ onUnmounted(() => {
         v-for="(player, index) in sortedPlayers"
         :key="player.uuid"
         :to="`/player/${player.uuid}`"
-        class="player-card glass-card animate-entry"
+        class="player-card glass-card action-card animate-entry"
         :style="{ animationDelay: `${(index % 18) * 0.03}s` }"
       >
         <div class="player-head">
           <img
             :src="getAvatarUrl(player.last_known_name, player.type)"
             :alt="player.last_known_name || siteContent.players.firstSeenFallback"
-            class="player-avatar"
+            class="player-avatar action-media"
             loading="lazy"
           />
           <div class="player-copy">
@@ -182,7 +183,7 @@ onUnmounted(() => {
               <h2 :class="['player-name', 'minecraft-font', { online: isOnline(player.uuid) }]">
                 {{ player.last_known_name || siteContent.players.firstSeenFallback }}
               </h2>
-              <span :class="['player-status', { online: isOnline(player.uuid) }]">
+              <span :class="['player-status', 'action-chip', { online: isOnline(player.uuid) }]">
                 {{ isOnline(player.uuid) ? siteContent.players.onlineNow : getPlatformLabel(player.type) }}
               </span>
             </div>

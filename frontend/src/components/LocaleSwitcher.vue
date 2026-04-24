@@ -24,7 +24,7 @@ const siteContent = useSiteContent()
         v-for="option in localeOptions"
         :key="option.value"
         type="button"
-        :class="['locale-button', { active: currentLocale === option.value }]"
+        :class="['locale-button', 'action-inline', 'action-press', { active: currentLocale === option.value }]"
         @click="setLocale(option.value)"
       >
         {{ option.label }}

@@ -85,13 +85,18 @@ onUnmounted(() => {
         v-for="(image, index) in images"
         :key="image"
         type="button"
-        :class="['gallery-card', 'glass-card', 'animate-entry', { passive: isPhone }]"
+        :class="['gallery-card', 'glass-card', 'action-card', 'animate-entry', { passive: isPhone }]"
         :aria-disabled="isPhone"
         :tabindex="isPhone ? -1 : 0"
         :style="{ animationDelay: `${(index % 18) * 0.04}s` }"
         @click="openLightbox(index)"
       >
-        <img :src="`/gallery-images/${image}`" :alt="`${siteContent.gallery.frameLabel} ${index + 1}`" loading="lazy" />
+        <img
+          :src="`/gallery-images/${image}`"
+          :alt="`${siteContent.gallery.frameLabel} ${index + 1}`"
+          class="action-media"
+          loading="lazy"
+        />
         <div class="gallery-meta">
           <strong>{{ images.length - index }}</strong>
         </div>

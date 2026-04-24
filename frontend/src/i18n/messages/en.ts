@@ -12,11 +12,6 @@ const en = {
     app: {
       brandSubline: 'Survival atlas',
       menuToggleAria: 'Toggle navigation',
-      loader: {
-        kicker: 'SURVIVAL ATLAS',
-        title: 'Mapping the world...',
-        status: 'Boot sequence'
-      },
       locale: {
         label: 'Language',
         options: [
@@ -27,7 +22,6 @@ const en = {
       nav: [
         { id: 'home', label: 'Home', to: '/' },
         { id: 'players', label: 'Players', to: '/players' },
-        { id: 'core-members', label: 'Core Members', to: '/core-members' },
         { id: 'gallery', label: 'Gallery', to: '/gallery' },
         { id: 'wiki', label: 'Wiki', to: 'https://mtn.1919801.xyz/', external: true, emphasize: true }
       ]
@@ -51,7 +45,6 @@ const en = {
         fallback: 'Open this route.',
         descriptions: {
           players: 'Browse the current archive and jump into individual records.',
-          'core-members': 'See who runs operations and keeps the server moving.',
           gallery: 'Open the visual world log.',
           wiki: 'Read the server handbook and gameplay details.'
         }
@@ -279,15 +272,6 @@ const en = {
       previousImage: 'Previous image',
       nextImage: 'Next image'
     },
-    coreMembers: {
-      eyebrow: 'Core members',
-      title: 'The people keeping the server running.',
-      body: 'Operations, maintenance, and long-term building are carried by a small core team. This page stays content-driven so updates remain simple.',
-      nicknamesLabel: 'Also known as',
-      roleLabel: 'Role',
-      introLabel: 'Introduction',
-      noneLabel: 'None'
-    },
     wikiRedirect: {
       kicker: 'Wiki',
       title: 'Redirecting to the MTNetwork wiki.',
@@ -470,27 +454,7 @@ const en = {
     end: 'The End',
     others: 'Others'
   },
-  advancementNames,
-  coreMembers: [
-    {
-      name: 'mc9957',
-      nicknames: ['MC9957', 'MC9958'],
-      role: 'Hardware Admin',
-      introduction: 'The founder of the server and currently the hardware maintainer'
-    },
-    {
-      name: 'txrog',
-      nicknames: ['MADIAM2395', 'txro'],
-      role: 'Software Admin',
-      introduction: 'The software maintainer and developer'
-    },
-    {
-      name: 'wor114514',
-      nicknames: ['SoupFlip114'],
-      role: 'Contributor',
-      introduction: "The server's most active player, built most of the buildings and machines"
-    }
-  ]
+  advancementNames
 } as const
 
 export default en

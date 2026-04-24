@@ -3,11 +3,6 @@ const zhCN = {
     app: {
       brandSubline: '生存图鉴',
       menuToggleAria: '切换导航菜单',
-      loader: {
-        kicker: '生存图鉴',
-        title: '正在绘制世界地图...',
-        status: '启动序列'
-      },
       locale: {
         label: '语言',
         options: [
@@ -18,7 +13,6 @@ const zhCN = {
       nav: [
         { id: 'home', label: '首页', to: '/' },
         { id: 'players', label: '玩家', to: '/players' },
-        { id: 'core-members', label: '核心成员', to: '/core-members' },
         { id: 'gallery', label: '画廊', to: '/gallery' },
         { id: 'wiki', label: '百科', to: 'https://mtn.1919801.xyz/', external: true, emphasize: true }
       ]
@@ -42,7 +36,6 @@ const zhCN = {
         fallback: '打开此页面。',
         descriptions: {
           players: '浏览当前档案，并跳转到任意玩家记录。',
-          'core-members': '查看谁在维护服务器并推动项目运行。',
           gallery: '打开世界影像档案。',
           wiki: '阅读服务器手册与玩法说明。'
         }
@@ -269,15 +262,6 @@ const zhCN = {
       frameLabel: '画面',
       previousImage: '上一张图片',
       nextImage: '下一张图片'
-    },
-    coreMembers: {
-      eyebrow: '核心成员',
-      title: '维持服务器运转的人。',
-      body: '运营、维护与长期建设由一个规模不大的核心团队承担。这个页面保持内容驱动，方便随时更新。',
-      nicknamesLabel: '也叫作',
-      roleLabel: '职责',
-      introLabel: '简介',
-      noneLabel: '无'
     },
     wikiRedirect: {
       kicker: '百科',
@@ -565,27 +549,7 @@ const zhCN = {
     'minecraft:story/cure_zombie_villager': '僵尸医生',
     'minecraft:story/follow_ender_eye': '照着眼睛走',
     'minecraft:story/enter_the_end': '终局之地'
-  },
-  coreMembers: [
-    {
-      name: 'mc9957',
-      nicknames: ['MC9957', 'MC9958'],
-      role: '硬件管理员',
-      introduction: '服务器的创始人，目前负责硬件维护。'
-    },
-    {
-      name: 'txrog',
-      nicknames: ['MADIAM2395', 'txro'],
-      role: '软件管理员',
-      introduction: '负责网站、插件与后端开发维护。'
-    },
-    {
-      name: 'wor114514',
-      nicknames: ['SoupFlip114'],
-      role: '贡献者',
-      introduction: '服务器中最活跃的玩家之一，完成了大量建筑与机器项目。'
-    }
-  ]
+  }
 } as const
 
 export default zhCN

@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { SUPPORTED_LOCALES, i18n, setLocale, useCurrentLocale } from '@/i18n'
 import en from '@/i18n/messages/en'
 import type { FixedLeaderboardType, StatGroup } from '@/types/api'
-import type { CoreMember } from '@/types/coreMembers'
 
 export type LocaleMessages = typeof en
 export type SiteContent = LocaleMessages['siteContent']
@@ -29,13 +28,6 @@ export function useSiteContent() {
   return computed(() => {
     touchLocale()
     return getMessages().siteContent
-  })
-}
-
-export function useCoreMembers() {
-  return computed(() => {
-    touchLocale()
-    return getMessages().coreMembers as unknown as CoreMember[]
   })
 }
 
