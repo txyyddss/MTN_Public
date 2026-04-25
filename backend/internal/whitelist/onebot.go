@@ -77,7 +77,7 @@ func (o *OneBotService) run(ctx context.Context) error {
 	}
 	defer conn.Close(websocket.StatusNormalClosure, "shutdown")
 
-	log.Println("OneBot whitelist service connected")
+	log.Printf("OneBot whitelist service connected: ws_url=%s qq_group_id=%s", o.cfg.WebSocketURL, o.cfg.QQGroupID)
 	sendMu := &sync.Mutex{}
 
 	for {
@@ -103,6 +103,7 @@ func (o *OneBotService) run(ctx context.Context) error {
 		if !isOneBotGroupMessagePost(event.PostType) || event.MessageType != "group" {
 			continue
 		}
+		log.Printf("OneBot group message event received: post_type=%s group=%s user=%s raw=%q", event.PostType, event.GroupID, event.UserID, event.RawMessage)
 
 		command, matched, err := ParseCommand(event.RawMessage)
 		if !matched {
