@@ -89,11 +89,18 @@ func (o *OneBotService) run(ctx context.Context) error {
 			return fmt.Errorf("read onebot websocket: %w", err)
 		}
 
+		if response, ok := parseOneBotActionResponse(data); ok {
+			if response.Echo != "" && strings.HasPrefix(response.Echo, "whitelist-") && response.Retcode != 0 {
+				log.Printf("OneBot API action %s failed: status=%s retcode=%d message=%s wording=%s", response.Echo, response.Status, response.Retcode, response.Message, response.Wording)
+			}
+			continue
+		}
+
 		event, ok := parseOneBotGroupEvent(data)
 		if !ok {
 			continue
 		}
-		if !isOneBotGroupMessagePost(event.PostType) || event.MessageType != "group" || string(event.GroupID) != o.cfg.QQGroupID {
+		if !isOneBotGroupMessagePost(event.PostType) || event.MessageType != "group" {
 			continue
 		}
 
@@ -101,11 +108,17 @@ func (o *OneBotService) run(ctx context.Context) error {
 		if !matched {
 			continue
 		}
+		if string(event.GroupID) != o.cfg.QQGroupID {
+			log.Printf("OneBot command ignored from group %s; configured group is %s", event.GroupID, o.cfg.QQGroupID)
+			continue
+		}
 		if err != nil {
+			log.Printf("OneBot invalid whitelist command from group %s user %s: %q", event.GroupID, event.UserID, event.RawMessage)
 			o.sendGroupReply(ctx, conn, sendMu, event.GroupID, oneBotCommandUsage)
 			continue
 		}
 
+		log.Printf("OneBot whitelist command matched: post_type=%s group=%s user=%s action=%s edition=%s player=%s", event.PostType, event.GroupID, event.UserID, command.Action, command.Edition, command.PlayerName)
 		go o.handleCommand(ctx, conn, sendMu, event, command)
 	}
 }
@@ -145,6 +158,9 @@ func (o *OneBotService) handleCommand(parent context.Context, conn *websocket.Co
 	}
 
 	message := formatOneBotResult(command, result, err, quota, admin)
+	if err != nil {
+		log.Printf("OneBot whitelist command failed: group=%s user=%s action=%s edition=%s player=%s error=%v", event.GroupID, event.UserID, command.Action, command.Edition, command.PlayerName, err)
+	}
 	o.sendGroupReply(parent, conn, sendMu, event.GroupID, message)
 }
 
@@ -256,6 +272,14 @@ func parseOneBotGroupEvent(data []byte) (oneBotGroupEvent, bool) {
 	return event, event.PostType != ""
 }
 
+func parseOneBotActionResponse(data []byte) (oneBotActionResponse, bool) {
+	var response oneBotActionResponse
+	if err := json.Unmarshal(data, &response); err != nil {
+		return response, false
+	}
+	return response, response.Status != "" || response.Echo != ""
+}
+
 func isOneBotGroupMessagePost(postType string) bool {
 	return postType == "message" || postType == "message_sent"
 }
@@ -325,6 +349,14 @@ func (m *oneBotMessageText) UnmarshalJSON(data []byte) error {
 type oneBotMessageSegment struct {
 	Type string         `json:"type"`
 	Data map[string]any `json:"data"`
+}
+
+type oneBotActionResponse struct {
+	Status  string `json:"status"`
+	Retcode int    `json:"retcode"`
+	Echo    string `json:"echo"`
+	Message string `json:"message"`
+	Wording string `json:"wording"`
 }
 
 func (id *oneBotID) UnmarshalJSON(data []byte) error {

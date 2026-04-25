@@ -190,6 +190,45 @@ func TestOneBotGroupMessagePostTypes(t *testing.T) {
 	}
 }
 
+func TestParseOneBotMessageSentGroupCommand(t *testing.T) {
+	t.Parallel()
+
+	data := []byte(`{
+		"self_id": 2731818648,
+		"user_id": 2731818648,
+		"post_type": "message_sent",
+		"message_sent_type": "self",
+		"message_type": "group",
+		"group_id": 1064494318,
+		"raw_message": "bind java txro",
+		"message": [
+			{"type": "text", "data": {"text": "bind java txro"}}
+		],
+		"sender": {"user_id": 2731818648, "nickname": "TX", "card": "TX", "role": "admin"}
+	}`)
+
+	event, ok := parseOneBotGroupEvent(data)
+	if !ok {
+		t.Fatal("expected event")
+	}
+	if !isOneBotGroupMessagePost(event.PostType) {
+		t.Fatalf("unexpected post type: %q", event.PostType)
+	}
+	command, matched, err := ParseCommand(event.RawMessage)
+	if err != nil {
+		t.Fatalf("parse command: %v", err)
+	}
+	if !matched {
+		t.Fatal("expected command match")
+	}
+	if string(event.GroupID) != "1064494318" || string(event.UserID) != "2731818648" {
+		t.Fatalf("unexpected ids: group=%q user=%q", event.GroupID, event.UserID)
+	}
+	if command.Action != ActionAdd || command.Edition != EditionJava || command.PlayerName != "txro" {
+		t.Fatalf("unexpected command: %#v", command)
+	}
+}
+
 func TestMaskQQID(t *testing.T) {
 	t.Parallel()
 

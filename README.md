@@ -20,6 +20,7 @@ The backend includes optional whitelist management through RCON, a bearer-token 
 - `whitelist.api_token`, `whitelist.max_per_qq`
 
 For NapCat forward WebSocket server mode, `onebot.ws_url` should point at the WebSocket root, for example `ws://127.0.0.1:3001/`, so the backend can receive group message events and send `send_group_msg` actions on the same connection.
+In NapCat's WebSocket server config, use `messagePostFormat: "array"`. If you issue commands from the same QQ account that NapCat is logged into, also set `reportSelfMessage: true`; otherwise send commands from another QQ account in the group.
 
 The frontend admin page is available at `/whitelist` and sends the whitelist token only as a browser-side bearer token.
 
