@@ -93,7 +93,7 @@ func (o *OneBotService) run(ctx context.Context) error {
 		if !ok {
 			continue
 		}
-		if event.PostType != "message" || event.MessageType != "group" || string(event.GroupID) != o.cfg.QQGroupID {
+		if !isOneBotGroupMessagePost(event.PostType) || event.MessageType != "group" || string(event.GroupID) != o.cfg.QQGroupID {
 			continue
 		}
 
@@ -250,7 +250,14 @@ func parseOneBotGroupEvent(data []byte) (oneBotGroupEvent, bool) {
 	if err := json.Unmarshal(data, &event); err != nil {
 		return event, false
 	}
+	if event.RawMessage == "" {
+		event.RawMessage = string(event.Message)
+	}
 	return event, event.PostType != ""
+}
+
+func isOneBotGroupMessagePost(postType string) bool {
+	return postType == "message" || postType == "message_sent"
 }
 
 func idParam(id oneBotID) any {
@@ -262,12 +269,13 @@ func idParam(id oneBotID) any {
 }
 
 type oneBotGroupEvent struct {
-	PostType    string       `json:"post_type"`
-	MessageType string       `json:"message_type"`
-	GroupID     oneBotID     `json:"group_id"`
-	UserID      oneBotID     `json:"user_id"`
-	RawMessage  string       `json:"raw_message"`
-	Sender      oneBotSender `json:"sender"`
+	PostType    string            `json:"post_type"`
+	MessageType string            `json:"message_type"`
+	GroupID     oneBotID          `json:"group_id"`
+	UserID      oneBotID          `json:"user_id"`
+	Message     oneBotMessageText `json:"message"`
+	RawMessage  string            `json:"raw_message"`
+	Sender      oneBotSender      `json:"sender"`
 }
 
 type oneBotSender struct {
@@ -275,6 +283,49 @@ type oneBotSender struct {
 }
 
 type oneBotID string
+
+type oneBotMessageText string
+
+func (m *oneBotMessageText) UnmarshalJSON(data []byte) error {
+	raw := strings.TrimSpace(string(data))
+	if raw == "" || raw == "null" {
+		*m = ""
+		return nil
+	}
+
+	var text string
+	if strings.HasPrefix(raw, `"`) {
+		if err := json.Unmarshal(data, &text); err != nil {
+			return err
+		}
+		*m = oneBotMessageText(text)
+		return nil
+	}
+
+	var segments []oneBotMessageSegment
+	if err := json.Unmarshal(data, &segments); err != nil {
+		return err
+	}
+
+	var builder strings.Builder
+	for _, segment := range segments {
+		if segment.Type != "text" {
+			continue
+		}
+		text, ok := segment.Data["text"].(string)
+		if !ok {
+			continue
+		}
+		builder.WriteString(text)
+	}
+	*m = oneBotMessageText(builder.String())
+	return nil
+}
+
+type oneBotMessageSegment struct {
+	Type string         `json:"type"`
+	Data map[string]any `json:"data"`
+}
 
 func (id *oneBotID) UnmarshalJSON(data []byte) error {
 	raw := strings.TrimSpace(string(data))

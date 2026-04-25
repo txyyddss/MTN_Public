@@ -36,7 +36,7 @@
     },
     "onebot": {
         "enabled": false,
-        "ws_url": "ws://127.0.0.1:3001/api",
+        "ws_url": "ws://127.0.0.1:3001/",
         "token": "your_onebot_token",
         "qq_group_id": "your_qq_group_id",
         "reconnect_seconds": 5

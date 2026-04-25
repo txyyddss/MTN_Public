@@ -13,13 +13,13 @@ type Command struct {
 
 // ParseCommand parses exact bind and unbind group command forms.
 func ParseCommand(rawMessage string) (*Command, bool, error) {
-	fields := strings.Fields(strings.TrimSpace(rawMessage))
+	fields := strings.Fields(normalizeOneBotCommandText(rawMessage))
 	if len(fields) == 0 {
 		return nil, false, nil
 	}
 
 	var action Action
-	switch strings.ToLower(fields[0]) {
+	switch normalizeCommandToken(fields[0]) {
 	case "bind":
 		action = ActionAdd
 	case "unbind":
@@ -49,6 +49,25 @@ func ParseCommand(rawMessage string) (*Command, bool, error) {
 		Edition:    edition,
 		PlayerName: playerName,
 	}, true, nil
+}
+
+func normalizeOneBotCommandText(rawMessage string) string {
+	message := strings.TrimSpace(rawMessage)
+	for {
+		if !strings.HasPrefix(message, "[CQ:at,") {
+			return message
+		}
+
+		end := strings.IndexByte(message, ']')
+		if end < 0 {
+			return message
+		}
+		message = strings.TrimSpace(message[end+1:])
+	}
+}
+
+func normalizeCommandToken(token string) string {
+	return strings.ToLower(strings.TrimLeft(strings.TrimSpace(token), "/!#"))
 }
 
 // ValidatePlayerName checks that a player token is safe to place in an RCON command.

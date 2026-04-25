@@ -19,6 +19,8 @@ The backend includes optional whitelist management through RCON, a bearer-token 
 - `onebot.enabled`, `onebot.ws_url`, `onebot.token`, `onebot.qq_group_id`
 - `whitelist.api_token`, `whitelist.max_per_qq`
 
+For NapCat forward WebSocket server mode, `onebot.ws_url` should point at the WebSocket root, for example `ws://127.0.0.1:3001/`, so the backend can receive group message events and send `send_group_msg` actions on the same connection.
+
 The frontend admin page is available at `/whitelist` and sends the whitelist token only as a browser-side bearer token.
 
 ## Frontend Setup

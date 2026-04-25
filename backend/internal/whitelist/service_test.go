@@ -39,6 +39,22 @@ func TestParseCommand(t *testing.T) {
 			player:  "Bedrock_User",
 		},
 		{
+			name:    "leading at mention",
+			raw:     "[CQ:at,qq=123456] bind java Steve",
+			matched: true,
+			edition: EditionJava,
+			action:  ActionAdd,
+			player:  "Steve",
+		},
+		{
+			name:    "slash command",
+			raw:     "/bind bedrock Bedrock_User",
+			matched: true,
+			edition: EditionBedrock,
+			action:  ActionAdd,
+			player:  "Bedrock_User",
+		},
+		{
 			name:    "legacy java command invalid",
 			raw:     "whitelist add Steve",
 			matched: true,
@@ -91,6 +107,84 @@ func TestParseCommand(t *testing.T) {
 			}
 			if command.Edition != tt.edition || command.Action != tt.action || command.PlayerName != tt.player {
 				t.Fatalf("unexpected command: %#v", command)
+			}
+		})
+	}
+}
+
+func TestParseOneBotGroupEventUsesMessageFallback(t *testing.T) {
+	t.Parallel()
+
+	data := []byte(`{
+		"post_type": "message",
+		"message_type": "group",
+		"group_id": 10001,
+		"user_id": 20002,
+		"message": "bind java Steve",
+		"sender": {"role": "member"}
+	}`)
+
+	event, ok := parseOneBotGroupEvent(data)
+	if !ok {
+		t.Fatal("expected event")
+	}
+	if event.RawMessage != "bind java Steve" {
+		t.Fatalf("raw message = %q, want %q", event.RawMessage, "bind java Steve")
+	}
+	if string(event.GroupID) != "10001" || string(event.UserID) != "20002" {
+		t.Fatalf("unexpected ids: group=%q user=%q", event.GroupID, event.UserID)
+	}
+}
+
+func TestParseOneBotGroupEventUsesSegmentTextFallback(t *testing.T) {
+	t.Parallel()
+
+	data := []byte(`{
+		"post_type": "message",
+		"message_type": "group",
+		"group_id": "10001",
+		"user_id": "20002",
+		"message": [
+			{"type": "at", "data": {"qq": "123456"}},
+			{"type": "text", "data": {"text": " bind bedrock Bedrock_User"}}
+		],
+		"sender": {"role": "admin"}
+	}`)
+
+	event, ok := parseOneBotGroupEvent(data)
+	if !ok {
+		t.Fatal("expected event")
+	}
+	command, matched, err := ParseCommand(event.RawMessage)
+	if err != nil {
+		t.Fatalf("parse command: %v", err)
+	}
+	if !matched {
+		t.Fatal("expected command match")
+	}
+	if command.Action != ActionAdd || command.Edition != EditionBedrock || command.PlayerName != "Bedrock_User" {
+		t.Fatalf("unexpected command: %#v", command)
+	}
+}
+
+func TestOneBotGroupMessagePostTypes(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		postType string
+		want     bool
+	}{
+		{postType: "message", want: true},
+		{postType: "message_sent", want: true},
+		{postType: "notice", want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.postType, func(t *testing.T) {
+			t.Parallel()
+
+			if got := isOneBotGroupMessagePost(tt.postType); got != tt.want {
+				t.Fatalf("isOneBotGroupMessagePost(%q) = %v, want %v", tt.postType, got, tt.want)
 			}
 		})
 	}
