@@ -137,7 +137,7 @@ func (o *OneBotService) handleCommand(parent context.Context, conn *websocket.Co
 		ActorQQID:    string(event.UserID),
 		Source:       SourceOneBot,
 		Admin:        admin,
-		EnforceQuota: !admin,
+		EnforceQuota: true,
 	}
 
 	var (
@@ -153,19 +153,19 @@ func (o *OneBotService) handleCommand(parent context.Context, conn *websocket.Co
 		err = ErrInvalidInput
 	}
 
-	quota, quotaErr := o.whitelistService.Quota(ctx, string(event.UserID), admin)
+	quota, quotaErr := o.whitelistService.Quota(ctx, string(event.UserID), false)
 	if quotaErr != nil {
 		log.Printf("load whitelist quota for qq %s: %v", event.UserID, quotaErr)
 	}
 
-	message := formatOneBotResult(command, result, err, quota, admin)
+	message := formatOneBotResult(command, result, err, quota)
 	if err != nil {
 		log.Printf("OneBot whitelist command failed: group=%s user=%s action=%s edition=%s player=%s error=%v", event.GroupID, event.UserID, command.Action, command.Edition, command.PlayerName, err)
 	}
 	o.sendGroupReply(parent, conn, sendMu, event.GroupID, message)
 }
 
-func formatOneBotResult(command *Command, result *OperationResult, err error, quota *QuotaStatus, admin bool) string {
+func formatOneBotResult(command *Command, result *OperationResult, err error, quota *QuotaStatus) string {
 	if err != nil {
 		var detail string
 		switch {
@@ -185,11 +185,11 @@ func formatOneBotResult(command *Command, result *OperationResult, err error, qu
 			detail = err.Error()
 		}
 
-		return appendQuotaLine(fmt.Sprintf("%s failed for %s (%s): %s.", commandVerb(command), command.PlayerName, command.Edition, detail), quota, admin)
+		return appendQuotaLine(fmt.Sprintf("%s failed for %s (%s): %s.", commandVerb(command), command.PlayerName, command.Edition, detail), quota)
 	}
 
 	if result != nil && !result.Changed && result.Message == "already whitelisted" {
-		return appendQuotaLine(fmt.Sprintf("%s is already whitelisted for %s.", command.PlayerName, command.Edition), resultQuota(result, quota), admin)
+		return appendQuotaLine(fmt.Sprintf("%s is already whitelisted for %s.", command.PlayerName, command.Edition), resultQuota(result, quota))
 	}
 
 	var message string
@@ -201,7 +201,7 @@ func formatOneBotResult(command *Command, result *OperationResult, err error, qu
 	default:
 		message = "Whitelist command completed."
 	}
-	return appendQuotaLine(message, resultQuota(result, quota), admin)
+	return appendQuotaLine(message, resultQuota(result, quota))
 }
 
 func commandVerb(command *Command) string {
@@ -221,15 +221,9 @@ func resultQuota(result *OperationResult, fallback *QuotaStatus) *QuotaStatus {
 	return fallback
 }
 
-func appendQuotaLine(message string, quota *QuotaStatus, admin bool) string {
+func appendQuotaLine(message string, quota *QuotaStatus) string {
 	if quota == nil {
-		if admin {
-			return message + "\nQuota: admin exempt."
-		}
 		return message
-	}
-	if quota.Exempt {
-		return message + "\nQuota: admin exempt."
 	}
 	return fmt.Sprintf("%s\nQuota: %d/%d used, %d remaining.", message, quota.Used, quota.Limit, quota.Remaining)
 }

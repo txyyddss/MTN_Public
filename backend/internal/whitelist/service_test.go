@@ -258,7 +258,7 @@ func TestFormatOneBotResultIncludesQuota(t *testing.T) {
 
 	command := &Command{Action: ActionAdd, Edition: EditionJava, PlayerName: "Steve"}
 	quota := &QuotaStatus{Used: 2, Limit: 3, Remaining: 1}
-	message := formatOneBotResult(command, &OperationResult{Message: "whitelist added", Changed: true, Quota: quota}, nil, nil, false)
+	message := formatOneBotResult(command, &OperationResult{Message: "whitelist added", Changed: true, Quota: quota}, nil, nil)
 
 	if !strings.Contains(message, "Bound Steve to the java whitelist.") {
 		t.Fatalf("missing success detail: %q", message)
@@ -273,7 +273,7 @@ func TestFormatOneBotResultIncludesFailureQuota(t *testing.T) {
 
 	command := &Command{Action: ActionAdd, Edition: EditionBedrock, PlayerName: "Alex"}
 	quota := &QuotaStatus{Used: 3, Limit: 3, Remaining: 0}
-	message := formatOneBotResult(command, nil, ErrQuotaExceeded, quota, false)
+	message := formatOneBotResult(command, nil, ErrQuotaExceeded, quota)
 
 	if !strings.Contains(message, "Bind failed for Alex (bedrock): quota reached") {
 		t.Fatalf("missing failure detail: %q", message)
@@ -311,7 +311,7 @@ func TestFormatOneBotResultIncludesForbiddenAndNotFoundQuota(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			message := formatOneBotResult(tt.command, nil, tt.err, quota, false)
+			message := formatOneBotResult(tt.command, nil, tt.err, quota)
 			if !strings.Contains(message, tt.want) {
 				t.Fatalf("missing failure detail: %q", message)
 			}
@@ -322,27 +322,30 @@ func TestFormatOneBotResultIncludesForbiddenAndNotFoundQuota(t *testing.T) {
 	}
 }
 
-func TestFormatOneBotResultAdminQuotaExempt(t *testing.T) {
+func TestFormatOneBotResultDoesNotDisplayExemptQuota(t *testing.T) {
 	t.Parallel()
 
 	command := &Command{Action: ActionRemove, Edition: EditionJava, PlayerName: "Steve"}
 	quota := &QuotaStatus{Used: 1, Limit: 3, Remaining: 2, Exempt: true}
-	message := formatOneBotResult(command, &OperationResult{Message: "whitelist removed", Changed: true, Quota: quota}, nil, nil, true)
+	message := formatOneBotResult(command, &OperationResult{Message: "whitelist removed", Changed: true, Quota: quota}, nil, nil)
 
 	if !strings.Contains(message, "Unbound Steve from the java whitelist.") {
 		t.Fatalf("missing success detail: %q", message)
 	}
-	if !strings.Contains(message, "Quota: admin exempt.") {
-		t.Fatalf("missing admin quota detail: %q", message)
+	if strings.Contains(message, "admin exempt") {
+		t.Fatalf("unexpected admin quota detail: %q", message)
+	}
+	if !strings.Contains(message, "Quota: 1/3 used, 2 remaining.") {
+		t.Fatalf("missing quota detail: %q", message)
 	}
 }
 
-func TestFormatOneBotResultUsesQuotaExemptFlag(t *testing.T) {
+func TestFormatOneBotResultUsesQuotaNumbers(t *testing.T) {
 	t.Parallel()
 
 	command := &Command{Action: ActionAdd, Edition: EditionJava, PlayerName: "Steve"}
 	quota := &QuotaStatus{Used: 2, Limit: 3, Remaining: 1, Exempt: false}
-	message := formatOneBotResult(command, &OperationResult{Message: "whitelist added", Changed: true, Quota: quota}, nil, nil, true)
+	message := formatOneBotResult(command, &OperationResult{Message: "whitelist added", Changed: true, Quota: quota}, nil, nil)
 
 	if strings.Contains(message, "admin exempt") {
 		t.Fatalf("unexpected admin quota detail: %q", message)
