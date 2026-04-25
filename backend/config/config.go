@@ -17,6 +17,9 @@ type Config struct {
 	HistoryMySQL     MySQLConfig           `json:"history_mysql"`
 	History          HistoryConfig         `json:"history"`
 	Lucky            LuckyConfig           `json:"lucky"`
+	RCON             RCONConfig            `json:"rcon"`
+	OneBot           OneBotConfig          `json:"onebot"`
+	Whitelist        WhitelistConfig       `json:"whitelist"`
 	LocalConnection  LocalConnectionConfig `json:"local_connection"`
 	Addresses        AddressesConfig       `json:"addresses"`
 	StatusRefreshSec int                   `json:"status_refresh_seconds"`
@@ -43,6 +46,14 @@ type RedisConfig struct {
 	DB       int    `json:"db"`
 }
 
+// RCONConfig holds Minecraft remote console connection settings.
+type RCONConfig struct {
+	Host           string `json:"host"`
+	Port           uint16 `json:"port"`
+	Password       string `json:"password"`
+	TimeoutSeconds int    `json:"timeout_seconds"`
+}
+
 // MySQLConfig holds MySQL connection settings.
 type MySQLConfig struct {
 	DSN string `json:"dsn"`
@@ -58,6 +69,21 @@ type HistoryConfig struct {
 type LuckyConfig struct {
 	ServerURL string `json:"server_url"`
 	Token     string `json:"token"`
+}
+
+// OneBotConfig holds NapCat OneBot 11 WebSocket settings.
+type OneBotConfig struct {
+	Enabled          bool   `json:"enabled"`
+	WebSocketURL     string `json:"ws_url"`
+	Token            string `json:"token"`
+	QQGroupID        string `json:"qq_group_id"`
+	ReconnectSeconds int    `json:"reconnect_seconds"`
+}
+
+// WhitelistConfig holds whitelist API and quota settings.
+type WhitelistConfig struct {
+	APIToken string `json:"api_token"`
+	MaxPerQQ int    `json:"max_per_qq"`
 }
 
 // AddressesConfig holds static server address configuration.
@@ -87,10 +113,31 @@ func Load(path string) (*Config, error) {
 			Timezone:      "Local",
 			RetentionDays: 7,
 		},
+		RCON: RCONConfig{
+			Host:           "127.0.0.1",
+			Port:           25575,
+			TimeoutSeconds: 5,
+		},
+		OneBot: OneBotConfig{
+			ReconnectSeconds: 5,
+		},
+		Whitelist: WhitelistConfig{
+			MaxPerQQ: 3,
+		},
 	}
 
 	if err := json.Unmarshal(data, cfg); err != nil {
 		return nil, fmt.Errorf("parse config: %w", err)
+	}
+
+	if cfg.RCON.TimeoutSeconds <= 0 {
+		cfg.RCON.TimeoutSeconds = 5
+	}
+	if cfg.OneBot.ReconnectSeconds <= 0 {
+		cfg.OneBot.ReconnectSeconds = 5
+	}
+	if cfg.Whitelist.MaxPerQQ <= 0 {
+		cfg.Whitelist.MaxPerQQ = 3
 	}
 
 	return cfg, nil

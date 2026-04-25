@@ -9,13 +9,22 @@ import PlayerSkills from '@/components/player/PlayerSkills.vue'
 import { useRevealOnScroll } from '@/composables/useRevealOnScroll'
 import { useSiteContent } from '@/content/siteContent'
 import type { LeaderboardTarget } from '@/types/api'
-import type { FormattedSkillEntry, LinkedAccount, McMMOSkills, PlayerInfo, OreStat, PlayerOnlineHeatmap } from '@/types/api'
+import type {
+  FormattedSkillEntry,
+  LinkedAccount,
+  McMMOSkills,
+  OreStat,
+  PlayerInfo,
+  PlayerOnlineHeatmap,
+  WhitelistAccount
+} from '@/types/api'
 import type { PlayerRankHighlight } from '@/types/playerDetail'
 
 const props = defineProps<{
   info: PlayerInfo
   isOnline: boolean
   linkedAccount: LinkedAccount | null
+  whitelistAccount: WhitelistAccount | null
   oreStats: OreStat[]
   mcmmo: McMMOSkills | null
   ranks: Record<string, number>
@@ -65,6 +74,7 @@ const overviewMetrics = computed(() => [
         :info="info"
         :is-online="isOnline"
         :linked-account="linkedAccount"
+        :whitelist-account="whitelistAccount"
         :format-playtime="formatPlaytime"
       />
     </div>

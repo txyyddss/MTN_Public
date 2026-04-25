@@ -36,7 +36,8 @@ const currentLocale = useCurrentLocale()
 const playerStatGroups = usePlayerStatGroups()
 
 const uuid = computed(() => route.params.uuid as string)
-const { loading, info, stats, advancements, mcmmo, linkedAccount, oreStats, ranks, onlineHeatmap } = usePlayerDetail(uuid)
+const { loading, info, stats, advancements, mcmmo, linkedAccount, whitelistAccount, oreStats, ranks, onlineHeatmap } =
+  usePlayerDetail(uuid)
 const { formatStatName, formatStatValue, getStatIconPath, getFilteredStats, getFilteredMcmmo } = usePlayerStats(stats)
 const { totalAdvancements, completedAdvancements, categorizedAdvancements, getAdvancementMetadata, getAdvIconPath } =
   useAdvancements(advancements)
@@ -235,6 +236,7 @@ function closeLeaderboard(): void {
           :info="info"
           :is-online="isOnline"
           :linked-account="linkedAccount"
+          :whitelist-account="whitelistAccount"
           :ore-stats="oreStats"
           :mcmmo="mcmmo"
           :ranks="ranks"

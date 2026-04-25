@@ -10,7 +10,8 @@ import type {
   PlayerDetailResponse,
   PlayerInfo,
   PlayerOnlineHeatmap,
-  PlayerStatBuckets
+  PlayerStatBuckets,
+  WhitelistAccount
 } from '@/types/api'
 
 export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
@@ -20,6 +21,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
   const advancements = ref<PlayerAdvancement[] | null>(null)
   const mcmmo = ref<McMMOSkills | null>(null)
   const linkedAccount = ref<LinkedAccount | null>(null)
+  const whitelistAccount = ref<WhitelistAccount | null>(null)
   const oreStats = ref<OreStat[]>([])
   const ranks = ref<Record<string, number>>({})
   const onlineHeatmap = ref<PlayerOnlineHeatmap | null>(null)
@@ -31,6 +33,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
       advancements.value = null
       mcmmo.value = null
       linkedAccount.value = null
+      whitelistAccount.value = null
       oreStats.value = []
       ranks.value = {}
       onlineHeatmap.value = null
@@ -47,6 +50,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
       advancements.value = json.advancements?.advancements ?? []
       mcmmo.value = json.mcmmo
       linkedAccount.value = json.linked_account
+      whitelistAccount.value = json.whitelist_account
       oreStats.value = json.ore_stats ?? []
       ranks.value = json.ranks ?? {}
       onlineHeatmap.value = json.online_heatmap ?? null
@@ -57,6 +61,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
       advancements.value = null
       mcmmo.value = null
       linkedAccount.value = null
+      whitelistAccount.value = null
       oreStats.value = []
       ranks.value = {}
       onlineHeatmap.value = null
@@ -80,6 +85,7 @@ export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
     advancements,
     mcmmo,
     linkedAccount,
+    whitelistAccount,
     oreStats,
     ranks,
     onlineHeatmap,

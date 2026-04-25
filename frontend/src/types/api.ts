@@ -109,6 +109,12 @@ export interface LinkedAccount {
   java_username: string
 }
 
+export interface WhitelistAccount {
+  edition: WhitelistEdition
+  player_name: string
+  qq_id_masked: string
+}
+
 export interface OreStat {
   name: string
   mined: number
@@ -167,6 +173,7 @@ export interface PlayerDetailResponse {
   advancements: PlayerAdvancementsPayload | null
   mcmmo: McMMOSkills | null
   linked_account: LinkedAccount | null
+  whitelist_account: WhitelistAccount | null
   ore_stats: OreStat[]
   ranks: Record<string, number>
   online_heatmap?: PlayerOnlineHeatmap | null
@@ -233,4 +240,44 @@ export interface FormattedSkillEntry {
   key: McMMOSkillKey
   label: string
   level: number
+}
+
+export type WhitelistEdition = 'java' | 'bedrock'
+export type WhitelistEditionFilter = WhitelistEdition | 'all'
+export type WhitelistAction = 'add' | 'remove'
+
+export interface WhitelistEntry {
+  id: number
+  qq_id?: string
+  edition: WhitelistEdition
+  player_name: string
+  normalized_player_name: string
+  active: boolean
+  created_at: string
+  updated_at: string
+  removed_at?: string
+}
+
+export interface WhitelistListResponse {
+  entries: WhitelistEntry[]
+  count: number
+}
+
+export interface WhitelistMutationInput {
+  edition: WhitelistEdition
+  playerName: string
+  qqId?: string
+}
+
+export interface WhitelistOperationResponse {
+  entry?: WhitelistEntry
+  rcon_output?: string
+  message: string
+  changed: boolean
+  quota?: {
+    used: number
+    limit: number
+    remaining: number
+    exempt?: boolean
+  }
 }

@@ -2,13 +2,14 @@
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import SkinViewer from '@/components/SkinViewer.vue'
 import { useSiteContent } from '@/content/siteContent'
-import type { LinkedAccount, PlayerInfo } from '@/types/api'
+import type { LinkedAccount, PlayerInfo, WhitelistAccount } from '@/types/api'
 import { getSkinUrl } from '@/utils/minecraft'
 
 defineProps<{
   info: PlayerInfo
   isOnline: boolean
   linkedAccount: LinkedAccount | null
+  whitelistAccount: WhitelistAccount | null
   formatPlaytime: (value: number) => string
 }>()
 
@@ -38,6 +39,10 @@ const siteContent = useSiteContent()
       <div v-if="linkedAccount && info.type === 'Bedrock'" class="info-row">
         <span class="label">{{ siteContent.playerDetail.profile.linkedTo }}</span>
         <span class="value linked">{{ linkedAccount.bedrock_username || linkedAccount.java_username }}</span>
+      </div>
+      <div v-if="whitelistAccount" class="info-row">
+        <span class="label">{{ siteContent.playerDetail.profile.qqOwner }}</span>
+        <span class="value linked">{{ whitelistAccount.qq_id_masked }}</span>
       </div>
     </div>
   </PlayerCollapsiblePanel>

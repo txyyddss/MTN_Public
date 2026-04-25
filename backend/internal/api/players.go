@@ -14,6 +14,7 @@ import (
 	"github.com/mtn-server/backend/internal/data"
 	"github.com/mtn-server/backend/internal/database"
 	"github.com/mtn-server/backend/internal/history"
+	"github.com/mtn-server/backend/internal/whitelist"
 )
 
 // PlayerListResponse represents list of players
@@ -49,16 +50,23 @@ type PlayerAdvancementsPayload struct {
 	Advancements []PlayerAdvancement `json:"advancements"`
 }
 
+type PlayerWhitelistAccount struct {
+	Edition    whitelist.Edition `json:"edition"`
+	PlayerName string            `json:"player_name"`
+	QQIDMasked string            `json:"qq_id_masked"`
+}
+
 // PlayerDetailResponse represents detailed player info
 type PlayerDetailResponse struct {
-	Info          *PlayerDetailInfo              `json:"info"`
-	Stats         *data.PlayerStats              `json:"stats"`
-	Advancements  *PlayerAdvancementsPayload     `json:"advancements"`
-	McMMO         *database.McmmoSkills          `json:"mcmmo"`
-	LinkedAccount *database.LinkedPlayer         `json:"linked_account"`
-	OreStats      []OreData                      `json:"ore_stats"`
-	Ranks         map[string]int                 `json:"ranks"`
-	OnlineHeatmap *history.PlayerHeatmapResponse `json:"online_heatmap,omitempty"`
+	Info             *PlayerDetailInfo              `json:"info"`
+	Stats            *data.PlayerStats              `json:"stats"`
+	Advancements     *PlayerAdvancementsPayload     `json:"advancements"`
+	McMMO            *database.McmmoSkills          `json:"mcmmo"`
+	LinkedAccount    *database.LinkedPlayer         `json:"linked_account"`
+	WhitelistAccount *PlayerWhitelistAccount        `json:"whitelist_account"`
+	OreStats         []OreData                      `json:"ore_stats"`
+	Ranks            map[string]int                 `json:"ranks"`
+	OnlineHeatmap    *history.PlayerHeatmapResponse `json:"online_heatmap,omitempty"`
 }
 
 // handlePlayers returns active players or search results.
@@ -224,15 +232,58 @@ func (s *Server) handlePlayerDetail(c *gin.Context) {
 
 	c.Header("Cache-Control", "public, max-age=60, stale-while-revalidate=300")
 	c.JSON(http.StatusOK, PlayerDetailResponse{
-		Info:          slimPlayerDetailInfo(info),
-		Stats:         stats,
-		Advancements:  advancements,
-		McMMO:         mcmmoSkills,
-		LinkedAccount: linkedAccount,
-		OreStats:      oreStats,
-		Ranks:         ranks,
-		OnlineHeatmap: onlineHeatmap,
+		Info:             slimPlayerDetailInfo(info),
+		Stats:            stats,
+		Advancements:     advancements,
+		McMMO:            mcmmoSkills,
+		LinkedAccount:    linkedAccount,
+		WhitelistAccount: s.playerWhitelistAccount(c.Request.Context(), info),
+		OreStats:         oreStats,
+		Ranks:            ranks,
+		OnlineHeatmap:    onlineHeatmap,
 	})
+}
+
+func (s *Server) playerWhitelistAccount(ctx context.Context, info *data.PlayerInfo) *PlayerWhitelistAccount {
+	if s == nil || s.whitelist == nil || info == nil {
+		return nil
+	}
+
+	edition, ok := playerWhitelistEdition(info.Type)
+	if !ok {
+		return nil
+	}
+
+	normalized := whitelist.NormalizePlayerName(info.LastKnownName)
+	if normalized == "" {
+		return nil
+	}
+
+	entry, err := s.whitelist.FindActive(ctx, edition, normalized)
+	if err != nil {
+		log.Printf("lookup player whitelist account %s/%s: %v", edition, normalized, err)
+		return nil
+	}
+	if entry == nil || entry.QQID == "" {
+		return nil
+	}
+
+	return &PlayerWhitelistAccount{
+		Edition:    entry.Edition,
+		PlayerName: entry.PlayerName,
+		QQIDMasked: whitelist.MaskQQID(entry.QQID),
+	}
+}
+
+func playerWhitelistEdition(playerType string) (whitelist.Edition, bool) {
+	switch strings.ToLower(strings.TrimSpace(playerType)) {
+	case "java":
+		return whitelist.EditionJava, true
+	case "bedrock":
+		return whitelist.EditionBedrock, true
+	default:
+		return "", false
+	}
 }
 
 func slimPlayerListItem(info *data.PlayerInfo) *PlayerListItem {

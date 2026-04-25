@@ -198,7 +198,8 @@ const en = {
         lastSeen: 'Last Seen',
         playtime: 'Playtime',
         xpLevel: 'XP Level',
-        linkedTo: 'Linked Account'
+        linkedTo: 'Linked Account',
+        qqOwner: 'QQ Owner'
       },
       sections: {
         ores: 'Ore Mining Record',

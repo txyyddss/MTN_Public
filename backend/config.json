@@ -28,6 +28,23 @@
         "server_url": "http://127.0.0.1:16601/entrance",
         "token": "your_lucky_token"
     },
+    "rcon": {
+        "host": "127.0.0.1",
+        "port": 25575,
+        "password": "your_rcon_password",
+        "timeout_seconds": 5
+    },
+    "onebot": {
+        "enabled": false,
+        "ws_url": "ws://127.0.0.1:3001/api",
+        "token": "your_onebot_token",
+        "qq_group_id": "your_qq_group_id",
+        "reconnect_seconds": 5
+    },
+    "whitelist": {
+        "api_token": "your_whitelist_api_token",
+        "max_per_qq": 3
+    },
     "local_connection": {
         "java": "localhost:25565",
         "bedrock": "localhost:19132"

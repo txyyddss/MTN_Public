@@ -21,6 +21,7 @@ import (
 	"github.com/mtn-server/backend/internal/history"
 	"github.com/mtn-server/backend/internal/lucky"
 	"github.com/mtn-server/backend/internal/monitor"
+	"github.com/mtn-server/backend/internal/whitelist"
 )
 
 func main() {
@@ -135,6 +136,16 @@ func main() {
 		}
 	}
 
+	var whitelistRepo whitelist.Repository
+	if historyDB != nil {
+		whitelistRepo = historyDB
+	}
+	whitelistService := whitelist.NewService(whitelistRepo, whitelist.NewRCONExecutor(cfg.RCON), cfg.Whitelist.MaxPerQQ)
+	if cfg.OneBot.Enabled {
+		go whitelist.NewOneBotService(cfg.OneBot, whitelistService).Start(ctx)
+		log.Println("OneBot whitelist service starting")
+	}
+
 	// Add static addresses from config
 	if cfg.Addresses.JavaIPv4SRV != "" {
 		mon.AddTarget("java_ipv4_srv", cfg.Addresses.JavaIPv4SRV, 25565, "java")
@@ -192,6 +203,7 @@ func main() {
 	// Create API server
 	srv := api.NewServer(cfg, store, mcmmoDB, floodDB, luckyClient, mon, cacheClient)
 	srv.SetPresenceHistory(historyService)
+	srv.SetWhitelist(whitelistService)
 	router := srv.SetupRouter()
 
 	// Start periodic mcMMO and Stats ranking refresh

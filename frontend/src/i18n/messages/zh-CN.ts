@@ -189,7 +189,8 @@ const zhCN = {
         lastSeen: '最后在线',
         playtime: '游玩时间',
         xpLevel: '经验等级',
-        linkedTo: '关联账号'
+        linkedTo: '关联账号',
+        qqOwner: 'QQ'
       },
       sections: {
         ores: '矿物开采记录',

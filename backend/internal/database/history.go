@@ -52,6 +52,52 @@ func (h *HistoryDB) EnsureSchema(ctx context.Context) error {
 			KEY idx_player_hourly_presence_bucket (bucket_start)
 		)
 		`,
+		`
+		CREATE TABLE IF NOT EXISTS mc_account_links (
+			qq_id VARCHAR(32) NOT NULL,
+			edition VARCHAR(16) NOT NULL,
+			player_name VARCHAR(64) NOT NULL,
+			normalized_player_name VARCHAR(64) NOT NULL,
+			first_seen_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_seen_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			PRIMARY KEY (qq_id, edition, normalized_player_name),
+			KEY idx_mc_account_links_player (edition, normalized_player_name)
+		)
+		`,
+		`
+		CREATE TABLE IF NOT EXISTS whitelist_entries (
+			id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			qq_id VARCHAR(32) NULL,
+			edition VARCHAR(16) NOT NULL,
+			player_name VARCHAR(64) NOT NULL,
+			normalized_player_name VARCHAR(64) NOT NULL,
+			active BOOLEAN NOT NULL DEFAULT TRUE,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			removed_at TIMESTAMP NULL DEFAULT NULL,
+			UNIQUE KEY uniq_whitelist_entry (edition, normalized_player_name),
+			KEY idx_whitelist_entries_owner (qq_id, active),
+			KEY idx_whitelist_entries_active (edition, active)
+		)
+		`,
+		`
+		CREATE TABLE IF NOT EXISTS whitelist_audit (
+			id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			action VARCHAR(16) NOT NULL,
+			edition VARCHAR(16) NOT NULL,
+			player_name VARCHAR(64) NOT NULL,
+			normalized_player_name VARCHAR(64) NOT NULL,
+			qq_id VARCHAR(32) NULL,
+			actor_qq_id VARCHAR(32) NULL,
+			source VARCHAR(16) NOT NULL,
+			status VARCHAR(16) NOT NULL,
+			rcon_output TEXT NULL,
+			error_message TEXT NULL,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			KEY idx_whitelist_audit_entry (edition, normalized_player_name),
+			KEY idx_whitelist_audit_actor (actor_qq_id, created_at)
+		)
+		`,
 	}
 
 	for _, statement := range statements {

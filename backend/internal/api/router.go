@@ -17,6 +17,7 @@ import (
 	"github.com/mtn-server/backend/internal/history"
 	"github.com/mtn-server/backend/internal/lucky"
 	"github.com/mtn-server/backend/internal/monitor"
+	"github.com/mtn-server/backend/internal/whitelist"
 )
 
 // Server holds all dependencies for the API.
@@ -30,6 +31,7 @@ type Server struct {
 	monitor           *monitor.Monitor
 	cache             *cache.Client
 	history           *history.Service
+	whitelist         *whitelist.Service
 }
 
 // NewServer creates an API server with all dependencies.
@@ -64,6 +66,11 @@ func (s *Server) SetPresenceHistory(historyService *history.Service) {
 	s.history = historyService
 }
 
+// SetWhitelist wires the whitelist management service into the API server.
+func (s *Server) SetWhitelist(whitelistService *whitelist.Service) {
+	s.whitelist = whitelistService
+}
+
 // SetupRouter creates the Gin router with all routes.
 func (s *Server) SetupRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
@@ -74,8 +81,8 @@ func (s *Server) SetupRouter() *gin.Engine {
 	// CORS
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     s.cfg.Server.CORSOrigins,
-		AllowMethods:     []string{"GET", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
@@ -90,6 +97,9 @@ func (s *Server) SetupRouter() *gin.Engine {
 		api.GET("/status", s.handleStatus)
 		api.GET("/status/history", s.handleStatusHistory)
 		api.GET("/connection", s.handleConnection)
+		api.GET("/whitelist", s.handleWhitelistList)
+		api.POST("/whitelist/add", s.handleWhitelistAdd)
+		api.POST("/whitelist/remove", s.handleWhitelistRemove)
 	}
 
 	// Health check

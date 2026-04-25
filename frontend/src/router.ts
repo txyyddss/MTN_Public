@@ -7,7 +7,8 @@ const routes: RouteRecordRaw[] = [
     { path: '/wiki', name: 'wiki', component: () => import('@/views/WikiRedirectView.vue') },
     { path: '/gallery', name: 'gallery', component: () => import('@/views/GalleryView.vue') },
     { path: '/players', name: 'players', component: () => import('@/views/PlayersView.vue') },
-    { path: '/player/:uuid', name: 'playerDetail', component: () => import('@/views/PlayerDetailView.vue') }
+    { path: '/player/:uuid', name: 'playerDetail', component: () => import('@/views/PlayerDetailView.vue') },
+    { path: '/whitelist', name: 'whitelist', component: () => import('@/views/WhitelistView.vue') }
 ]
 
 const router = createRouter({
