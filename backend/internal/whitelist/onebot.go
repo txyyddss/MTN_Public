@@ -222,11 +222,14 @@ func resultQuota(result *OperationResult, fallback *QuotaStatus) *QuotaStatus {
 }
 
 func appendQuotaLine(message string, quota *QuotaStatus, admin bool) string {
-	if admin {
-		return message + "\nQuota: admin exempt."
-	}
 	if quota == nil {
+		if admin {
+			return message + "\nQuota: admin exempt."
+		}
 		return message
+	}
+	if quota.Exempt {
+		return message + "\nQuota: admin exempt."
 	}
 	return fmt.Sprintf("%s\nQuota: %d/%d used, %d remaining.", message, quota.Used, quota.Limit, quota.Remaining)
 }
