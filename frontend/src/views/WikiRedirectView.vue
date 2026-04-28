@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 
 import { useSiteContent } from '@/content/siteContent'
 
-const wikiUrl = 'https://docs.1919801.xyz/'
+const wikiUrl = 'https://docs.mcmtn.net/'
 const siteContent = useSiteContent()
 
 onMounted(() => {
