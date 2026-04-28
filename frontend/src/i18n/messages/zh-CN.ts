@@ -278,7 +278,11 @@ const zhCN = {
       header: {
         kicker: '公开玩家档案',
         liveBody: '该玩家当前出现在服务器状态的实时在线信息中。',
-        archiveBody: '这里展示这名玩家的历史记录与进度概览。'
+        archiveBody: '这里展示这名玩家的历史记录与进度概览。',
+        uuid: 'UUID',
+        edition: '版本',
+        identityAria: '玩家身份详情',
+        metricsAria: '玩家摘要指标'
       },
       profileCardTitle: '档案',
       tabsAria: '玩家详情分区',
@@ -296,6 +300,7 @@ const zhCN = {
         skillTotal: 'McMMO 总等级',
         skillLeaderboard: '技能榜排名',
         xpLevel: '经验等级',
+        bestRank: '最佳排名',
         ranks: '排行榜名次',
         noSkillData: '暂无公开技能数据',
         noHistoryData: '暂无最近在线采样',

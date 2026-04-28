@@ -222,6 +222,15 @@ function closeLeaderboard(): void {
         :info="info"
         :is-online="isOnline"
         :linked-account="linkedAccount"
+        :whitelist-account="whitelistAccount"
+        :completed-advancements="completedAdvancements"
+        :total-advancements="totalAdvancements"
+        :rank-highlights="rankHighlights"
+        :top-rank-highlight="topRankHighlight"
+        :format-date="formatDate"
+        :format-date-time="formatDateTime"
+        :format-playtime="formatPlaytime"
+        @select-leaderboard="handleSelectLeaderboard"
       />
 
       <PlayerDetailTabs v-model:active-tab="activeTab" :tabs="tabOptions" />
@@ -234,22 +243,11 @@ function closeLeaderboard(): void {
         <PlayerDetailOverview
           v-if="activeTab === 'overview'"
           key="overview"
-          :info="info"
-          :is-online="isOnline"
-          :linked-account="linkedAccount"
-          :whitelist-account="whitelistAccount"
           :ore-stats="oreStats"
           :mcmmo="mcmmo"
           :ranks="ranks"
           :filtered-mcmmo="filteredMcmmo"
-          :completed-advancements="completedAdvancements"
-          :total-advancements="totalAdvancements"
           :online-heatmap="onlineHeatmap"
-          :rank-highlights="rankHighlights"
-          :top-rank-highlight="topRankHighlight"
-          :format-date="formatDate"
-          :format-date-time="formatDateTime"
-          :format-playtime="formatPlaytime"
           @select-leaderboard="handleSelectLeaderboard"
         />
 

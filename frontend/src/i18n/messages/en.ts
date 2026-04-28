@@ -287,7 +287,11 @@ const en = {
       header: {
         kicker: 'Public player dossier',
         liveBody: 'Live presence detected in the server status feed.',
-        archiveBody: 'Historical record and progression summary.'
+        archiveBody: 'Historical record and progression summary.',
+        uuid: 'UUID',
+        edition: 'Edition',
+        identityAria: 'Player identity details',
+        metricsAria: 'Player summary metrics'
       },
       profileCardTitle: 'Profile',
       tabsAria: 'Player detail sections',
@@ -305,6 +309,7 @@ const en = {
         skillTotal: 'McMMO Total',
         skillLeaderboard: 'Skill leaderboard',
         xpLevel: 'XP Level',
+        bestRank: 'Best Rank',
         ranks: 'Leaderboard ranks',
         noSkillData: 'No public skill data',
         noHistoryData: 'No recent online samples',

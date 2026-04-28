@@ -1,18 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import homeHero from '@/assets/home-remake/home-hero.webp'
 import { useSiteContent } from '@/content/siteContent'
 
 const siteContent = useSiteContent()
-const heroTitleParts = computed(() => {
-  const [brand, ...rest] = siteContent.value.home.hero.title.split('|')
-
-  return {
-    brand: brand.trim(),
-    subtitle: rest.join('|').trim()
-  }
-})
 </script>
 
 <template>
@@ -22,11 +12,6 @@ const heroTitleParts = computed(() => {
 
     <div class="home-hero-center">
       <div class="home-hero-mark" aria-hidden="true">MTN</div>
-      <p class="home-hero-kicker">{{ siteContent.home.hero.eyebrow }}</p>
-      <h1 class="home-hero-title">
-        <span class="home-hero-main">{{ heroTitleParts.brand }}</span>
-        <span v-if="heroTitleParts.subtitle" class="home-hero-subtitle">{{ heroTitleParts.subtitle }}</span>
-      </h1>
       <p class="home-hero-tagline">{{ siteContent.home.hero.tagline }}</p>
       <p class="home-hero-project">{{ siteContent.home.hero.projectLine }}</p>
       <div class="hero-jump-actions">
@@ -105,40 +90,9 @@ const heroTitleParts = computed(() => {
   animation: heroReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
 }
 
-.home-hero-kicker,
 .home-hero-project {
   font-family: var(--mono);
   text-transform: uppercase;
-}
-
-.home-hero-kicker {
-  color: rgba(255, 255, 255, 0.82);
-  font-size: clamp(0.72rem, 1.6vw, 0.96rem);
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  animation: heroReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
-}
-
-.home-hero-title {
-  display: grid;
-  justify-items: center;
-  gap: 0.35rem;
-  max-width: min(100%, 12ch);
-  color: #ffffff;
-  font-family: var(--display);
-  font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: 0;
-  text-shadow: 0 22px 56px rgba(0, 0, 0, 0.44);
-  animation: heroReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-}
-
-.home-hero-main {
-  font-size: clamp(3.7rem, 11vw, 9.4rem);
-}
-
-.home-hero-subtitle {
-  font-size: clamp(2.3rem, 6.6vw, 5.9rem);
 }
 
 .home-hero-tagline {
@@ -275,23 +229,6 @@ const heroTitleParts = computed(() => {
     font-size: clamp(3.1rem, 19vw, 5.2rem);
     letter-spacing: 0.18em;
     text-indent: 0.18em;
-  }
-
-  .home-hero-title {
-    max-width: 100%;
-    line-height: 0.96;
-  }
-
-  .home-hero-main {
-    max-width: 100%;
-    font-size: clamp(2.65rem, 13.6vw, 4.45rem);
-    overflow-wrap: anywhere;
-  }
-
-  .home-hero-subtitle {
-    max-width: 100%;
-    font-size: clamp(1.85rem, 9.8vw, 3.05rem);
-    overflow-wrap: anywhere;
   }
 
   .home-hero-tagline {
