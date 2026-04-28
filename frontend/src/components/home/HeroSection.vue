@@ -76,9 +76,12 @@ const heroTitleParts = computed(() => {
   position: relative;
   z-index: 2;
   display: grid;
+  align-content: center;
   justify-items: center;
-  gap: 1rem;
-  width: min(980px, calc(100vw - 2rem));
+  gap: 1.05rem;
+  width: min(1120px, calc(100vw - 2rem));
+  min-height: 100svh;
+  margin: 0 auto;
   text-align: center;
   animation: heroReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -86,21 +89,14 @@ const heroTitleParts = computed(() => {
 /* ── Brand mark: dark navy "MTN" wordmark ── */
 .home-hero-mark {
   font-family: var(--display);
-  font-size: clamp(0.9rem, 2.4vw, 1.35rem);
+  font-size: clamp(3.25rem, 10vw, 6.9rem);
   font-weight: 900;
-  letter-spacing: 0.52em;
-  text-indent: 0.52em;
-  color: #e8f1ff;
-  padding: 0.5rem 1.4rem;
-  border: 1px solid rgba(76, 147, 251, 0.36);
-  border-radius: 4px;
-  background:
-    linear-gradient(135deg, rgba(13, 33, 96, 0.88), rgba(10, 24, 68, 0.96));
-  box-shadow:
-    0 0 32px rgba(76, 147, 251, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  margin-bottom: 0.2rem;
+  letter-spacing: 0.28em;
+  line-height: 0.8;
+  text-indent: 0.28em;
+  color: rgba(76, 147, 251, 0.92);
+  text-shadow: 0 20px 46px rgba(76, 147, 251, 0.22);
+  margin-bottom: 0.05rem;
   animation: heroReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
 }
 
@@ -122,7 +118,7 @@ const heroTitleParts = computed(() => {
   display: grid;
   justify-items: center;
   gap: 0.35rem;
-  max-width: min(100%, 16ch);
+  max-width: min(100%, 12ch);
   color: #ffffff;
   font-family: var(--display);
   font-weight: 800;
@@ -133,11 +129,11 @@ const heroTitleParts = computed(() => {
 }
 
 .home-hero-main {
-  font-size: clamp(3.5rem, 9vw, 8.4rem);
+  font-size: clamp(3.7rem, 11vw, 9.4rem);
 }
 
 .home-hero-subtitle {
-  font-size: clamp(2.2rem, 6.2vw, 5.7rem);
+  font-size: clamp(2.3rem, 6.6vw, 5.9rem);
 }
 
 .home-hero-tagline {
@@ -268,6 +264,10 @@ const heroTitleParts = computed(() => {
 @media (max-width: 680px) {
   .home-hero-center {
     width: min(100%, calc(100vw - 2.5rem));
+  }
+
+  .home-hero-mark {
+    font-size: clamp(2.6rem, 16vw, 4.35rem);
   }
 
   .home-hero-title {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import serverMascot from '@/assets/server-mascot.png'
+import AnimatedWordParagraphs from '@/components/common/AnimatedWordParagraphs.vue'
 import { useRevealOnScroll } from '@/composables/useRevealOnScroll'
 import { useSiteContent } from '@/content/siteContent'
 
@@ -15,11 +16,11 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
         <p class="intro-kicker">{{ siteContent.home.story.kicker }}</p>
         <div class="intro-columns">
           <h2>{{ siteContent.home.story.title }}</h2>
-          <div class="intro-body">
-            <p v-for="paragraph in siteContent.home.story.paragraphs.slice(0, 4)" :key="paragraph">
-              {{ paragraph }}
-            </p>
-          </div>
+          <AnimatedWordParagraphs
+            class="intro-body"
+            :paragraphs="siteContent.home.story.paragraphs.slice(0, 4)"
+            :revealed="revealed"
+          />
         </div>
       </article>
 

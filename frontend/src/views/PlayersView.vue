@@ -3,6 +3,9 @@ import { computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
+import DossierLoadingPanel from '@/components/common/DossierLoadingPanel.vue'
+import RouteHeroHeader from '@/components/common/RouteHeroHeader.vue'
+import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
 import { API_BASE_URL } from '@/config'
 import { formatPlayerCount, getLocaleValue, getPlatformLabel, useSiteContent } from '@/content/siteContent'
 import { usePlayers } from '@/composables/usePlayers'
@@ -93,46 +96,48 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="players-view container page-shell">
-    <header class="page-header animate-entry">
-      <span class="page-kicker">{{ siteContent.players.kicker }}</span>
-      <h1>{{ siteContent.players.title }}</h1>
-      <p class="page-lede">{{ siteContent.players.body }}</p>
-    </header>
+  <div class="players-view container page-shell route-page-shell">
+    <RouteHeroHeader
+      :kicker="siteContent.players.kicker"
+      :title="siteContent.players.title"
+      :body="siteContent.players.body"
+    />
 
-    <section class="controls-row glass-card animate-entry delay-100">
-      <div class="controls-copy">
-        <span class="hud-kicker">{{ siteContent.players.controlsKicker }}</span>
-        <p class="controls-note">{{ siteContent.players.controlsNote }}</p>
-      </div>
+    <ThemedPanelFrame tag="section" class="controls-panel animate-entry delay-100">
+      <div class="controls-row">
+        <div class="controls-copy">
+          <span class="hud-kicker">{{ siteContent.players.controlsKicker }}</span>
+          <p class="controls-note">{{ siteContent.players.controlsNote }}</p>
+        </div>
 
-      <label class="search-field">
-        <span>{{ siteContent.players.searchLabel }}</span>
-        <input
-          id="player-search"
-          v-model="searchQuery"
-          class="action-field"
-          name="player-search"
-          :placeholder="siteContent.players.searchPlaceholder"
-        />
-      </label>
+        <label class="search-field">
+          <span>{{ siteContent.players.searchLabel }}</span>
+          <input
+            id="player-search"
+            v-model="searchQuery"
+            class="action-field"
+            name="player-search"
+            :placeholder="siteContent.players.searchPlaceholder"
+          />
+        </label>
 
-      <div class="control-actions">
-        <div class="segmented-control">
-          <button :class="['switch-btn', 'action-inline', 'action-press', { active: !showAll }]" type="button" @click="showAll = false">
-            {{ siteContent.players.recentLabel }}
-            <small>{{ siteContent.players.recentDetail.replace('{days}', String(activeDays)) }}</small>
-          </button>
-          <button :class="['switch-btn', 'action-inline', 'action-press', { active: showAll }]" type="button" @click="showAll = true">
-            {{ siteContent.players.allLabel }}
-            <small>{{ siteContent.players.allDetail }}</small>
+        <div class="control-actions">
+          <div class="segmented-control">
+            <button :class="['switch-btn', 'action-inline', 'action-press', { active: !showAll }]" type="button" @click="showAll = false">
+              {{ siteContent.players.recentLabel }}
+              <small>{{ siteContent.players.recentDetail.replace('{days}', String(activeDays)) }}</small>
+            </button>
+            <button :class="['switch-btn', 'action-inline', 'action-press', { active: showAll }]" type="button" @click="showAll = true">
+              {{ siteContent.players.allLabel }}
+              <small>{{ siteContent.players.allDetail }}</small>
+            </button>
+          </div>
+          <button class="btn-secondary random-button" type="button" :title="siteContent.players.randomTitle" @click="handleRandom">
+            {{ siteContent.players.randomLabel }}
           </button>
         </div>
-        <button class="btn-secondary random-button" type="button" :title="siteContent.players.randomTitle" @click="handleRandom">
-          {{ siteContent.players.randomLabel }}
-        </button>
       </div>
-    </section>
+    </ThemedPanelFrame>
 
     <p v-if="!loading || players.length > 0" class="results-line animate-entry delay-200">
       <span class="badge-pill">{{ formatPlayerCount(count) }}</span>
@@ -140,7 +145,7 @@ onUnmounted(() => {
     </p>
 
     <div v-if="loading && players.length === 0" class="player-grid" aria-hidden="true">
-      <article v-for="index in 6" :key="index" class="player-card glass-card player-card-skeleton">
+      <DossierLoadingPanel v-for="index in 6" :key="index" class="player-card player-card-skeleton" label="MTN PLAYER DOSSIER">
         <div class="player-head">
           <span class="skeleton-avatar player-skeleton-avatar"></span>
           <div class="player-copy player-skeleton-copy">
@@ -152,7 +157,7 @@ onUnmounted(() => {
         <div class="player-footer">
           <span class="skeleton-chip"></span>
         </div>
-      </article>
+      </DossierLoadingPanel>
     </div>
 
     <div v-else-if="players.length === 0" class="glass-card state-card">
@@ -205,6 +210,10 @@ onUnmounted(() => {
 .players-view {
   display: grid;
   gap: 1rem;
+}
+
+.controls-panel :deep(.themed-panel-frame__content) {
+  gap: 0;
 }
 
 .controls-row {
@@ -312,6 +321,7 @@ onUnmounted(() => {
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
+  padding: 0 0.25rem;
   color: var(--text-muted);
 }
 
@@ -330,6 +340,8 @@ onUnmounted(() => {
 .player-card {
   display: grid;
   gap: 1rem;
+  padding: 1.2rem;
+  min-height: 100%;
 }
 
 .player-card-skeleton {
@@ -389,6 +401,7 @@ onUnmounted(() => {
 .player-meta {
   color: var(--text-muted);
   font-size: 0.92rem;
+  line-height: 1.7;
 }
 
 .player-footer {

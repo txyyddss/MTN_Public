@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, shallowRef } from 'vue'
 
+import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
 import type { WhitelistAction, WhitelistEdition, WhitelistMutationInput } from '@/types/api'
 
 defineProps<{
@@ -33,12 +34,7 @@ function submitForm(): void {
 </script>
 
 <template>
-  <form class="command-form hud-panel" @submit.prevent="submitForm">
-    <div class="form-head">
-      <span class="hud-kicker">Command</span>
-      <h2 class="form-title">Whitelist Control</h2>
-    </div>
-
+  <ThemedPanelFrame tag="form" class="command-form" kicker="Command" title="Whitelist Control" @submit.prevent="submitForm">
     <div class="control-grid">
       <div class="field-block">
         <span>Edition</span>
@@ -115,19 +111,13 @@ function submitForm(): void {
         {{ busy ? 'Working' : action === 'add' ? 'Add Entry' : 'Remove Entry' }}
       </button>
     </div>
-  </form>
+  </ThemedPanelFrame>
 </template>
 
 <style scoped>
-.command-form,
-.form-head {
+.command-form {
   display: grid;
   gap: 1rem;
-}
-
-.form-title {
-  font-size: 2rem;
-  max-width: none;
 }
 
 .control-grid {

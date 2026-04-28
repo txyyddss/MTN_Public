@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
+import RouteHeroHeader from '@/components/common/RouteHeroHeader.vue'
+import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
 import { useSiteContent } from '@/content/siteContent'
 
 const wikiUrl = 'https://docs.mcmtn.net/'
@@ -12,29 +14,45 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="wiki-redirect container page-shell">
-    <div class="glass-card redirect-card">
-      <span class="section-kicker">{{ siteContent.wikiRedirect.kicker }}</span>
-      <h1>{{ siteContent.wikiRedirect.title }}</h1>
-      <p>{{ siteContent.wikiRedirect.body }}</p>
-      <a class="btn-primary" :href="wikiUrl">{{ siteContent.wikiRedirect.cta }}</a>
-    </div>
+  <div class="wiki-redirect container page-shell route-page-shell">
+    <RouteHeroHeader
+      :kicker="siteContent.wikiRedirect.kicker"
+      :title="siteContent.wikiRedirect.title"
+      :body="siteContent.wikiRedirect.body"
+    />
+
+    <ThemedPanelFrame tag="section" class="redirect-card animate-entry delay-100" compact>
+      <div class="redirect-actions">
+        <a class="btn-primary" :href="wikiUrl">{{ siteContent.wikiRedirect.cta }}</a>
+      </div>
+    </ThemedPanelFrame>
   </div>
 </template>
 
 <style scoped>
 .wiki-redirect {
   display: grid;
-  place-items: center;
-}
-
-.redirect-card {
-  width: min(720px, 100%);
-  display: grid;
   gap: 1rem;
 }
 
-.redirect-card p {
-  color: var(--text-muted);
+.redirect-card {
+  width: min(760px, 100%);
+  display: grid;
+}
+
+.redirect-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .redirect-actions {
+    display: grid;
+  }
+
+  .redirect-actions .btn-primary {
+    width: 100%;
+  }
 }
 </style>

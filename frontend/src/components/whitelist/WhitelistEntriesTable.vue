@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
 import type { WhitelistEntry, WhitelistMutationInput } from '@/types/api'
 
 defineProps<{
@@ -39,12 +40,7 @@ function formatDate(value: string): string {
 </script>
 
 <template>
-  <section class="entries-panel hud-panel">
-    <div class="table-head">
-      <span class="hud-kicker">Mirror</span>
-      <h2 class="table-title">Active Entries</h2>
-    </div>
-
+  <ThemedPanelFrame tag="section" class="entries-panel" kicker="Mirror" title="Active Entries">
     <div v-if="entries.length === 0" class="empty-state">
       <h3>No active entries</h3>
       <p>The MySQL mirror has no active rows for the current filter.</p>
@@ -73,19 +69,13 @@ function formatDate(value: string): string {
         </span>
       </div>
     </div>
-  </section>
+  </ThemedPanelFrame>
 </template>
 
 <style scoped>
-.entries-panel,
-.table-head {
+.entries-panel {
   display: grid;
   gap: 1rem;
-}
-
-.table-title {
-  font-size: 2rem;
-  max-width: none;
 }
 
 .empty-state {

@@ -3,7 +3,6 @@ import CTASection from '@/components/home/CTASection.vue'
 import FeatureGrid from '@/components/home/FeatureGrid.vue'
 import HeroSection from '@/components/home/HeroSection.vue'
 import HomeDetailsSection from '@/components/home/HomeDetailsSection.vue'
-import HomeFooter from '@/components/home/HomeFooter.vue'
 import HomeGallerySection from '@/components/home/HomeGallerySection.vue'
 
 import HomeQuickNavSection from '@/components/home/HomeQuickNavSection.vue'
@@ -20,7 +19,6 @@ import ServerStorySection from '@/components/home/ServerStorySection.vue'
     <HomeGallerySection />
     <HomeDetailsSection />
     <CTASection />
-    <HomeFooter />
   </div>
 </template>
 

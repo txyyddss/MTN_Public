@@ -210,6 +210,7 @@ code {
 }
 
 .page-shell {
+  position: relative;
   padding: 2rem 0 4.2rem;
 }
 
@@ -217,7 +218,15 @@ code {
 .hud-page-header {
   display: grid;
   gap: 0.8rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.35rem;
+  padding: 1.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    rgba(7, 10, 15, 0.62);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: saturate(160%) blur(22px);
 }
 
 .page-header h1,
@@ -233,6 +242,25 @@ code {
   max-width: 700px;
   color: var(--text-muted);
   font-size: 0.98rem;
+}
+
+.route-page-shell {
+  display: grid;
+  gap: 1rem;
+  isolation: isolate;
+}
+
+.route-page-shell::before {
+  content: '';
+  position: absolute;
+  inset: -2rem 0 auto;
+  height: 300px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(76, 147, 251, 0.2), transparent 36%),
+    radial-gradient(circle at 82% 12%, rgba(76, 147, 251, 0.12), transparent 24%);
+  opacity: 0.9;
 }
 
 .section-kicker,
@@ -474,6 +502,14 @@ code {
   color: var(--text-strong);
   font-weight: 600;
   text-align: right;
+}
+
+.status-row,
+.system-card,
+.address-row {
+  border: 1px solid var(--glass-border-soft);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .btn-primary,

@@ -14,7 +14,7 @@ const zhCN = {
         { id: 'home', label: '首页', to: '/' },
         { id: 'players', label: '玩家', to: '/players' },
         { id: 'gallery', label: '画廊', to: '/gallery' },
-        { id: 'wiki', label: '官网', to: 'https://public.mcmtn.net/', external: true, emphasize: true }
+        { id: 'wiki', label: '文档', to: 'https://docs.mcmtn.net/', external: true, emphasize: true }
       ]
     },
     home: {
@@ -29,8 +29,8 @@ const zhCN = {
         body: '性能一般般，但足够朋友间一同玩耍。最近土豆变强了不少，大土豆会努力服务大家的～～',
         primaryCta: 'QQ群 1064494318',
         primaryHref: '#join-mtn',
-        secondaryCta: '访问官网',
-        secondaryHref: 'https://public.mcmtn.net/',
+        secondaryCta: '访问文档',
+        secondaryHref: 'https://docs.mcmtn.net/',
         facts: [
           { label: '运营方式', value: '公益非营利' },
           { label: '接入方式', value: 'Je / Be 跨版本互通' },
@@ -93,7 +93,7 @@ const zhCN = {
         items: [
           { title: '特色系统', href: '#features' },
           { title: '世界画廊', href: '#gallery' },
-          { title: '服务器手册', href: 'https://public.mcmtn.net/', external: true }
+          { title: '服务器手册', href: 'https://docs.mcmtn.net/', external: true }
         ]
       },
       serverIntro: {
@@ -192,9 +192,9 @@ const zhCN = {
         primaryCta: '复制QQ群号',
         copiedLabel: '已复制QQ群号',
         qqGroup: '1064494318',
-        siteCta: '访问官网',
-        siteUrl: 'https://public.mcmtn.net/',
-        note: '官网：https://public.mcmtn.net/'
+        siteCta: '访问文档',
+        siteUrl: 'https://docs.mcmtn.net/',
+        note: '文档：https://docs.mcmtn.net/'
       },
       floatingJoin: {
         label: '加入服务器',

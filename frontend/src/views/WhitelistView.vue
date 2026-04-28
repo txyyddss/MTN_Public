@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import RouteHeroHeader from '@/components/common/RouteHeroHeader.vue'
+import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
 import WhitelistCommandForm from '@/components/whitelist/WhitelistCommandForm.vue'
 import WhitelistEntriesTable from '@/components/whitelist/WhitelistEntriesTable.vue'
 import WhitelistTokenPanel from '@/components/whitelist/WhitelistTokenPanel.vue'
@@ -41,12 +43,13 @@ async function handleSubmit(action: WhitelistAction, input: WhitelistMutationInp
 </script>
 
 <template>
-  <div class="whitelist-view container page-shell">
-    <header class="page-header animate-entry">
-      <span class="page-kicker">Whitelist Admin</span>
-      <h1>Whitelist Console</h1>
-      <p class="page-lede">RCON-backed Java and Bedrock access control.</p>
-    </header>
+  <div class="whitelist-view container page-shell route-page-shell">
+    <RouteHeroHeader
+      kicker="Whitelist Admin"
+      title="Whitelist Console"
+      body="RCON-backed Java and Bedrock access control."
+      :show-mark="false"
+    />
 
     <WhitelistTokenPanel
       v-model:token="token"
@@ -69,8 +72,7 @@ async function handleSubmit(action: WhitelistAction, input: WhitelistMutationInp
       />
 
       <div class="list-column animate-entry delay-300">
-        <div class="filter-bar hud-panel">
-          <span class="hud-kicker">Filter</span>
+        <ThemedPanelFrame tag="div" class="filter-bar" kicker="Filter" compact>
           <div class="filter-controls segmented-control">
             <button
               :class="['filter-btn', { active: editionFilter === 'all' }]"
@@ -97,7 +99,7 @@ async function handleSubmit(action: WhitelistAction, input: WhitelistMutationInp
               Bedrock
             </button>
           </div>
-        </div>
+        </ThemedPanelFrame>
 
         <WhitelistEntriesTable :entries="entries" :busy="mutating" @remove="removeEntry" />
       </div>
@@ -109,10 +111,6 @@ async function handleSubmit(action: WhitelistAction, input: WhitelistMutationInp
 .whitelist-view {
   display: grid;
   gap: 1rem;
-}
-
-.page-header h1 {
-  max-width: 12ch;
 }
 
 .admin-layout {
@@ -130,13 +128,13 @@ async function handleSubmit(action: WhitelistAction, input: WhitelistMutationInp
 
 .filter-bar {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 1rem;
-  align-items: center;
+}
+
+.filter-bar :deep(.themed-panel-frame__content) {
+  gap: 0;
 }
 
 .filter-controls {
-  justify-self: end;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: min(100%, 360px);
@@ -178,12 +176,7 @@ async function handleSubmit(action: WhitelistAction, input: WhitelistMutationInp
 }
 
 @media (max-width: 680px) {
-  .filter-bar {
-    grid-template-columns: 1fr;
-  }
-
   .filter-controls {
-    justify-self: stretch;
     width: 100%;
   }
 }

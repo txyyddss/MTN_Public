@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
+import RouteHeroHeader from '@/components/common/RouteHeroHeader.vue'
+import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
 import { useMediaQuery } from '@/composables/useMediaQuery'
 import { useSiteContent } from '@/content/siteContent'
 
@@ -73,35 +75,37 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="gallery-view container page-shell">
-    <header class="page-header animate-entry">
-      <span class="page-kicker">{{ siteContent.gallery.eyebrow }}</span>
-      <h1>{{ siteContent.gallery.title }}</h1>
-      <p class="page-lede">{{ siteContent.gallery.body }}</p>
-    </header>
+  <div class="gallery-view container page-shell route-page-shell">
+    <RouteHeroHeader
+      :kicker="siteContent.gallery.eyebrow"
+      :title="siteContent.gallery.title"
+      :body="siteContent.gallery.body"
+    />
 
-    <div class="waterfall-grid">
-      <button
-        v-for="(image, index) in images"
-        :key="image"
-        type="button"
-        :class="['gallery-card', 'glass-card', 'action-card', 'animate-entry', { passive: isPhone }]"
-        :aria-disabled="isPhone"
-        :tabindex="isPhone ? -1 : 0"
-        :style="{ animationDelay: `${(index % 18) * 0.04}s` }"
-        @click="openLightbox(index)"
-      >
-        <img
-          :src="`/gallery-images/${image}`"
-          :alt="`${siteContent.gallery.frameLabel} ${index + 1}`"
-          class="action-media"
-          loading="lazy"
-        />
-        <div class="gallery-meta">
-          <strong>{{ images.length - index }}</strong>
-        </div>
-      </button>
-    </div>
+    <ThemedPanelFrame tag="section" class="gallery-stage-panel animate-entry delay-100">
+      <div class="waterfall-grid">
+        <button
+          v-for="(image, index) in images"
+          :key="image"
+          type="button"
+          :class="['gallery-card', 'glass-card', 'action-card', 'animate-entry', { passive: isPhone }]"
+          :aria-disabled="isPhone"
+          :tabindex="isPhone ? -1 : 0"
+          :style="{ animationDelay: `${(index % 18) * 0.04}s` }"
+          @click="openLightbox(index)"
+        >
+          <img
+            :src="`/gallery-images/${image}`"
+            :alt="`${siteContent.gallery.frameLabel} ${index + 1}`"
+            class="action-media"
+            loading="lazy"
+          />
+          <div class="gallery-meta">
+            <strong>{{ images.length - index }}</strong>
+          </div>
+        </button>
+      </div>
+    </ThemedPanelFrame>
 
     <Transition name="lightbox-fade">
       <div v-if="selectedImage" class="lightbox-overlay" @click="closeLightbox">
@@ -127,6 +131,10 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
+.gallery-stage-panel :deep(.themed-panel-frame__content) {
+  gap: 0;
+}
+
 .waterfall-grid {
   columns: 1;
   column-gap: 1rem;
@@ -148,7 +156,7 @@ onUnmounted(() => {
   break-inside: avoid;
   display: block;
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.8rem;
   margin-bottom: 1rem;
   cursor: pointer;
 }

@@ -79,12 +79,7 @@ onUnmounted(() => {
     <nav :class="['nav-overlay', { active: menuOpen }]" :aria-hidden="!menuOpen">
       <div class="nav-overlay-inner">
         <RouterLink class="brand-lockup" to="/" @click="closeMenu">
-          <span class="brand-mark" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
+          <span class="brand-mark" aria-hidden="true">MTN</span>
           <span>
             <strong>MTNetwork</strong>
             <small>{{ siteContent.app.brandSubline }}</small>
@@ -243,21 +238,12 @@ onUnmounted(() => {
 }
 
 .brand-mark {
-  display: grid;
-  grid-template-columns: repeat(2, 13px);
-  gap: 5px;
-  transform: rotate(45deg);
-}
-
-.brand-mark span {
-  width: 13px;
-  aspect-ratio: 1;
-  background: var(--primary);
-}
-
-.brand-mark span:nth-child(3),
-.brand-mark span:nth-child(4) {
-  background: #83d3a7;
+  color: #163f8f;
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
 }
 
 .brand-lockup strong,

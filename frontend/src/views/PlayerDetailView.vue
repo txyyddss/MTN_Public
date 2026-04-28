@@ -186,7 +186,7 @@ function closeLeaderboard(): void {
 </script>
 
 <template>
-  <div class="player-detail container page-shell">
+  <div class="player-detail container page-shell route-page-shell">
     <div v-if="loading" class="detail-layout" aria-hidden="true">
       <section class="glass-card detail-header-skeleton">
         <span class="skeleton-line skeleton-title-line"></span>
@@ -289,7 +289,7 @@ function closeLeaderboard(): void {
 .detail-layout,
 .tab-panel {
   display: grid;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
 .tab-panel {
@@ -299,6 +299,7 @@ function closeLeaderboard(): void {
 .state-card {
   display: grid;
   gap: 0.85rem;
+  padding: 1.4rem;
 }
 
 .detail-header-skeleton,

@@ -30,12 +30,13 @@ const siteContent = useSiteContent()
 
 <style scoped>
 .server-status-section {
+  position: relative;
   padding-bottom: 4.75rem;
 }
 
 .server-status-shell {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.4rem;
 }
 
 .server-status-intro {
@@ -57,7 +58,7 @@ const siteContent = useSiteContent()
 .layout-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.1rem;
+  gap: 1.2rem;
 }
 
 @media (max-width: 980px) {

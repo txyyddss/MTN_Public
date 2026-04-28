@@ -189,7 +189,9 @@ const bedrockAddresses = computed(() => {
 <style scoped>
 .panel-block {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.2rem;
+  min-height: 100%;
+  padding: 1.5rem;
 }
 
 .panel-head {
@@ -204,17 +206,17 @@ const bedrockAddresses = computed(() => {
 }
 
 .panel-title {
-  font-size: 1.6rem;
+  font-size: clamp(1.7rem, 3vw, 2.15rem);
 }
 
 .connection-stack {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.3rem;
 }
 
 .edition-section {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .edition-title {
@@ -235,16 +237,14 @@ const bedrockAddresses = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.95rem 1rem;
   border-radius: 14px;
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .address-row:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(76, 147, 251, 0.18);
+  background: rgba(76, 147, 251, 0.06);
 }
 
 .address-info {
@@ -259,7 +259,7 @@ const bedrockAddresses = computed(() => {
   font-family: var(--mono);
   font-size: 0.65rem;
   color: var(--primary);
-  background: rgba(76, 147, 251, 0.1);
+  background: rgba(76, 147, 251, 0.12);
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   flex-shrink: 0;
@@ -280,17 +280,17 @@ const bedrockAddresses = computed(() => {
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--control-border);
+  background: var(--control-surface);
   color: var(--text-muted);
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
 .copy-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--control-bg-active);
   color: var(--text-strong);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--control-border-active);
 }
 
 .copy-btn.copied {
@@ -302,7 +302,7 @@ const bedrockAddresses = computed(() => {
 .panel-foot {
   color: var(--text-dim);
   font-size: 0.85rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--glass-border-soft);
   padding-top: 0.75rem;
 }
 

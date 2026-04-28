@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
+
 const token = defineModel<string>('token', { required: true })
 
 defineProps<{
@@ -16,9 +18,14 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section class="token-panel hud-panel">
+  <ThemedPanelFrame tag="section" class="token-panel" kicker="Access">
+    <template #actions>
+      <button class="btn-primary" type="button" :disabled="loading || !token.trim()" @click="emit('refresh')">
+        {{ loading ? 'Refreshing' : 'Refresh' }}
+      </button>
+    </template>
+
     <div class="token-main">
-      <span class="hud-kicker">Access</span>
       <label class="token-field">
         <span>API Token</span>
         <input
@@ -29,12 +36,6 @@ const emit = defineEmits<{
           placeholder="Bearer token"
         />
       </label>
-    </div>
-
-    <div class="token-actions">
-      <button class="btn-primary" type="button" :disabled="loading || !token.trim()" @click="emit('refresh')">
-        {{ loading ? 'Refreshing' : 'Refresh' }}
-      </button>
     </div>
 
     <div class="token-metrics">
@@ -54,15 +55,13 @@ const emit = defineEmits<{
 
     <p v-if="error" class="state-line error">{{ error }}</p>
     <p v-else-if="notice" class="state-line success">{{ notice }}</p>
-  </section>
+  </ThemedPanelFrame>
 </template>
 
 <style scoped>
 .token-panel {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem;
-  align-items: end;
 }
 
 .token-main,
@@ -96,13 +95,7 @@ const emit = defineEmits<{
   background: var(--control-bg-hover);
 }
 
-.token-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .token-metrics {
-  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
@@ -133,7 +126,6 @@ const emit = defineEmits<{
 }
 
 .state-line {
-  grid-column: 1 / -1;
   padding: 0.75rem 0.85rem;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -152,17 +144,8 @@ const emit = defineEmits<{
 }
 
 @media (max-width: 720px) {
-  .token-panel,
   .token-metrics {
     grid-template-columns: 1fr;
-  }
-
-  .token-actions {
-    justify-content: stretch;
-  }
-
-  .token-actions button {
-    width: 100%;
   }
 }
 </style>

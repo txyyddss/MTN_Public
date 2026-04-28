@@ -139,7 +139,9 @@ const historySummary = computed(() => {
 <style scoped>
 .panel-block {
   display: grid;
-  gap: 0.95rem;
+  gap: 1.2rem;
+  min-height: 100%;
+  padding: 1.5rem;
 }
 
 .panel-head {
@@ -155,13 +157,14 @@ const historySummary = computed(() => {
 }
 
 .panel-title {
-  font-size: 1.6rem;
+  font-size: clamp(1.7rem, 3vw, 2.15rem);
 }
 
 .panel-state {
-  padding: 0.45rem 0.72rem;
+  padding: 0.5rem 0.78rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -175,7 +178,7 @@ const historySummary = computed(() => {
 
 .status-stack {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.9rem;
 }
 
 .edition-grid {
@@ -188,19 +191,21 @@ const historySummary = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem 0.95rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 1.05rem;
 }
 
 .status-label {
   color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .status-value {
   color: var(--text-strong);
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   text-align: right;
 }
 
@@ -226,11 +231,8 @@ const historySummary = computed(() => {
 
 .system-card {
   display: grid;
-  gap: 0.25rem;
-  padding: 0.9rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.028);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 0.3rem;
+  padding: 1rem;
 }
 
 .system-label {
@@ -251,6 +253,7 @@ const historySummary = computed(() => {
 .loading-copy {
   color: var(--text-dim);
   font-size: 0.9rem;
+  padding-top: 0.25rem;
 }
 
 .status-skeleton-label {

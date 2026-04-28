@@ -13,7 +13,24 @@ const routes: RouteRecordRaw[] = [
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes
+    routes,
+    async scrollBehavior(to, _from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition
+        }
+
+        if (to.hash) {
+            await new Promise((resolve) => window.setTimeout(resolve, 160))
+
+            return {
+                el: to.hash,
+                top: 24,
+                behavior: 'smooth'
+            }
+        }
+
+        return { top: 0 }
+    }
 })
 
 export default router

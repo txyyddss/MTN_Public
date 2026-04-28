@@ -23,7 +23,7 @@ const en = {
         { id: 'home', label: 'Home', to: '/' },
         { id: 'players', label: 'Players', to: '/players' },
         { id: 'gallery', label: 'Gallery', to: '/gallery' },
-        { id: 'wiki', label: 'Official Site', to: 'https://public.mcmtn.net/', external: true, emphasize: true }
+        { id: 'wiki', label: 'Documentation', to: 'https://docs.mcmtn.net/', external: true, emphasize: true }
       ]
     },
     home: {
@@ -38,8 +38,8 @@ const en = {
         body: 'The hardware is modest, but it is enough for friends to play together. The potato has grown stronger recently, and it keeps working for everyone.',
         primaryCta: 'QQ Group 1064494318',
         primaryHref: '#join-mtn',
-        secondaryCta: 'Visit Official Site',
-        secondaryHref: 'https://public.mcmtn.net/',
+        secondaryCta: 'Visit Documentation',
+        secondaryHref: 'https://docs.mcmtn.net/',
         facts: [
           { label: 'Operations', value: 'Non-profit' },
           { label: 'Access', value: 'Java / Bedrock cross-play' },
@@ -102,7 +102,7 @@ const en = {
         items: [
           { title: 'Feature System', href: '#features' },
           { title: 'World Gallery', href: '#gallery' },
-          { title: 'Server Handbook', href: 'https://public.mcmtn.net/', external: true }
+          { title: 'Server Handbook', href: 'https://docs.mcmtn.net/', external: true }
         ]
       },
       serverIntro: {
@@ -201,9 +201,9 @@ const en = {
         primaryCta: 'Copy QQ Group',
         copiedLabel: 'QQ Group Copied',
         qqGroup: '1064494318',
-        siteCta: 'Visit Official Site',
-        siteUrl: 'https://public.mcmtn.net/',
-        note: 'Official site: https://public.mcmtn.net/'
+        siteCta: 'Visit Documentation',
+        siteUrl: 'https://docs.mcmtn.net/',
+        note: 'Documentation: https://docs.mcmtn.net/'
       },
       floatingJoin: {
         label: 'Join Server',
