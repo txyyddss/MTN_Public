@@ -40,10 +40,56 @@ const cardStyle = computed(() => ({
 
 <style scoped>
 .feature-card {
+  position: relative;
   display: grid;
   gap: 0.95rem;
   min-height: 184px;
   padding: 1rem;
+  isolation: isolate;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(135deg, rgba(76, 147, 251, 0.12), transparent 48%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 42%);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--transition-panel),
+    transform var(--transition-panel);
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  opacity: 0;
+  transform: translateX(-120%);
+  transition:
+    opacity 0.18s ease,
+    transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(76, 147, 251, 0.28);
+  box-shadow: 0 34px 68px rgba(0, 0, 0, 0.42);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feature-card:hover::after {
+  opacity: 1;
+  transform: translateX(120%);
 }
 
 .feature-card.compact {
@@ -68,7 +114,11 @@ const cardStyle = computed(() => ({
   font-family: var(--mono);
   font-size: 0.76rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  background:
+    linear-gradient(135deg, rgba(76, 147, 251, 0.18), rgba(255, 255, 255, 0.04)),
+    rgba(255, 255, 255, 0.05);
+  color: var(--text-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .feature-mode {
@@ -86,6 +136,7 @@ const cardStyle = computed(() => ({
 
 .feature-title {
   font-size: 1.22rem;
+  letter-spacing: -0.025em;
 }
 
 .feature-description {

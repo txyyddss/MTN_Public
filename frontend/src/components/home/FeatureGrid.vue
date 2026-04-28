@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import { computed, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, onUnmounted, shallowRef, watch } from 'vue'
 
-import FeatureGridCard from '@/components/home/FeatureGridCard.vue'
-import { useMediaQuery } from '@/composables/useMediaQuery'
 import { useRevealOnScroll } from '@/composables/useRevealOnScroll'
 import { useSiteContent } from '@/content/siteContent'
 
 const siteContent = useSiteContent()
-const features = computed(() => siteContent.value.home.features)
-const { matches: isPhone } = useMediaQuery('(max-width: 680px)')
-const currentIndex = shallowRef(0)
-const carouselTrack = useTemplateRef<HTMLDivElement>('carouselTrack')
-const { revealed } = useRevealOnScroll<HTMLDivElement>('featureCarousel', { rootMargin: '0px 0px -16% 0px' })
+const activeIndex = shallowRef(0)
+const { revealed } = useRevealOnScroll<HTMLElement>('featuresSection', { rootMargin: '0px 0px -16% 0px' })
+const featureTabs = computed(() => siteContent.value.home.features.slice(0, 4))
+const activeFeature = computed(() => featureTabs.value[activeIndex.value] ?? featureTabs.value[0])
+const activeFeatureBackdrop = computed(() => siteContent.value.home.featureBackdrops[activeIndex.value] ?? 'MTN')
 
 let rotationTimer: ReturnType<typeof window.setInterval> | null = null
-let resumeTimer: ReturnType<typeof window.setTimeout> | null = null
-let scrollFrame: number | null = null
 
 function stopRotation(): void {
   if (rotationTimer) {
@@ -24,211 +20,263 @@ function stopRotation(): void {
   }
 }
 
-function clearResumeTimer(): void {
-  if (resumeTimer) {
-    window.clearTimeout(resumeTimer)
-    resumeTimer = null
-  }
-}
-
-function getStepSize(): number {
-  const track = carouselTrack.value
-  const firstSlide = track?.querySelector<HTMLElement>('.feature-slide')
-  if (!track || !firstSlide) {
-    return 1
-  }
-
-  const styles = window.getComputedStyle(track)
-  const gap = Number.parseFloat(styles.columnGap || styles.gap || '0')
-  return firstSlide.offsetWidth + gap
-}
-
-function syncCurrentIndex(): void {
-  const track = carouselTrack.value
-  if (!track) {
-    return
-  }
-
-  currentIndex.value = Math.max(0, Math.min(features.value.length - 1, Math.round(track.scrollLeft / getStepSize())))
-}
-
-function scrollToIndex(index: number, behavior: ScrollBehavior = 'smooth'): void {
-  const track = carouselTrack.value
-  if (!track) {
-    currentIndex.value = index
-    return
-  }
-
-  currentIndex.value = index
-  track.scrollTo({
-    left: getStepSize() * index,
-    behavior
-  })
-}
-
-function scheduleRotation(): void {
+function startRotation(): void {
   stopRotation()
-  clearResumeTimer()
 
-  if (!isPhone.value || !revealed.value || features.value.length <= 1) {
+  if (!revealed.value || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     return
   }
 
   rotationTimer = window.setInterval(() => {
-    scrollToIndex((currentIndex.value + 1) % features.value.length)
-  }, 3600)
-}
-
-function pauseRotationAfterInteraction(): void {
-  stopRotation()
-  clearResumeTimer()
-
-  if (!isPhone.value || !revealed.value) {
-    return
-  }
-
-  resumeTimer = window.setTimeout(() => {
-    scheduleRotation()
+    activeIndex.value = (activeIndex.value + 1) % featureTabs.value.length
   }, 4200)
 }
 
-function handleTrackScroll(): void {
-  pauseRotationAfterInteraction()
-
-  if (scrollFrame !== null) {
-    window.cancelAnimationFrame(scrollFrame)
-  }
-
-  scrollFrame = window.requestAnimationFrame(() => {
-    syncCurrentIndex()
-    scrollFrame = null
-  })
+function selectFeature(index: number): void {
+  activeIndex.value = index
+  startRotation()
 }
 
-watch([isPhone, revealed], () => {
-  scheduleRotation()
-})
+watch(revealed, startRotation)
 
 onUnmounted(() => {
   stopRotation()
-  clearResumeTimer()
-  if (scrollFrame !== null) {
-    window.cancelAnimationFrame(scrollFrame)
-  }
 })
 </script>
 
 <template>
-  <section class="features-section">
-    <div class="container">
-      <div class="section-head animate-entry">
-        <span class="section-kicker">{{ siteContent.home.featuresIntro.kicker }}</span>
-        <h2 class="section-title">{{ siteContent.home.featuresIntro.title }}</h2>
-        <p class="section-copy">{{ siteContent.home.featuresIntro.body }}</p>
-      </div>
+  <section id="features" ref="featuresSection" :class="['features-section', { 'is-revealed': revealed }]">
+    <div class="container features-shell">
+      <header class="features-heading">
+        <span>{{ siteContent.home.featuresIntro.kicker }}</span>
+        <h2>{{ siteContent.home.featuresIntro.title }}</h2>
+      </header>
 
-      <div v-if="!isPhone" class="features-grid">
-        <FeatureGridCard
-          v-for="(feature, index) in features"
+      <div class="feature-diamond-row" role="tablist" :aria-label="siteContent.home.featuresIntro.title">
+        <button
+          v-for="(feature, index) in featureTabs"
           :key="feature.title"
-          :feature="feature"
-          :index="index"
-        />
+          :class="['feature-diamond', { active: index === activeIndex }]"
+          type="button"
+          role="tab"
+          :aria-selected="index === activeIndex"
+          @click="selectFeature(index)"
+        >
+          <span>{{ feature.icon }}</span>
+        </button>
       </div>
 
-      <div v-else ref="featureCarousel" class="feature-carousel glass-card animate-entry delay-100">
-        <div ref="carouselTrack" class="carousel-track" @scroll.passive="handleTrackScroll">
-          <div v-for="(feature, index) in features" :key="feature.title" class="feature-slide">
-            <FeatureGridCard :feature="feature" :index="index" compact />
-          </div>
-        </div>
-
-        <div class="carousel-dots" aria-hidden="true">
-          <span
-            v-for="(_, index) in features"
-            :key="index"
-            :class="['carousel-dot', { active: index === currentIndex }]"
-          ></span>
-        </div>
-      </div>
+      <Transition name="feature-fade" mode="out-in">
+        <article :key="activeFeature.title" class="feature-panel">
+          <span class="feature-backdrop" aria-hidden="true">{{ activeFeatureBackdrop }}</span>
+          <div class="feature-number">// {{ activeFeature.icon }}</div>
+          <h3>{{ activeFeature.title }}</h3>
+          <p>{{ activeFeature.description }}</p>
+          <blockquote>{{ siteContent.home.featureQuotes[activeIndex] }}</blockquote>
+        </article>
+      </Transition>
     </div>
   </section>
 </template>
 
 <style scoped>
 .features-section {
-  padding: 0.45rem 0 3.8rem;
-}
-
-.section-head {
-  display: grid;
-  gap: 0.9rem;
-  margin-bottom: 1.5rem;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.8rem;
-}
-
-.feature-carousel {
-  display: grid;
-  gap: 0.7rem;
+  position: relative;
   overflow: hidden;
+  padding: clamp(5rem, 9vw, 8rem) 0;
+  background: #ffffff;
+  color: #2a3040;
 }
 
-.carousel-track {
+.features-shell {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 100%;
-  align-items: stretch;
-  gap: 0.75rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+  gap: clamp(2rem, 5vw, 4rem);
+  justify-items: center;
 }
 
-.carousel-track::-webkit-scrollbar {
-  display: none;
-}
-
-.feature-slide {
+.features-heading {
+  position: relative;
   display: grid;
-  min-width: 0;
-  scroll-snap-align: start;
+  justify-items: center;
+  gap: 1rem;
+  text-align: center;
 }
 
-.carousel-dots {
+.features-heading::before {
+  content: 'SYSTEM';
+  position: absolute;
+  top: -3.4rem;
+  color: rgba(16, 24, 39, 0.035);
+  font-family: var(--heading);
+  font-size: clamp(4.6rem, 11vw, 9rem);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.features-heading span,
+.feature-number {
+  color: var(--primary);
+  font-family: var(--mono);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.features-heading span {
+  position: relative;
+  z-index: 1;
+  font-size: 0.75rem;
+}
+
+.features-heading h2 {
+  position: relative;
+  z-index: 1;
+  color: #2a3040;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  letter-spacing: 0;
+}
+
+.features-heading h2::after {
+  content: '';
+  display: block;
+  width: 4rem;
+  height: 3px;
+  margin: 1rem auto 0;
+  background: var(--primary);
+}
+
+.feature-diamond-row {
+  position: relative;
   display: flex;
   justify-content: center;
-  gap: 0.45rem;
+  gap: clamp(1.4rem, 5vw, 4rem);
+  width: min(760px, 100%);
 }
 
-.carousel-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
+.feature-diamond-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(16, 24, 39, 0.14);
+}
+
+.feature-diamond {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: clamp(4.6rem, 8vw, 6.2rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(16, 24, 39, 0.16);
+  background: #ffffff;
+  color: #2a3040;
+  transform: rotate(45deg);
   transition:
-    transform var(--transition-fast),
-    background var(--transition-fast);
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-panel);
 }
 
-.carousel-dot.active {
-  background: var(--primary);
-  transform: scale(1.1);
+.feature-diamond span {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 800;
+  transform: rotate(-45deg);
 }
 
-@media (max-width: 980px) {
-  .features-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.feature-diamond.active,
+.feature-diamond:hover {
+  border-color: var(--primary);
+  background: #2b3040;
+  color: #ffffff;
+  transform: rotate(45deg) translateY(-4px);
+}
+
+.feature-panel {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  width: min(900px, 100%);
+  min-height: 300px;
+  padding: clamp(2rem, 6vw, 4rem) 1rem;
+  text-align: center;
+}
+
+.feature-backdrop {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  color: rgba(16, 24, 39, 0.035);
+  font-family: var(--heading);
+  font-size: clamp(4rem, 14vw, 9rem);
+  font-weight: 900;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.feature-number {
+  position: relative;
+  z-index: 1;
+  font-size: 1rem;
+}
+
+.feature-panel h3,
+.feature-panel p,
+.feature-panel blockquote {
+  position: relative;
+  z-index: 1;
+}
+
+.feature-panel h3 {
+  color: #2a3040;
+  font-size: clamp(2.5rem, 6vw, 4.7rem);
+  letter-spacing: 0;
+}
+
+.feature-panel p {
+  max-width: 62ch;
+  color: #667084;
+  font-size: 1.06rem;
+}
+
+.feature-panel blockquote {
+  margin: 0.5rem 0 0;
+  color: #8b95a7;
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+}
+
+.feature-fade-enter-active,
+.feature-fade-leave-active {
+  transition:
+    opacity 0.26s ease,
+    transform 0.34s var(--transition-slow);
+}
+
+.feature-fade-enter-from,
+.feature-fade-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
 }
 
 @media (max-width: 680px) {
-  .features-grid {
-    grid-template-columns: 1fr;
+  .feature-diamond-row {
+    gap: 0.9rem;
+  }
+
+  .feature-diamond {
+    width: 4.2rem;
+  }
+
+  .feature-panel h3 {
+    font-size: 2.5rem;
   }
 }
 </style>

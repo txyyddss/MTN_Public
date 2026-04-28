@@ -1,7 +1,7 @@
 const zhCN = {
   siteContent: {
     app: {
-      brandSubline: '生存图鉴',
+      brandSubline: '土豆服务器',
       menuToggleAria: '切换导航菜单',
       locale: {
         label: '语言',
@@ -14,21 +14,59 @@ const zhCN = {
         { id: 'home', label: '首页', to: '/' },
         { id: 'players', label: '玩家', to: '/players' },
         { id: 'gallery', label: '画廊', to: '/gallery' },
-        { id: 'wiki', label: '百科', to: 'https://mtn.1919801.xyz/', external: true, emphasize: true }
+        { id: 'wiki', label: '官网', to: 'https://public.mcmtn.net/', external: true, emphasize: true }
       ]
     },
     home: {
       hero: {
-        eyebrow: '社区运营生存服，创立于 2024 年',
-        title: '长期生存，没有捷径经济。',
-        body: 'Java 与基岩版共享同一个世界、同一段历史，以及同一套公开记录。',
-        primaryCta: '浏览玩家',
-        secondaryCta: '打开百科',
+        eyebrow: '公益原版风味生存优化之服务器',
+        title: 'MTNetwork | MTN土豆服务器',
+        tagline: '「公益神人土豆原版风味生存优化之服务器」',
+        imageAlt: 'MTN 土豆服务器夜景建筑截图',
+        projectLine: 'PROJECT MTN LONG-SEASON ARCHIVE',
+        scrollCta: '滚动到介绍',
+        accentLine: '土豆又发力了！！',
+        body: '性能一般般，但足够朋友间一同玩耍。最近土豆变强了不少，大土豆会努力服务大家的～～',
+        primaryCta: 'QQ群 1064494318',
+        primaryHref: '#join-mtn',
+        secondaryCta: '访问官网',
+        secondaryHref: 'https://public.mcmtn.net/',
         facts: [
-          { label: '运营方式', value: '非营利社区运营' },
-          { label: '接入方式', value: 'Java 与基岩版互通' },
-          { label: '节点位置', value: '深圳独立硬件' }
+          { label: '运营方式', value: '公益非营利' },
+          { label: '接入方式', value: 'Je / Be 跨版本互通' },
+          { label: '世界目标', value: '长周目运营' }
         ]
+      },
+      preloader: {
+        steps: ['正在建立节点连接...', '正在检查土豆电压...', '正在加载世界档案...', '就绪。']
+      },
+      follow: {
+        label: 'FOLLOW',
+        links: [
+          { label: 'Bilibili', short: 'B', href: 'https://space.bilibili.com/1066536503' },
+          { label: 'QQ 群', short: 'QQ', href: 'https://qm.qq.com/q/7muRxmmQvu' }
+        ]
+      },
+      heroAside: {
+        kicker: '服务器娘',
+        title: '大土豆待命中',
+        imageAlt: 'MTN 土豆服务器的服务器娘形象',
+        statusLabel: '当前目标',
+        statusValue: '把欢乐分享给更多人',
+        chips: ['原版生存', '社区驱动', '跨设备互通']
+      },
+      story: {
+        kicker: '了解 MTN 土豆服务器',
+        title: '一颗种在腐竹家的大土豆。',
+        imageCaption: '服务器娘 / MTN 土豆服务器',
+        paragraphs: [
+          '如同其名字，服务器的性能一般般，虽然并非专业服务器，但是足够朋友间一同玩耍。（最近土豆变强了不少）土豆平时种植在腐竹家，平时靠腐竹攒米发育，以及几个原始咕咚喂养，大土豆会努力服务大家的～～',
+          '服务器建立之初的愿景是腐竹与几位舍友为了能在任何时间一起消遣而建立的，如今开放是希望将当初那份欢乐分享与更多人。',
+          '服务器期望进行长周目运营，而非伴随短期存档的重置而导致记忆的消失。这里希望搭建一个富有社交性与娱乐性，使人们收获真面情绪与乐趣的地方。',
+          '在以 Java 版生存为主基调上，服务器增添了不少更实用、趣味的插件，使其兼具建筑、生电、冒险、经济交易等更多主题。愿你在游玩时，也能收获你的那份欢乐。'
+        ],
+        calloutTitle: '玩家社区驱动的运营',
+        calloutBody: '服务器实行非营利运营、由玩家社区共同维护，共同创造。一定要投喂腐竹的话我们也会很高兴哦：），代表我们的大土豆感谢您～～'
       },
       quickRoutes: {
         kicker: '快捷入口',
@@ -40,61 +78,140 @@ const zhCN = {
           wiki: '阅读服务器手册与玩法说明。'
         }
       },
+      news: {
+        kicker: '最新动态',
+        title: '服务器近况',
+        items: [
+          { date: '2026.04.28', title: '公开网页档案进入新的视觉阶段。', badge: 'NEW', href: '#details' },
+          { date: '2026.04.19', title: '新的世界截图已加入画廊档案。', href: '#gallery' },
+          { date: '2026.04.15', title: '实时状态、连接路由与玩家记录已经接入。', href: '#details' },
+          { date: '2026.04.10', title: '土豆服务器看板娘加入站点识别。', href: '#intro-section' }
+        ]
+      },
+      quickCards: {
+        title: '快速导航',
+        items: [
+          { title: '特色系统', href: '#features' },
+          { title: '世界画廊', href: '#gallery' },
+          { title: '服务器手册', href: 'https://public.mcmtn.net/', external: true }
+        ]
+      },
       serverIntro: {
         kicker: '运行面板',
         title: '实时基础设施与连接路由。',
         body: '在进入服务器之前，先检查节点状态、最近玩家活动以及适合你客户端的连接地址。'
       },
       featuresIntro: {
-        kicker: '运行原则',
-        title: '这个世界坚持的方向。',
-        body: '公平规则、稳定生存，以及所有人都看得见的共同历史。'
+        kicker: '服务器与众不同的点在于',
+        title: '为长寿存档和真实乐趣服务。',
+        body: '公益跨版本互通、原版优先、多样玩法与社区规划，一起让这个世界更适合长期留下记忆。'
       },
       featureMode: '系统',
       features: [
         {
-          title: '社区驱动的运营',
-          description: '非营利、由社区共同维护，并坚持公平起点。',
+          title: '服务器理念',
+          description: '从朋友间随时消遣出发，开放后希望把当初那份欢乐分享给更多人。',
           icon: '01',
           accent: 'copper'
         },
         {
-          title: '原版优先的生存',
-          description: '核心生存体验保持原版，仅用微调维持公平，而非替代玩法。',
+          title: '玩家社区驱动的运营',
+          description: '非营利运营，由玩家社区共同维护、共同创造，所有支持都会回到大土豆的成长里。',
           icon: '02',
           accent: 'moss'
         },
         {
-          title: '跨版本互通',
-          description: 'Java 与基岩版进入同一个世界，并共享公开记录。',
+          title: '原版优先的生存',
+          description: '体验尽量靠近原版，以微调维持公平，并适度替代或增加有趣的新玩法。',
           icon: '03',
           accent: 'redstone'
         },
         {
-          title: '独立基础设施',
-          description: '服务器运行在深圳独立硬件上，并通过网站实时展示状态。',
+          title: '跨版本互通',
+          description: '双版本无障碍互通【Je/be】，无论你喜欢哪一种版本都可以畅玩本服。',
           icon: '04',
           accent: 'copper'
         },
         {
-          title: '长期建设积累',
-          description: '铁路、城市、农场与大型公共建筑会持续累积，而不是随重置消失。',
+          title: '公益跨设备覆盖',
+          description: '完全公益跨版本互通，覆盖几乎所有设备，让更多玩家能进入同一个世界。',
           icon: '05',
           accent: 'moss'
         },
         {
-          title: '公开可查的记录',
-          description: '玩家、排行榜、统计与截图都会持续公开展示。',
+          title: '长周目与社区规划',
+          description: '规则不是为了处罚玩家，而是为了让存档更长寿，并用档案规划减少玩家纠纷。',
           icon: '06',
           accent: 'redstone'
         }
       ],
+      featureBackdrops: ['HARDWARE', 'COMMUNITY', 'VANILLA', 'CROSSPLAY'],
+      featureQuotes: [
+        '小机器也可以承载一个真实的世界。',
+        '最好的档案，是玩家一起继续建设的档案。',
+        '尽量靠近生存本身，只加入真正有帮助的内容。',
+        '同一个世界，应该能被更多设备抵达。'
+      ],
+      homeGallery: {
+        title: '精选截图',
+        note: '图片来自 MTN 世界截图，并已为首页展示优化。',
+        items: [
+          { caption: '出生点周边档案' },
+          { caption: '共同路线工程' },
+          { caption: '长周目建筑记录' }
+        ]
+      },
+      details: {
+        slogan: '准备好定居了吗',
+        subSlogan: '在土豆世界里留下真实足迹。',
+        groups: [
+          {
+            title: '// 服务器信息',
+            rows: [
+              { label: '名称', value: 'MTNetwork 土豆服务器' },
+              { label: '模式', value: 'Java / Bedrock 互通' },
+              { label: '运营', value: '公益社区服务器' },
+              { label: '开放', value: '长期公开周目' }
+            ]
+          },
+          {
+            title: '// 服务器设定',
+            rows: [
+              { label: '核心玩法', value: '生存 / 建筑 / 红石 / 冒险' },
+              { label: '核心机制', value: '原版基底 + 实用插件' },
+              { label: '主题色', value: '#4C93FB MTN 蓝' },
+              { label: '目标', value: '值得被记住的稳定世界' }
+            ]
+          }
+        ]
+      },
       cta: {
-        kicker: '下一步',
-        title: '加入、建设、留下痕迹。',
-        body: '如果你想要一个公平生存、历史可见的世界，这里就是合适的节奏。',
-        primaryCta: '打开百科',
-        note: '连接信息就在下方。'
+        kicker: '立即加入我们',
+        title: 'QQ群号：1064494318',
+        body: '加入 MTN 土豆服务器，在长期运营的公益生存世界里建筑、生电、冒险、交易，并留下属于你的欢乐。',
+        primaryCta: '复制QQ群号',
+        copiedLabel: '已复制QQ群号',
+        qqGroup: '1064494318',
+        siteCta: '访问官网',
+        siteUrl: 'https://public.mcmtn.net/',
+        note: '官网：https://public.mcmtn.net/'
+      },
+      floatingJoin: {
+        label: '加入服务器',
+        detail: 'QQ群 1064494318',
+        href: 'https://qm.qq.com/q/yLvHNwPXZ8'
+      },
+      footer: {
+        tagline: '一个家用土豆机器上的公益服务器，服务于原版优先的生存、共同建筑和长久记忆。',
+        navTitle: '探索',
+        supportTitle: '支持',
+        links: [
+          { label: '最新动态', href: '#news', external: true },
+          { label: '特色玩法', href: '#features', external: true },
+          { label: '画廊', href: '/gallery' },
+          { label: '玩家', href: '/players' }
+        ],
+        legal: 'MTNetwork 是独立 Minecraft 社区，与 Mojang 或 Microsoft 没有关联。'
       }
     },
     serverPanels: {

@@ -1,14 +1,26 @@
 <script setup lang="ts">
+import CTASection from '@/components/home/CTASection.vue'
 import FeatureGrid from '@/components/home/FeatureGrid.vue'
 import HeroSection from '@/components/home/HeroSection.vue'
-import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vue'
+import HomeDetailsSection from '@/components/home/HomeDetailsSection.vue'
+import HomeFooter from '@/components/home/HomeFooter.vue'
+import HomeGallerySection from '@/components/home/HomeGallerySection.vue'
+
+import HomeQuickNavSection from '@/components/home/HomeQuickNavSection.vue'
+import ServerStorySection from '@/components/home/ServerStorySection.vue'
 </script>
 
 <template>
-  <div class="home-view page-shell">
+  <div class="home-view">
     <HeroSection />
-    <ServerStatusAndConnection class="status-reveal" />
+    <ServerStorySection />
+
+    <HomeQuickNavSection />
     <FeatureGrid />
+    <HomeGallerySection />
+    <HomeDetailsSection />
+    <CTASection />
+    <HomeFooter />
   </div>
 </template>
 
@@ -16,19 +28,7 @@ import ServerStatusAndConnection from '@/components/ServerStatusAndConnection.vu
 .home-view {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding-bottom: 0;
-}
-
-.status-reveal {
-  margin-top: -0.4rem;
-  position: relative;
-  z-index: 20;
-}
-
-@media (max-width: 768px) {
-  .status-reveal {
-    margin-top: 0.2rem;
-  }
+  min-width: 0;
+  background: #ffffff;
 }
 </style>

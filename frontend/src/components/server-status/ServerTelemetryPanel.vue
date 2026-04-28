@@ -110,29 +110,6 @@ const historySummary = computed(() => {
         </div>
       </div>
 
-      <div class="history-block">
-        <div class="history-head">
-          <div class="panel-heading">
-            <span class="section-kicker">{{ siteContent.serverPanels.historyTitle }}</span>
-            <p class="panel-foot">{{ siteContent.serverPanels.historyHint }}</p>
-          </div>
-          <span class="panel-state" :class="{ live: (props.history?.weekly_max_players ?? 0) > 0 }">
-            {{ historySummary }}
-          </span>
-        </div>
-
-        <HourlyPresenceHeatmap
-          v-if="props.history"
-          :days="props.history.days"
-          :hours="props.history.hours"
-          :cells="props.history.cells"
-          :timezone="props.history.timezone"
-          :weekly-max-players="props.history.weekly_max_players"
-          variant="server"
-        />
-        <p v-else class="loading-copy">{{ siteContent.serverPanels.historyLoading }}</p>
-      </div>
-
       <p class="panel-foot">
         {{ siteContent.serverPanels.liveStatusRefresh }}
         <span v-if="updatedLabel"> / {{ siteContent.serverPanels.lastUpdate }} {{ updatedLabel }}</span>

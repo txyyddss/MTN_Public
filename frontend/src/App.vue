@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, shallowRef, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
+import AppPreloader from '@/components/AppPreloader.vue'
 import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
+import ShellSideControls from '@/components/ShellSideControls.vue'
 import { usePreloader } from '@/composables/usePreloader'
 import { formatPlayerCount, useSiteContent } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
-const menuOpen = ref(false)
+const menuOpen = shallowRef(false)
 const route = useRoute()
 const siteContent = useSiteContent()
 
-const { initPreloading } = usePreloader()
+const { initPreloading, isReady } = usePreloader()
 const serverStatus = useServerStatusStore()
 const { status } = storeToRefs(serverStatus)
 
@@ -38,6 +40,10 @@ watch(
   }
 )
 
+watch(menuOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
 onMounted(() => {
   void serverStatus.refresh()
   void initPreloading()
@@ -45,59 +51,77 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  document.body.style.overflow = ''
   serverStatus.stopPolling()
 })
 </script>
 
 <template>
   <div class="app-shell">
-    <header class="top-bar">
-      <div class="top-bar-glow"></div>
-      <nav class="container nav-frame">
-        <div class="nav-brand-block">
-          <RouterLink class="brand-lockup" to="/" @click="closeMenu">
-            <span class="brand-text">
-              <span class="brand-text-mtn">MTN</span><span class="brand-text-etwork">etwork</span>
-            </span>
-          </RouterLink>
-          <span class="brand-subline">{{ siteContent.app.brandSubline }}</span>
-        </div>
+    <AppPreloader :ready="isReady" />
 
-        <div class="nav-center">
-          <div :class="['nav-links', { open: menuOpen }]">
-            <template v-for="item in siteContent.app.nav" :key="item.id">
-              <a
-                v-if="item.external"
-                :href="item.to"
-                :class="['nav-link', 'nav-link-external', 'action-inline', 'action-press', { 'nav-link-emphasis': item.emphasize }]"
-                @click="closeMenu"
-              >
-                {{ item.label }}
-              </a>
-              <RouterLink v-else :to="item.to" class="nav-link action-inline action-press" @click="closeMenu">
-                {{ item.label }}
-              </RouterLink>
-            </template>
+    <button
+      :class="['menu-trigger', 'action-inline', 'action-press', { active: menuOpen }]"
+      type="button"
+      :aria-label="siteContent.app.menuToggleAria"
+      :aria-expanded="menuOpen"
+      @click="toggleMenu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-            <LocaleSwitcher mobile class="nav-locale-switch" />
-          </div>
-        </div>
+    <Transition name="overlay-fade">
+      <button v-if="menuOpen" class="nav-scrim" type="button" :aria-label="siteContent.app.menuToggleAria" @click="closeMenu"></button>
+    </Transition>
+
+    <nav :class="['nav-overlay', { active: menuOpen }]" :aria-hidden="!menuOpen">
+      <div class="nav-overlay-inner">
+        <RouterLink class="brand-lockup" to="/" @click="closeMenu">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>
+            <strong>MTNetwork</strong>
+            <small>{{ siteContent.app.brandSubline }}</small>
+          </span>
+        </RouterLink>
 
         <div class="shell-readout">
-          <span class="hud-chip">
+          <span class="shell-chip">
             <span class="status-dot" :class="{ active: isLive }"></span>
             {{ shellStatus }}
           </span>
-          <span class="hud-chip">{{ shellPlayersLabel }}</span>
-          <LocaleSwitcher />
+          <span class="shell-chip">{{ shellPlayersLabel }}</span>
         </div>
 
-        <button class="menu-toggle action-inline action-press" type="button" :aria-label="siteContent.app.menuToggleAria" @click="toggleMenu">
-          <span :class="{ active: menuOpen }"></span>
-          <span :class="{ active: menuOpen }"></span>
-        </button>
-      </nav>
-    </header>
+        <div class="nav-links">
+          <template v-for="item in siteContent.app.nav" :key="item.id">
+            <a
+              v-if="item.external"
+              :href="item.to"
+              :class="['nav-link', { 'nav-link-emphasis': item.emphasize }]"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="closeMenu"
+            >
+              <span>{{ item.label }}</span>
+            </a>
+            <RouterLink v-else :to="item.to" class="nav-link" @click="closeMenu">
+              <span>{{ item.label }}</span>
+            </RouterLink>
+          </template>
+        </div>
+
+        <LocaleSwitcher class="nav-locale-switch" />
+      </div>
+    </nav>
+
+    <ShellSideControls />
 
     <main class="main-content">
       <RouterView v-slot="{ Component, route }">
@@ -106,8 +130,6 @@ onUnmounted(() => {
         </Transition>
       </RouterView>
     </main>
-
-
   </div>
 </template>
 
@@ -118,86 +140,161 @@ onUnmounted(() => {
   flex-direction: column;
 }
 
-.top-bar {
+.menu-trigger {
   position: fixed;
-  top: 0;
+  top: 1.75rem;
+  right: 1.75rem;
+  z-index: 120;
+  width: 44px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  mix-blend-mode: difference;
+}
+
+.menu-trigger span {
+  position: absolute;
   left: 0;
   right: 0;
-  z-index: 80;
-  background: rgba(0, 0, 0, 0.58);
-  backdrop-filter: saturate(180%) blur(18px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: 3px;
+  background: #ffffff;
+  transition:
+    top var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
-.top-bar-glow {
-  position: absolute;
-  inset: auto 0 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(76, 147, 251, 0.5), transparent);
-  opacity: 0.8;
-  pointer-events: none;
+.menu-trigger span:nth-child(1) {
+  top: 3px;
 }
 
-.nav-frame {
+.menu-trigger span:nth-child(2) {
+  top: 15px;
+}
+
+.menu-trigger span:nth-child(3) {
+  top: 27px;
+}
+
+.menu-trigger.active {
+  mix-blend-mode: normal;
+}
+
+.menu-trigger.active span {
+  background: #ffffff;
+}
+
+.menu-trigger.active span:nth-child(1) {
+  top: 15px;
+  transform: rotate(-45deg);
+}
+
+.menu-trigger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-trigger.active span:nth-child(3) {
+  top: 15px;
+  transform: rotate(45deg);
+}
+
+.nav-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 89;
+  border: 0;
+  background: rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(2px);
+}
+
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  width: min(100vw, 430px);
+  height: 100vh;
+  padding: 5.5rem 2.2rem 2rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 38%),
+    #101827;
+  color: #ffffff;
+  box-shadow: -28px 0 64px rgba(0, 0, 0, 0.34);
+  transform: translateX(100%);
+  transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.nav-overlay.active {
+  transform: translateX(0);
+}
+
+.nav-overlay-inner {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 1rem;
-  min-height: 62px;
-  padding: 0.55rem 0;
-}
-
-.nav-brand-block {
-  display: grid;
-  gap: 0.18rem;
-  min-width: 0;
+  gap: 2rem;
+  min-height: 100%;
+  align-content: center;
 }
 
 .brand-lockup {
   display: inline-flex;
   align-items: center;
-  min-width: 0;
-  flex-shrink: 0;
+  gap: 0.85rem;
+  width: fit-content;
 }
 
-.brand-text {
-  display: inline-flex;
-  align-items: center;
+.brand-mark {
+  display: grid;
+  grid-template-columns: repeat(2, 13px);
+  gap: 5px;
+  transform: rotate(45deg);
+}
+
+.brand-mark span {
+  width: 13px;
+  aspect-ratio: 1;
+  background: var(--primary);
+}
+
+.brand-mark span:nth-child(3),
+.brand-mark span:nth-child(4) {
+  background: #83d3a7;
+}
+
+.brand-lockup strong,
+.brand-lockup small {
+  display: block;
+}
+
+.brand-lockup strong {
+  color: #ffffff;
   font-family: var(--display);
-  font-size: clamp(1.1rem, 2vw, 1.32rem);
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  font-size: 1.35rem;
+  font-weight: 700;
 }
 
-.brand-text-mtn {
-  color: var(--primary);
-}
-
-.brand-text-etwork {
-  color: var(--text-strong);
-}
-
-.brand-subline {
-  color: var(--text-dim);
+.brand-lockup small {
+  color: rgba(255, 255, 255, 0.58);
   font-family: var(--mono);
-  font-size: 0.63rem;
+  font-size: 0.7rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-
-.nav-center {
-  display: flex;
-  justify-content: center;
-  min-width: 0;
 }
 
 .shell-readout {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  justify-content: flex-end;
-  flex-shrink: 0;
+  gap: 0.55rem;
+}
+
+.shell-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.74);
+  font-family: var(--mono);
+  font-size: 0.72rem;
 }
 
 .status-dot {
@@ -209,184 +306,84 @@ onUnmounted(() => {
 
 .status-dot.active {
   background: var(--success);
-  box-shadow: 0 0 0 5px rgba(131, 211, 167, 0.12);
+  box-shadow: 0 0 0 5px rgba(131, 211, 167, 0.14);
 }
 
 .nav-links {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15rem;
-  margin: 0;
-  padding: 0.28rem;
-  border-radius: 999px;
-  border: 1px solid var(--control-border);
-  background: var(--control-surface);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+  display: grid;
+  gap: 0.2rem;
 }
 
 .nav-link {
-  padding: 0.55rem 0.85rem;
-  border-radius: 10px;
-  color: var(--control-text);
-  font-size: 0.88rem;
-  font-family: var(--sans);
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--display);
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  font-weight: 600;
   transition:
-    transform var(--transition-fast),
-    background var(--transition-fast),
-    border-color var(--transition-fast),
     color var(--transition-fast),
-    box-shadow var(--transition-fast);
-  border: 1px solid transparent;
+    transform var(--transition-fast);
+}
+
+.nav-link::before {
+  content: '';
+  width: 0;
+  height: 2px;
+  margin-right: 0;
+  background: var(--primary);
+  transition:
+    width var(--transition-fast),
+    margin-right var(--transition-fast);
 }
 
 .nav-link:hover,
 .nav-link.router-link-active {
-  color: var(--control-text-active);
-  border-color: var(--control-border-active);
-  background: var(--control-bg-active);
+  color: #ffffff;
+  transform: translateX(3px);
 }
 
-.nav-link-external {
-  color: var(--accent);
+.nav-link:hover::before,
+.nav-link.router-link-active::before {
+  width: 2.2rem;
+  margin-right: 0.85rem;
 }
 
 .nav-link-emphasis {
-  color: #fff4c2;
-  background: linear-gradient(135deg, rgba(182, 126, 23, 0.34), rgba(255, 214, 102, 0.18));
-  border-color: rgba(255, 214, 102, 0.28);
-  box-shadow: 0 10px 28px rgba(182, 126, 23, 0.2);
+  color: #d7e8ff;
 }
 
-.nav-link-emphasis:hover {
-  color: #fff9de;
-  border-color: rgba(255, 230, 148, 0.42);
-  background: linear-gradient(135deg, rgba(204, 144, 29, 0.42), rgba(255, 214, 102, 0.22));
-}
-
-.menu-toggle {
-  display: none;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--control-border-hover);
-  border-radius: 999px;
-  background: var(--control-surface);
-  position: relative;
-  transition:
-    transform var(--transition-fast),
-    border-color var(--transition-fast),
-    background var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-.menu-toggle span {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  height: 2px;
-  background: var(--text-main);
-  transition:
-    transform var(--transition-fast),
-    top var(--transition-fast),
-    opacity var(--transition-fast);
-}
-
-.menu-toggle span:first-child {
-  top: 17px;
-}
-
-.menu-toggle span:last-child {
-  top: 25px;
-}
-
-.menu-toggle span.active:first-child {
-  top: 21px;
-  transform: rotate(45deg);
-}
-
-.menu-toggle span.active:last-child {
-  top: 21px;
-  transform: rotate(-45deg);
+.nav-locale-switch {
+  justify-self: start;
 }
 
 .main-content {
   flex: 1;
   position: relative;
-  padding-top: 4.35rem;
 }
 
-.nav-locale-switch {
-  display: none;
+.overlay-fade-enter-active,
+.overlay-fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-@media (max-width: 980px) {
-  .nav-frame {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
+.overlay-fade-enter-from,
+.overlay-fade-leave-to {
+  opacity: 0;
+}
 
-  .menu-toggle {
-    display: inline-grid;
-    place-items: center;
-  }
-
-  .shell-readout {
-    display: none;
-  }
-
-  .nav-center {
-    justify-content: flex-end;
-  }
-
-  .nav-links {
-    position: fixed;
-    top: 4.45rem;
-    left: 1rem;
+@media (max-width: 680px) {
+  .menu-trigger {
+    top: 1rem;
     right: 1rem;
-    width: auto;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.35rem;
-    margin: 0;
-    padding: 0.85rem;
-    border: 1px solid var(--control-border);
-    border-radius: 20px;
-    background: rgba(14, 15, 18, 0.94);
-    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-8px);
-    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    width: 38px;
   }
 
-  .nav-links.open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
+  .nav-overlay {
+    width: 100vw;
+    padding: 4.5rem 1.3rem 1.5rem;
   }
-
-  .nav-link {
-    width: 100%;
-    padding: 0.8rem 0.95rem;
-    border-radius: 14px;
-  }
-
-  .nav-locale-switch {
-    display: flex;
-  }
-
-}
-
-@media (max-width: 640px) {
-  .nav-frame {
-    min-height: 54px;
-  }
-
-  .brand-subline {
-    display: none;
-  }
-
-
 }
 </style>

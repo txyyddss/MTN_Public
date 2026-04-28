@@ -10,7 +10,7 @@ const advancementNames = Object.fromEntries(
 const en = {
   siteContent: {
     app: {
-      brandSubline: 'Survival atlas',
+      brandSubline: 'Potato server',
       menuToggleAria: 'Toggle navigation',
       locale: {
         label: 'Language',
@@ -23,21 +23,59 @@ const en = {
         { id: 'home', label: 'Home', to: '/' },
         { id: 'players', label: 'Players', to: '/players' },
         { id: 'gallery', label: 'Gallery', to: '/gallery' },
-        { id: 'wiki', label: 'Wiki', to: 'https://mtn.1919801.xyz/', external: true, emphasize: true }
+        { id: 'wiki', label: 'Official Site', to: 'https://public.mcmtn.net/', external: true, emphasize: true }
       ]
     },
     home: {
       hero: {
-        eyebrow: 'Community-run survival, founded in 2024',
-        title: 'Long-term survival. No shortcut economy.',
-        body: 'Java and Bedrock share one world, one history, and one public record.',
-        primaryCta: 'Explore Players',
-        secondaryCta: 'Open Wiki',
+        eyebrow: 'Non-profit vanilla-flavored optimized survival',
+        title: 'MTNetwork | MTN Potato Server',
+        tagline: 'A community potato server for vanilla-style survival.',
+        imageAlt: 'MTN Potato Server in-game build at night',
+        projectLine: 'Project MTN long-season archive',
+        scrollCta: 'Scroll to introduction',
+        accentLine: 'The potato is pushing harder again.',
+        body: 'The hardware is modest, but it is enough for friends to play together. The potato has grown stronger recently, and it keeps working for everyone.',
+        primaryCta: 'QQ Group 1064494318',
+        primaryHref: '#join-mtn',
+        secondaryCta: 'Visit Official Site',
+        secondaryHref: 'https://public.mcmtn.net/',
         facts: [
-          { label: 'Operations', value: 'Non-profit community run' },
-          { label: 'Access', value: 'Java and Bedrock' },
-          { label: 'Node', value: 'Dedicated hardware in Shenzhen' }
+          { label: 'Operations', value: 'Non-profit' },
+          { label: 'Access', value: 'Java / Bedrock cross-play' },
+          { label: 'World Goal', value: 'Long-running season' }
         ]
+      },
+      preloader: {
+        steps: ['Opening node link...', 'Checking potato voltage...', 'Loading world archive...', 'Ready.']
+      },
+      follow: {
+        label: 'Follow',
+        links: [
+          { label: 'Bilibili', short: 'B', href: 'https://space.bilibili.com/1066536503' },
+          { label: 'QQ Group', short: 'QQ', href: 'https://qm.qq.com/q/7muRxmmQvu' }
+        ]
+      },
+      heroAside: {
+        kicker: 'Server Mascot',
+        title: 'The big potato is on duty',
+        imageAlt: 'MTN Potato Server mascot character',
+        statusLabel: 'Current goal',
+        statusValue: 'Share the original joy with more players',
+        chips: ['Vanilla survival', 'Community run', 'Cross-device access']
+      },
+      story: {
+        kicker: 'About MTN Potato Server',
+        title: 'A big potato planted at the owner’s home.',
+        imageCaption: 'Server mascot / MTN Potato Server',
+        paragraphs: [
+          'As the name suggests, the server performance is modest. It is not professional-grade hardware, but it is enough for friends to play together. The potato has grown stronger recently, lives at the owner’s home, and keeps developing through the owner’s effort and community support.',
+          'The server began as a place where the owner and a few roommates could relax together at any time. Opening it now is a way to share that joy with more people.',
+          'The goal is long-running operation rather than short resets that erase memories. The server is meant to be social, entertaining, and able to leave players with real emotion and fun.',
+          'With Java survival as the main baseline, practical and playful plugins add room for building, redstone engineering, adventure, economy, and trading while keeping the experience close to vanilla.'
+        ],
+        calloutTitle: 'Player-community operations',
+        calloutBody: 'The server is non-profit, maintained by the player community, and built together. Voluntary support is appreciated and goes back into helping the potato grow.'
       },
       quickRoutes: {
         kicker: 'Quick routes',
@@ -49,61 +87,140 @@ const en = {
           wiki: 'Read the server handbook and gameplay details.'
         }
       },
+      news: {
+        kicker: 'Latest updates',
+        title: 'Recent Server Notes',
+        items: [
+          { date: '2026.04.28', title: 'The public web archive enters a new visual season.', badge: 'NEW', href: '#details' },
+          { date: '2026.04.19', title: 'Fresh world screenshots were added to the gallery archive.', href: '#gallery' },
+          { date: '2026.04.15', title: 'Live status, route checks, and player records are now connected.', href: '#details' },
+          { date: '2026.04.10', title: 'The potato server mascot joined the site identity.', href: '#intro-section' }
+        ]
+      },
+      quickCards: {
+        title: 'Quick navigation',
+        items: [
+          { title: 'Feature System', href: '#features' },
+          { title: 'World Gallery', href: '#gallery' },
+          { title: 'Server Handbook', href: 'https://public.mcmtn.net/', external: true }
+        ]
+      },
       serverIntro: {
         kicker: 'Operations surface',
         title: 'Live infrastructure and connection routing.',
         body: 'Check the node state, recent player activity, and the right address for your client before joining.'
       },
       featuresIntro: {
-        kicker: 'Operating principles',
-        title: 'What this world is built for.',
-        body: 'Fair rules, stable survival, shared history made visible.'
+        kicker: 'What makes the server different',
+        title: 'Built for a longer-lived world.',
+        body: 'Non-profit cross-version access, vanilla-first survival, varied gameplay, and community planning all support a world worth remembering.'
       },
       featureMode: 'System',
       features: [
         {
-          title: 'Community-run operations',
-          description: 'Non-profit, community-run, and built around equal footing.',
+          title: 'Server philosophy',
+          description: 'Started as a place for friends to relax together, then opened to share that joy with more people.',
           icon: '01',
           accent: 'copper'
         },
         {
-          title: 'Vanilla-first survival',
-          description: 'Core survival stays intact. Tweaks support fairness, not replacement gameplay.',
+          title: 'Player-community operations',
+          description: 'Non-profit, maintained together by the community, and shaped by players who build the world.',
           icon: '02',
           accent: 'moss'
         },
         {
-          title: 'Cross-play access',
-          description: 'Java and Bedrock join the same world with shared public records.',
+          title: 'Vanilla-first survival',
+          description: 'The experience stays close to vanilla, with light tuning for fairness and carefully added gameplay.',
           icon: '03',
           accent: 'redstone'
         },
         {
-          title: 'Dedicated infrastructure',
-          description: 'Dedicated hardware in Shenzhen, surfaced live by the site.',
+          title: 'Cross-version access',
+          description: 'Java and Bedrock can both join smoothly, so players can use the edition they prefer.',
           icon: '04',
           accent: 'copper'
         },
         {
-          title: 'Builders with range',
-          description: 'Railways, cities, farms, and large shared builds over resets.',
+          title: 'Non-profit device coverage',
+          description: 'Cross-version support covers nearly every device while keeping the server public-benefit oriented.',
           icon: '05',
           accent: 'moss'
         },
         {
-          title: 'Public records',
-          description: 'Players, rankings, stats, and screenshots stay public.',
+          title: 'Long seasons and planning',
+          description: 'Rules and documented community planning help the save live longer and reduce player disputes.',
           icon: '06',
           accent: 'redstone'
         }
       ],
+      featureBackdrops: ['HARDWARE', 'COMMUNITY', 'VANILLA', 'CROSSPLAY'],
+      featureQuotes: [
+        'A small machine can still carry a real world.',
+        'The best archive is the one players keep building together.',
+        'Stay close to survival, then add only what helps the story.',
+        'One world should be easy to reach from the device you have.'
+      ],
+      homeGallery: {
+        title: 'Selected Screenshots',
+        note: 'Images are local MTN world captures prepared for the home page.',
+        items: [
+          { caption: 'Spawn-side archive' },
+          { caption: 'Shared route works' },
+          { caption: 'Long-season build log' }
+        ]
+      },
+      details: {
+        slogan: 'Ready to settle in?',
+        subSlogan: 'Leave a real footprint in the potato world.',
+        groups: [
+          {
+            title: '// Server information',
+            rows: [
+              { label: 'Name', value: 'MTNetwork Potato Server' },
+              { label: 'Mode', value: 'Java / Bedrock cross-play' },
+              { label: 'Operation', value: 'Non-profit community server' },
+              { label: 'Open time', value: 'Long-running public season' }
+            ]
+          },
+          {
+            title: '// Server setting',
+            rows: [
+              { label: 'Core play', value: 'Survival / building / redstone / adventure' },
+              { label: 'Mechanics', value: 'Vanilla baseline with practical plugins' },
+              { label: 'Theme color', value: '#4C93FB MTN blue' },
+              { label: 'Goal', value: 'A stable world worth remembering' }
+            ]
+          }
+        ]
+      },
       cta: {
-        kicker: 'Next step',
-        title: 'Join, build, leave a mark.',
-        body: 'If you want fair survival with visible history, this is the pace.',
-        primaryCta: 'Open Wiki',
-        note: 'Connection details sit below.'
+        kicker: 'Join us now',
+        title: 'QQ Group: 1064494318',
+        body: 'Join MTN Potato Server for long-running non-profit survival, building, redstone engineering, adventure, trading, and shared memories.',
+        primaryCta: 'Copy QQ Group',
+        copiedLabel: 'QQ Group Copied',
+        qqGroup: '1064494318',
+        siteCta: 'Visit Official Site',
+        siteUrl: 'https://public.mcmtn.net/',
+        note: 'Official site: https://public.mcmtn.net/'
+      },
+      floatingJoin: {
+        label: 'Join Server',
+        detail: 'QQ 1064494318',
+        href: 'https://qm.qq.com/q/yLvHNwPXZ8'
+      },
+      footer: {
+        tagline: 'A modest home-hosted potato server for vanilla-first survival, shared builds, and long-running memories.',
+        navTitle: 'Explore',
+        supportTitle: 'Support',
+        links: [
+          { label: 'Latest updates', href: '#news', external: true },
+          { label: 'Features', href: '#features', external: true },
+          { label: 'Gallery', href: '/gallery' },
+          { label: 'Players', href: '/players' }
+        ],
+        legal: 'MTNetwork is an independent Minecraft community and is not affiliated with Mojang or Microsoft.'
       }
     },
     serverPanels: {

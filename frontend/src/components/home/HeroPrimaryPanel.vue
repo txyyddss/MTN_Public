@@ -17,13 +17,15 @@ const factRows = computed(() => props.content.facts)
     <div class="hero-copy">
       <span class="page-kicker">{{ props.content.eyebrow }}</span>
       <h1 class="hero-title">{{ props.content.title }}</h1>
+      <p class="hero-tagline">{{ props.content.tagline }}</p>
+      <p class="hero-accent">{{ props.content.accentLine }}</p>
       <p class="hero-body">{{ props.content.body }}</p>
 
       <div class="hero-actions">
-        <router-link class="btn-primary" to="/players">
+        <a class="btn-primary" :href="props.content.primaryHref">
           {{ props.content.primaryCta }}
-        </router-link>
-        <a class="btn-secondary" href="https://mtn.1919801.xyz/">
+        </a>
+        <a class="btn-secondary" :href="props.content.secondaryHref" target="_blank" rel="noopener noreferrer">
           {{ props.content.secondaryCta }}
         </a>
       </div>
@@ -42,19 +44,46 @@ const factRows = computed(() => props.content.facts)
 .hero-panel {
   display: grid;
   min-height: 100%;
-  padding: 1.7rem;
+  padding: clamp(1.35rem, 3vw, 2rem);
+  isolation: isolate;
 }
 
 .hero-copy {
   display: grid;
   align-content: start;
-  gap: 1rem;
+  gap: 0.95rem;
   min-height: 100%;
 }
 
 .hero-title {
-  font-size: clamp(3.3rem, 8vw, 6.35rem);
-  max-width: 10ch;
+  max-width: 100%;
+  font-size: 5.35rem;
+  letter-spacing: -0.055em;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.hero-tagline {
+  max-width: 34rem;
+  color: var(--text-strong);
+  font-size: 1.24rem;
+  font-weight: 700;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.hero-accent {
+  width: fit-content;
+  padding: 0.42rem 0.72rem;
+  border: 1px solid rgba(76, 147, 251, 0.26);
+  border-radius: 999px;
+  background: rgba(76, 147, 251, 0.1);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  box-shadow: 0 12px 28px rgba(76, 147, 251, 0.12);
 }
 
 .hero-body {
@@ -67,7 +96,7 @@ const factRows = computed(() => props.content.facts)
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  padding-top: 0.25rem;
+  padding-top: 0.35rem;
 }
 
 .hero-actions :deep(.btn-primary),
@@ -84,17 +113,40 @@ const factRows = computed(() => props.content.facts)
 }
 
 .hero-fact-card {
+  position: relative;
   display: grid;
   gap: 0.35rem;
   align-content: start;
   min-height: 100%;
   padding: 0.92rem 0.95rem;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.hero-fact-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(76, 147, 251, 0.1), transparent);
+  opacity: 0;
+  transform: translateX(-120%);
+  transition:
+    opacity 0.2s ease,
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-fact-card:hover::before {
+  opacity: 1;
+  transform: translateX(120%);
 }
 
 @media (max-width: 960px) {
+  .hero-title {
+    font-size: 4.45rem;
+  }
+
   .hero-facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -102,7 +154,11 @@ const factRows = computed(() => props.content.facts)
 
 @media (max-width: 640px) {
   .hero-title {
-    font-size: 3rem;
+    font-size: 2.75rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.05rem;
   }
 
   .hero-actions {
@@ -117,6 +173,12 @@ const factRows = computed(() => props.content.facts)
 
   .hero-facts {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-title {
+    font-size: 2.36rem;
   }
 }
 </style>
