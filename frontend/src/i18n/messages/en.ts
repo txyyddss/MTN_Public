@@ -92,7 +92,7 @@ const en = {
         title: 'Recent Server Notes',
         items: [
           { date: '2026.04.28', title: 'The public web archive enters a new visual season.', badge: 'NEW', href: '#details' },
-          { date: '2026.04.19', title: 'Fresh world screenshots were added to the gallery archive.', href: '#gallery' },
+          { date: '2026.04.19', title: 'Fresh world screenshots were added to the gallery archive.', href: '/gallery' },
           { date: '2026.04.15', title: 'Live status, route checks, and player records are now connected.', href: '#details' },
           { date: '2026.04.10', title: 'The potato server mascot joined the site identity.', href: '#intro-section' }
         ]
@@ -101,7 +101,7 @@ const en = {
         title: 'Quick navigation',
         items: [
           { title: 'Feature System', href: '#features' },
-          { title: 'World Gallery', href: '#gallery' },
+          { title: 'World Gallery', href: '/gallery' },
           { title: 'Server Handbook', href: 'https://docs.mcmtn.net/', external: true }
         ]
       },
@@ -161,15 +161,6 @@ const en = {
         'Stay close to survival, then add only what helps the story.',
         'One world should be easy to reach from the device you have.'
       ],
-      homeGallery: {
-        title: 'Selected Screenshots',
-        note: 'Images are local MTN world captures prepared for the home page.',
-        items: [
-          { caption: 'Spawn-side archive' },
-          { caption: 'Shared route works' },
-          { caption: 'Long-season build log' }
-        ]
-      },
       details: {
         slogan: 'Ready to settle in?',
         subSlogan: 'Leave a real footprint in the potato world.',
@@ -198,17 +189,19 @@ const en = {
         kicker: 'Join us now',
         title: 'QQ Group: 1064494318',
         body: 'Join MTN Potato Server for long-running non-profit survival, building, redstone engineering, adventure, trading, and shared memories.',
-        primaryCta: 'Copy QQ Group',
-        copiedLabel: 'QQ Group Copied',
+        primaryCta: 'Join QQ group',
         qqGroup: '1064494318',
+        qqGroupUrl: 'https://qm.qq.com/q/7muRxmmQvu',
         siteCta: 'Visit Documentation',
         siteUrl: 'https://docs.mcmtn.net/',
+        bilibiliCta: 'Bilibili',
+        bilibiliUrl: 'https://space.bilibili.com/1066536503',
         note: 'Documentation: https://docs.mcmtn.net/'
       },
       floatingJoin: {
         label: 'Join Server',
         detail: 'QQ 1064494318',
-        href: 'https://qm.qq.com/q/yLvHNwPXZ8'
+        href: 'https://qm.qq.com/q/7muRxmmQvu'
       },
       footer: {
         tagline: 'A modest home-hosted potato server for vanilla-first survival, shared builds, and long-running memories.',

@@ -233,6 +233,7 @@ function selectLeaderboard(target: LeaderboardTarget): void {
 .skin-frame {
   position: relative;
   display: grid;
+  height: 100%;
   min-height: 292px;
   place-items: center;
   overflow: hidden;
@@ -442,7 +443,17 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   }
 
   .skin-frame {
-    min-height: 250px;
+    height: 250px;
+    min-height: 0;
+  }
+
+  .skin-frame :deep(.skin-viewer-container) {
+    min-height: 0;
+  }
+
+  .skin-frame :deep(canvas) {
+    transform: scale(0.84);
+    transform-origin: center;
   }
 }
 
@@ -462,6 +473,14 @@ function selectLeaderboard(target: LeaderboardTarget): void {
 
   .detail-player-name {
     font-size: clamp(2rem, 12vw, 3rem);
+  }
+
+  .skin-frame {
+    height: 220px;
+  }
+
+  .skin-frame :deep(canvas) {
+    transform: scale(0.76);
   }
 }
 </style>

@@ -1,64 +1,7 @@
 <script setup lang="ts">
-import { onUnmounted, shallowRef } from 'vue'
-
 import { useSiteContent } from '@/content/siteContent'
 
 const siteContent = useSiteContent()
-const copied = shallowRef(false)
-let copiedTimer: ReturnType<typeof window.setTimeout> | null = null
-
-function markCopied(): void {
-  copied.value = true
-
-  if (copiedTimer) {
-    window.clearTimeout(copiedTimer)
-  }
-
-  copiedTimer = window.setTimeout(() => {
-    copied.value = false
-    copiedTimer = null
-  }, 1800)
-}
-
-function copyWithFallback(text: string): boolean {
-  const textarea = document.createElement('textarea')
-  textarea.value = text
-  textarea.setAttribute('readonly', '')
-  textarea.style.position = 'fixed'
-  textarea.style.left = '-9999px'
-  document.body.appendChild(textarea)
-  textarea.select()
-
-  try {
-    return document.execCommand('copy')
-  } finally {
-    document.body.removeChild(textarea)
-  }
-}
-
-async function copyGroupNumber(): Promise<void> {
-  const groupNumber = siteContent.value.home.cta.qqGroup
-
-  try {
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(groupNumber)
-    } else if (!copyWithFallback(groupNumber)) {
-      return
-    }
-
-    markCopied()
-  } catch {
-    if (copyWithFallback(groupNumber)) {
-      markCopied()
-    }
-  }
-}
-
-onUnmounted(() => {
-  if (copiedTimer) {
-    window.clearTimeout(copiedTimer)
-  }
-})
 </script>
 
 <template>
@@ -69,11 +12,14 @@ onUnmounted(() => {
       <h2>{{ siteContent.home.cta.title }}</h2>
       <p>{{ siteContent.home.cta.body }}</p>
       <div class="cta-actions">
-        <button class="btn-primary" type="button" @click="copyGroupNumber">
-          {{ copied ? siteContent.home.cta.copiedLabel : siteContent.home.cta.primaryCta }}
-        </button>
+        <a class="btn-primary" :href="siteContent.home.cta.qqGroupUrl" target="_blank" rel="noopener noreferrer">
+          {{ siteContent.home.cta.primaryCta }}
+        </a>
         <a class="btn-secondary" :href="siteContent.home.cta.siteUrl" target="_blank" rel="noopener noreferrer">
           {{ siteContent.home.cta.siteCta }}
+        </a>
+        <a class="btn-secondary" :href="siteContent.home.cta.bilibiliUrl" target="_blank" rel="noopener noreferrer">
+          {{ siteContent.home.cta.bilibiliCta }}
         </a>
       </div>
       <small>{{ siteContent.home.cta.note }}</small>

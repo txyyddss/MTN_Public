@@ -19,8 +19,11 @@ const siteContent = useSiteContent()
             :href="link.href"
             target="_blank"
             rel="noopener noreferrer"
+            class="footer-social-link"
+            :aria-label="link.label"
           >
-            {{ link.short }}
+            <i v-if="link.label === 'Bilibili'" class="fa-brands fa-bilibili text-lg" aria-hidden="true"></i>
+            <span v-else>{{ link.short }}</span>
           </a>
         </div>
       </div>
@@ -89,6 +92,19 @@ const siteContent = useSiteContent()
   font-family: var(--mono);
   font-size: 0.72rem;
   font-weight: 800;
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.footer-socials a:hover {
+  opacity: 0.5;
+  transform: translateY(-0.25rem);
+}
+
+.footer-socials .text-lg {
+  font-size: 1.125rem;
+  line-height: 1;
 }
 
 .footer-links {

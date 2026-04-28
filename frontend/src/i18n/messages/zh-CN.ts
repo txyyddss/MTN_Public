@@ -83,7 +83,7 @@ const zhCN = {
         title: '服务器近况',
         items: [
           { date: '2026.04.28', title: '公开网页档案进入新的视觉阶段。', badge: 'NEW', href: '#details' },
-          { date: '2026.04.19', title: '新的世界截图已加入画廊档案。', href: '#gallery' },
+          { date: '2026.04.19', title: '新的世界截图已加入画廊档案。', href: '/gallery' },
           { date: '2026.04.15', title: '实时状态、连接路由与玩家记录已经接入。', href: '#details' },
           { date: '2026.04.10', title: '土豆服务器看板娘加入站点识别。', href: '#intro-section' }
         ]
@@ -92,7 +92,7 @@ const zhCN = {
         title: '快速导航',
         items: [
           { title: '特色系统', href: '#features' },
-          { title: '世界画廊', href: '#gallery' },
+          { title: '世界画廊', href: '/gallery' },
           { title: '服务器手册', href: 'https://docs.mcmtn.net/', external: true }
         ]
       },
@@ -152,15 +152,6 @@ const zhCN = {
         '尽量靠近生存本身，只加入真正有帮助的内容。',
         '同一个世界，应该能被更多设备抵达。'
       ],
-      homeGallery: {
-        title: '精选截图',
-        note: '图片来自 MTN 世界截图，并已为首页展示优化。',
-        items: [
-          { caption: '出生点周边档案' },
-          { caption: '共同路线工程' },
-          { caption: '长周目建筑记录' }
-        ]
-      },
       details: {
         slogan: '准备好定居了吗',
         subSlogan: '在土豆世界里留下真实足迹。',
@@ -189,17 +180,19 @@ const zhCN = {
         kicker: '立即加入我们',
         title: 'QQ群号：1064494318',
         body: '加入 MTN 土豆服务器，在长期运营的公益生存世界里建筑、生电、冒险、交易，并留下属于你的欢乐。',
-        primaryCta: '复制QQ群号',
-        copiedLabel: '已复制QQ群号',
+        primaryCta: '加入QQ群',
         qqGroup: '1064494318',
+        qqGroupUrl: 'https://qm.qq.com/q/7muRxmmQvu',
         siteCta: '访问文档',
         siteUrl: 'https://docs.mcmtn.net/',
+        bilibiliCta: 'Bilibili',
+        bilibiliUrl: 'https://space.bilibili.com/1066536503',
         note: '文档：https://docs.mcmtn.net/'
       },
       floatingJoin: {
         label: '加入服务器',
         detail: 'QQ群 1064494318',
-        href: 'https://qm.qq.com/q/yLvHNwPXZ8'
+        href: 'https://qm.qq.com/q/7muRxmmQvu'
       },
       footer: {
         tagline: '一个家用土豆机器上的公益服务器，服务于原版优先的生存、共同建筑和长久记忆。',

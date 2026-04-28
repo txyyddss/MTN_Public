@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 
 import RouteHeroHeader from '@/components/common/RouteHeroHeader.vue'
 import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
@@ -19,6 +20,28 @@ const selectedImage = computed(() => (selectedIndex.value === null ? null : imag
 const selectedLabel = computed(() =>
   selectedIndex.value === null ? '' : `${siteContent.gallery.frameLabel} ${images.length - selectedIndex.value}`
 )
+let previousBodyOverflow = ''
+let lightboxScrollLocked = false
+
+function lockPageScroll(): void {
+  if (lightboxScrollLocked) {
+    return
+  }
+
+  previousBodyOverflow = document.body.style.overflow
+  document.body.style.overflow = 'hidden'
+  lightboxScrollLocked = true
+}
+
+function unlockPageScroll(): void {
+  if (!lightboxScrollLocked) {
+    return
+  }
+
+  document.body.style.overflow = previousBodyOverflow
+  previousBodyOverflow = ''
+  lightboxScrollLocked = false
+}
 
 function openLightbox(index: number): void {
   if (isPhone.value) {
@@ -26,12 +49,10 @@ function openLightbox(index: number): void {
   }
 
   selectedIndex.value = index
-  document.body.style.overflow = 'hidden'
 }
 
 function closeLightbox(): void {
   selectedIndex.value = null
-  document.body.style.overflow = ''
 }
 
 function nextImage(): void {
@@ -68,9 +89,28 @@ onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
 })
 
+watch(selectedImage, (image) => {
+  if (image) {
+    lockPageScroll()
+    return
+  }
+
+  unlockPageScroll()
+})
+
+watch(isPhone, (phone) => {
+  if (phone) {
+    closeLightbox()
+  }
+})
+
+onBeforeRouteLeave(() => {
+  closeLightbox()
+})
+
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
-  document.body.style.overflow = ''
+  unlockPageScroll()
 })
 </script>
 
@@ -109,7 +149,7 @@ onUnmounted(() => {
     </ThemedPanelFrame>
 
     <Transition name="lightbox-fade">
-      <div v-if="selectedImage" class="lightbox-overlay" @click="closeLightbox">
+      <div v-if="selectedImage" class="lightbox-overlay" @click.self="closeLightbox">
         <div class="lightbox-shell" @click.stop>
           <button class="lightbox-nav" type="button" :aria-label="siteContent.gallery.previousImage" @click="previousImage">&lt;</button>
           <div class="lightbox-image-wrap">
@@ -118,7 +158,7 @@ onUnmounted(() => {
           </div>
           <button class="lightbox-nav" type="button" :aria-label="siteContent.gallery.nextImage" @click="nextImage">&gt;</button>
         </div>
-        <button class="lightbox-close" type="button" @click="closeLightbox">
+        <button class="lightbox-close" type="button" @click.stop="closeLightbox">
           {{ siteContent.gallery.close }}
         </button>
       </div>
