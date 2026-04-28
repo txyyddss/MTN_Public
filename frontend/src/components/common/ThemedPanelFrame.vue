@@ -8,6 +8,7 @@ withDefaults(
     status?: string
     statusTone?: 'default' | 'live' | 'success' | 'warning'
     compact?: boolean
+    variant?: 'default' | 'archive'
   }>(),
   {
     tag: 'article',
@@ -16,13 +17,23 @@ withDefaults(
     body: undefined,
     status: undefined,
     statusTone: 'default',
-    compact: false
+    compact: false,
+    variant: 'default'
   }
 )
 </script>
 
 <template>
-  <component :is="tag" :class="['themed-panel-frame', 'glass-card', { 'themed-panel-frame--compact': compact }]" data-panel-mark="MTN">
+  <component
+    :is="tag"
+    :class="[
+      'themed-panel-frame',
+      'glass-card',
+      `themed-panel-frame--${variant}`,
+      { 'themed-panel-frame--compact': compact }
+    ]"
+  >
+    <span class="themed-panel-frame__mark" aria-hidden="true">MTN</span>
     <header
       v-if="kicker || title || body || status || $slots.header || $slots.actions"
       class="themed-panel-frame__header"
@@ -58,17 +69,30 @@ withDefaults(
   min-height: 100%;
 }
 
-.themed-panel-frame::after {
-  content: attr(data-panel-mark);
+.themed-panel-frame__mark {
   position: absolute;
-  top: 1rem;
-  right: 1.25rem;
+  inset: 1rem 1.25rem auto auto;
+  z-index: 0;
   color: rgba(141, 184, 255, 0.07);
   font-family: var(--mono);
   font-size: clamp(1.9rem, 4vw, 3.1rem);
   font-weight: 700;
   letter-spacing: 0.3em;
   pointer-events: none;
+}
+
+.themed-panel-frame--archive {
+  border-color: rgba(76, 147, 251, 0.22);
+  background:
+    radial-gradient(circle at 82% 0%, rgba(76, 147, 251, 0.16), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.018)),
+    rgba(10, 12, 18, 0.82);
+}
+
+.themed-panel-frame--archive .themed-panel-frame__mark {
+  color: rgba(141, 184, 255, 0.1);
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  font-weight: 900;
 }
 
 .themed-panel-frame__header {

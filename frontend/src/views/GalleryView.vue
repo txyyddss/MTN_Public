@@ -80,9 +80,10 @@ onUnmounted(() => {
       :kicker="siteContent.gallery.eyebrow"
       :title="siteContent.gallery.title"
       :body="siteContent.gallery.body"
+      align="center"
     />
 
-    <ThemedPanelFrame tag="section" class="gallery-stage-panel animate-entry delay-100">
+    <ThemedPanelFrame tag="section" class="gallery-stage-panel animate-entry delay-100" variant="archive">
       <div class="waterfall-grid">
         <button
           v-for="(image, index) in images"
@@ -158,6 +159,7 @@ onUnmounted(() => {
   width: 100%;
   padding: 0.8rem;
   margin-bottom: 1rem;
+  border-color: rgba(76, 147, 251, 0.14);
   cursor: pointer;
 }
 
@@ -168,6 +170,7 @@ onUnmounted(() => {
 .gallery-card img {
   width: 100%;
   border-radius: calc(var(--radius-lg) - 12px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.26);
 }
 
 .gallery-meta {

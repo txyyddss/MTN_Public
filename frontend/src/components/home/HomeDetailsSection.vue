@@ -18,6 +18,7 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
           class="details-group"
           :style="{ '--group-delay': `${groupIndex * 0.12}s` }"
         >
+          <span class="details-watermark" aria-hidden="true">MTN</span>
           <h3>{{ group.title }}</h3>
           <dl>
             <div
@@ -82,9 +83,10 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   display: grid;
   gap: 1.4rem;
   padding: clamp(1.25rem, 3vw, 1.7rem);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(76, 147, 251, 0.22);
   border-radius: 28px;
   background:
+    radial-gradient(circle at 100% 0%, rgba(76, 147, 251, 0.18), transparent 36%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012)),
     rgba(9, 12, 20, 0.52);
   box-shadow: 0 22px 56px rgba(0, 0, 0, 0.24);
@@ -103,11 +105,24 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   inset: 0;
   z-index: 2;
   background:
-    linear-gradient(118deg, rgba(76, 147, 251, 0.3), rgba(10, 12, 20, 0.96) 46%),
-    rgba(10, 12, 20, 0.96);
+    linear-gradient(118deg, rgba(141, 184, 255, 0.5), rgba(76, 147, 251, 0.94) 34%, rgba(10, 12, 20, 0.98) 72%),
+    rgba(10, 12, 20, 0.98);
   transform: translateX(0);
   transition: transform 0.9s cubic-bezier(0.83, 0, 0.17, 1);
   transition-delay: calc(var(--group-delay) + 0.05s);
+}
+
+.details-watermark {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  z-index: 0;
+  color: rgba(141, 184, 255, 0.08);
+  font-family: var(--mono);
+  font-size: clamp(2.5rem, 6vw, 4.6rem);
+  font-weight: 900;
+  letter-spacing: 0.28em;
+  pointer-events: none;
 }
 
 .home-details.is-revealed .details-group {
@@ -142,6 +157,10 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   grid-template-columns: 8rem minmax(0, 1fr);
   gap: 1rem;
   align-items: baseline;
+  padding: 0.78rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
   opacity: 0;
   transform: translateY(14px);
   transition:
@@ -164,6 +183,7 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   margin: 0;
   color: #ffffff;
   font-weight: 700;
+  text-align: right;
 }
 
 .details-slogan {
@@ -202,6 +222,10 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   .details-row {
     grid-template-columns: 1fr;
     gap: 0.15rem;
+  }
+
+  .details-row dd {
+    text-align: left;
   }
 }
 </style>

@@ -5,6 +5,7 @@ import { useCurrentLocale } from '@/content/siteContent'
 
 interface ParagraphTokens {
   id: string
+  text: string
   tokens: Array<{
     text: string
     delay: number
@@ -85,6 +86,7 @@ const segmentedParagraphs = computed<ParagraphTokens[]>(() => {
 
     return {
       id: `${paragraphIndex}-${paragraph.slice(0, 18)}`,
+      text: paragraph,
       tokens
     }
   })
@@ -93,12 +95,18 @@ const segmentedParagraphs = computed<ParagraphTokens[]>(() => {
 
 <template>
   <div :class="['animated-word-paragraphs', { 'is-revealed': revealed }]">
-    <p v-for="paragraph in segmentedParagraphs" :key="paragraph.id" class="animated-word-paragraphs__item">
+    <p
+      v-for="paragraph in segmentedParagraphs"
+      :key="paragraph.id"
+      class="animated-word-paragraphs__item"
+      :aria-label="paragraph.text"
+    >
       <span
         v-for="(token, tokenIndex) in paragraph.tokens"
         :key="`${paragraph.id}-${tokenIndex}`"
         class="animated-word-paragraphs__word"
         :style="{ '--word-delay': `${token.delay}s` }"
+        aria-hidden="true"
       >
         {{ token.text }}
       </span>
@@ -122,6 +130,7 @@ const segmentedParagraphs = computed<ParagraphTokens[]>(() => {
   opacity: 0;
   transform: translateY(0.95rem);
   filter: blur(6px);
+  will-change: opacity, transform, filter;
 }
 
 .animated-word-paragraphs.is-revealed .animated-word-paragraphs__word {
@@ -148,6 +157,7 @@ const segmentedParagraphs = computed<ParagraphTokens[]>(() => {
     opacity: 1;
     transform: none;
     filter: none;
+    will-change: auto;
   }
 }
 </style>

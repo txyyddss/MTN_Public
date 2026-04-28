@@ -13,6 +13,7 @@ const siteContent = useSiteContent()
 
 <template>
   <section class="glass-card detail-header animate-entry">
+    <span class="detail-header-mark" aria-hidden="true">MTN</span>
     <div class="detail-header-copy">
       <span class="page-kicker">{{ siteContent.playerDetail.header.kicker }}</span>
       <h1 :class="['detail-player-name', 'minecraft-font', { online: isOnline }]">{{ info.last_known_name }}</h1>
@@ -25,13 +26,31 @@ const siteContent = useSiteContent()
 
 <style scoped>
 .detail-header {
+  position: relative;
+  isolation: isolate;
   display: grid;
   gap: 0.9rem;
+  border-color: rgba(76, 147, 251, 0.22);
 }
 
 .detail-header-copy {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 0.55rem;
+}
+
+.detail-header-mark {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  color: rgba(141, 184, 255, 0.08);
+  font-family: var(--display);
+  font-size: clamp(3rem, 10vw, 6rem);
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  line-height: 0.75;
+  pointer-events: none;
 }
 
 .detail-player-name {

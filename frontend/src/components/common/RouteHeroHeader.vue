@@ -5,15 +5,25 @@ withDefaults(
     title: string
     body: string
     showMark?: boolean
+    align?: 'split' | 'center'
   }>(),
   {
-    showMark: true
+    showMark: true,
+    align: 'split'
   }
 )
 </script>
 
 <template>
-  <header :class="['route-hero-header', 'glass-card', 'animate-entry', { 'route-hero-header--no-mark': !showMark }]">
+  <header
+    :class="[
+      'route-hero-header',
+      'glass-card',
+      'animate-entry',
+      `route-hero-header--${align}`,
+      { 'route-hero-header--no-mark': !showMark }
+    ]"
+  >
     <div class="route-hero-header__grid">
       <div class="route-hero-header__copy">
         <span class="page-kicker">{{ kicker }}</span>
@@ -38,6 +48,7 @@ withDefaults(
   position: relative;
   overflow: hidden;
   padding: clamp(1.55rem, 3vw, 2.4rem);
+  border-color: rgba(76, 147, 251, 0.22);
 }
 
 .route-hero-header::before {
@@ -77,12 +88,15 @@ withDefaults(
 .route-hero-header__mark {
   color: rgba(76, 147, 251, 0.92);
   font-family: var(--display);
-  font-size: clamp(3.2rem, 10vw, 7.4rem);
+  font-size: clamp(4.2rem, 13vw, 9rem);
   font-weight: 900;
-  letter-spacing: 0.28em;
-  line-height: 0.78;
-  text-indent: 0.28em;
-  text-shadow: 0 20px 48px rgba(76, 147, 251, 0.18);
+  letter-spacing: 0.24em;
+  line-height: 0.74;
+  text-indent: 0.24em;
+  text-shadow:
+    0 22px 52px rgba(76, 147, 251, 0.24),
+    0 0 34px rgba(76, 147, 251, 0.16);
+  text-transform: uppercase;
 }
 
 .route-hero-header__title {
@@ -106,6 +120,28 @@ withDefaults(
   gap: 0.65rem;
 }
 
+.route-hero-header--center .route-hero-header__grid {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.route-hero-header--center .route-hero-header__copy {
+  justify-items: center;
+  text-align: center;
+}
+
+.route-hero-header--center .route-hero-header__title {
+  max-width: min(100%, 12ch);
+}
+
+.route-hero-header--center .route-hero-header__body {
+  margin: 0 auto;
+}
+
+.route-hero-header--center .route-hero-header__actions {
+  justify-content: center;
+}
+
 .route-hero-header--no-mark .route-hero-header__title {
   max-width: 12ch;
   font-size: clamp(3rem, 6vw, 5.2rem);
@@ -121,7 +157,7 @@ withDefaults(
   }
 
   .route-hero-header__mark {
-    font-size: clamp(2.6rem, 16vw, 4.5rem);
+    font-size: clamp(3.1rem, 18vw, 5.2rem);
   }
 
   .route-hero-header__title,

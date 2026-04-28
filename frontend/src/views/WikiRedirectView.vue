@@ -19,9 +19,10 @@ onMounted(() => {
       :kicker="siteContent.wikiRedirect.kicker"
       :title="siteContent.wikiRedirect.title"
       :body="siteContent.wikiRedirect.body"
+      align="center"
     />
 
-    <ThemedPanelFrame tag="section" class="redirect-card animate-entry delay-100" compact>
+    <ThemedPanelFrame tag="section" class="redirect-card animate-entry delay-100" compact variant="archive">
       <div class="redirect-actions">
         <a class="btn-primary" :href="wikiUrl">{{ siteContent.wikiRedirect.cta }}</a>
       </div>

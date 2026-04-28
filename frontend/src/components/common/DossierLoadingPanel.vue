@@ -12,7 +12,8 @@ withDefaults(
 </script>
 
 <template>
-  <div :class="['dossier-loading-panel', 'glass-card', { 'dossier-loading-panel--compact': compact }]" :data-label="label">
+  <div :class="['dossier-loading-panel', 'glass-card', { 'dossier-loading-panel--compact': compact }]">
+    <span class="dossier-loading-panel__label" aria-hidden="true">{{ label }}</span>
     <div class="dossier-loading-panel__grid" aria-hidden="true"></div>
     <div class="dossier-loading-panel__scan" aria-hidden="true"></div>
     <div class="dossier-loading-panel__content">
@@ -28,17 +29,24 @@ withDefaults(
   display: grid;
   gap: 0.85rem;
   min-height: 100%;
+  border-color: rgba(76, 147, 251, 0.24);
   background:
+    radial-gradient(circle at 18% 0%, rgba(76, 147, 251, 0.18), transparent 32%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
     rgba(10, 12, 18, 0.88);
 }
 
-.dossier-loading-panel::after {
-  content: attr(data-label);
+.dossier-loading-panel::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent 34%),
+    linear-gradient(120deg, rgba(76, 147, 251, 0.16), transparent 46%);
+}
+
+.dossier-loading-panel__label {
   position: absolute;
-  top: 1rem;
-  right: 1.15rem;
-  color: rgba(141, 184, 255, 0.16);
+  inset: 1rem 1.15rem auto auto;
+  z-index: 1;
+  color: rgba(141, 184, 255, 0.22);
   font-family: var(--mono);
   font-size: 0.62rem;
   font-weight: 700;
@@ -55,19 +63,22 @@ withDefaults(
 }
 
 .dossier-loading-panel__grid {
-  opacity: 0.3;
+  opacity: 0.36;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(76, 147, 251, 0.14) 1px, transparent 1px);
   background-size: 32px 32px;
   mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
 }
 
 .dossier-loading-panel__scan {
   inset: -35% -45%;
-  background: linear-gradient(118deg, transparent 36%, rgba(76, 147, 251, 0.16) 50%, transparent 64%);
+  background:
+    linear-gradient(118deg, transparent 34%, rgba(76, 147, 251, 0.22) 50%, transparent 66%),
+    linear-gradient(118deg, transparent 42%, rgba(255, 255, 255, 0.1) 50%, transparent 58%);
   transform: translateX(-55%);
-  animation: dossierSweep 1.9s linear infinite;
+  animation: dossierSweep 1.75s linear infinite;
 }
 
 .dossier-loading-panel__content {
@@ -77,8 +88,8 @@ withDefaults(
   gap: 0.85rem;
 }
 
-.dossier-loading-panel--compact::after {
-  top: 0.8rem;
+.dossier-loading-panel--compact .dossier-loading-panel__label {
+  inset: 0.8rem 1.15rem auto auto;
 }
 
 @keyframes dossierSweep {

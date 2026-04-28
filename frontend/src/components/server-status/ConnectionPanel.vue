@@ -119,6 +119,7 @@ const bedrockAddresses = computed(() => {
 
 <template>
   <article class="glass-card panel-block">
+    <span class="panel-watermark" aria-hidden="true">MTN</span>
     <div class="panel-head">
       <div class="panel-heading">
         <span class="section-kicker">{{ siteContent.serverPanels.connectionTitle }}</span>
@@ -188,10 +189,35 @@ const bedrockAddresses = computed(() => {
 
 <style scoped>
 .panel-block {
+  isolation: isolate;
   display: grid;
   gap: 1.2rem;
   min-height: 100%;
   padding: 1.5rem;
+  border-color: rgba(76, 147, 251, 0.24);
+  background:
+    radial-gradient(circle at 88% 0%, rgba(76, 147, 251, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+    rgba(8, 11, 18, 0.86);
+}
+
+.panel-watermark {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.7rem;
+  z-index: 0;
+  color: rgba(141, 184, 255, 0.07);
+  font-family: var(--mono);
+  font-size: clamp(3rem, 7vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 0.26em;
+  pointer-events: none;
+}
+
+.panel-head,
+.connection-stack {
+  position: relative;
+  z-index: 1;
 }
 
 .panel-head {
@@ -206,7 +232,7 @@ const bedrockAddresses = computed(() => {
 }
 
 .panel-title {
-  font-size: clamp(1.7rem, 3vw, 2.15rem);
+  font-size: clamp(1.95rem, 3.5vw, 2.55rem);
 }
 
 .connection-stack {
@@ -221,9 +247,10 @@ const bedrockAddresses = computed(() => {
 
 .edition-title {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--accent);
   font-family: var(--mono);
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -238,7 +265,10 @@ const bedrockAddresses = computed(() => {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.95rem 1rem;
-  border-radius: 14px;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(76, 147, 251, 0.1), transparent 38%),
+    rgba(255, 255, 255, 0.035);
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
@@ -260,8 +290,9 @@ const bedrockAddresses = computed(() => {
   font-size: 0.65rem;
   color: var(--primary);
   background: rgba(76, 147, 251, 0.12);
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
+  padding: 0.24rem 0.46rem;
+  border: 1px solid rgba(76, 147, 251, 0.18);
+  border-radius: 999px;
   flex-shrink: 0;
 }
 
@@ -276,26 +307,27 @@ const bedrockAddresses = computed(() => {
 }
 
 .copy-btn {
-  padding: 0.4rem 0.8rem;
+  padding: 0.48rem 0.88rem;
   font-size: 0.75rem;
   font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid var(--control-border);
-  background: var(--control-surface);
-  color: var(--text-muted);
+  border-radius: 999px;
+  border: 1px solid rgba(76, 147, 251, 0.2);
+  background: rgba(76, 147, 251, 0.08);
+  color: var(--text-main);
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
 .copy-btn:hover {
-  background: var(--control-bg-active);
+  background: rgba(76, 147, 251, 0.16);
   color: var(--text-strong);
-  border-color: var(--control-border-active);
+  border-color: rgba(76, 147, 251, 0.34);
+  transform: translateY(-1px);
 }
 
 .copy-btn.copied {
-  background: var(--success);
-  color: #000;
+  background: rgba(131, 211, 167, 0.16);
+  color: var(--success);
   border-color: var(--success);
 }
 

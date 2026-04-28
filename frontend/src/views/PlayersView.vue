@@ -101,9 +101,10 @@ onUnmounted(() => {
       :kicker="siteContent.players.kicker"
       :title="siteContent.players.title"
       :body="siteContent.players.body"
+      align="center"
     />
 
-    <ThemedPanelFrame tag="section" class="controls-panel animate-entry delay-100">
+    <ThemedPanelFrame tag="section" class="controls-panel animate-entry delay-100" variant="archive">
       <div class="controls-row">
         <div class="controls-copy">
           <span class="hud-kicker">{{ siteContent.players.controlsKicker }}</span>
@@ -145,7 +146,13 @@ onUnmounted(() => {
     </p>
 
     <div v-if="loading && players.length === 0" class="player-grid" aria-hidden="true">
-      <DossierLoadingPanel v-for="index in 6" :key="index" class="player-card player-card-skeleton" label="MTN PLAYER DOSSIER">
+      <DossierLoadingPanel
+        v-for="index in 6"
+        :key="index"
+        class="player-card player-card-skeleton animate-entry-soft"
+        label="MTN PLAYER DOSSIER"
+        :style="{ animationDelay: `${(index - 1) * 0.05}s` }"
+      >
         <div class="player-head">
           <span class="skeleton-avatar player-skeleton-avatar"></span>
           <div class="player-copy player-skeleton-copy">
@@ -173,9 +180,10 @@ onUnmounted(() => {
         v-for="(player, index) in sortedPlayers"
         :key="player.uuid"
         :to="`/player/${player.uuid}`"
-        class="player-card glass-card action-card animate-entry"
+        class="player-card player-live-card glass-card action-card animate-entry"
         :style="{ animationDelay: `${(index % 18) * 0.03}s` }"
       >
+        <span class="player-card-mark" aria-hidden="true">MTN</span>
         <div class="player-head">
           <img
             :src="getAvatarUrl(player.last_known_name, player.type)"
@@ -342,6 +350,25 @@ onUnmounted(() => {
   gap: 1rem;
   padding: 1.2rem;
   min-height: 100%;
+  border-color: rgba(76, 147, 251, 0.14);
+}
+
+.player-card-mark {
+  position: absolute;
+  inset: auto 1rem 0.65rem auto;
+  z-index: 0;
+  color: rgba(141, 184, 255, 0.08);
+  font-family: var(--mono);
+  font-size: 2.35rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  pointer-events: none;
+}
+
+.player-head,
+.player-footer {
+  position: relative;
+  z-index: 1;
 }
 
 .player-card-skeleton {

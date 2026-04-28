@@ -3,6 +3,7 @@ import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
+import DossierLoadingPanel from '@/components/common/DossierLoadingPanel.vue'
 import PlayerAdvancementList from '@/components/player/PlayerAdvancementList.vue'
 import PlayerDetailHeader from '@/components/player/PlayerDetailHeader.vue'
 import PlayerInlineLeaderboard from '@/components/player/PlayerInlineLeaderboard.vue'
@@ -187,8 +188,8 @@ function closeLeaderboard(): void {
 
 <template>
   <div class="player-detail container page-shell route-page-shell">
-    <div v-if="loading" class="detail-layout" aria-hidden="true">
-      <section class="glass-card detail-header-skeleton">
+    <div v-if="loading" class="detail-loading-stack" aria-hidden="true">
+      <DossierLoadingPanel class="detail-loading-hero" label="MTN PLAYER DOSSIER">
         <span class="skeleton-line skeleton-title-line"></span>
         <span class="skeleton-line skeleton-name-line"></span>
         <span class="skeleton-line skeleton-copy-line"></span>
@@ -197,17 +198,17 @@ function closeLeaderboard(): void {
           <span class="skeleton-chip"></span>
           <span class="skeleton-chip"></span>
         </div>
-      </section>
+      </DossierLoadingPanel>
 
-      <section class="glass-card detail-tabs-skeleton">
+      <DossierLoadingPanel class="detail-tabs-skeleton" label="PROFILE TABS" compact>
         <span v-for="index in 3" :key="index" class="skeleton-block detail-tab-skeleton"></span>
-      </section>
+      </DossierLoadingPanel>
 
-      <section class="glass-card detail-panel-skeleton">
+      <DossierLoadingPanel class="detail-panel-skeleton" label="ARCHIVE STREAM">
         <div class="detail-skeleton-grid">
           <span v-for="index in 6" :key="index" class="skeleton-block detail-card-skeleton"></span>
         </div>
-      </section>
+      </DossierLoadingPanel>
     </div>
 
     <div v-else-if="!info" class="glass-card state-card">
@@ -287,6 +288,7 @@ function closeLeaderboard(): void {
 <style scoped>
 .player-detail,
 .detail-layout,
+.detail-loading-stack,
 .tab-panel {
   display: grid;
   gap: 1rem;
@@ -302,7 +304,7 @@ function closeLeaderboard(): void {
   padding: 1.4rem;
 }
 
-.detail-header-skeleton,
+.detail-loading-hero,
 .detail-panel-skeleton {
   display: grid;
   gap: 0.85rem;
@@ -312,6 +314,7 @@ function closeLeaderboard(): void {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.55rem;
+  min-height: auto;
 }
 
 .detail-tab-skeleton {
@@ -347,6 +350,17 @@ function closeLeaderboard(): void {
 .detail-card-skeleton {
   min-height: 8rem;
   border-radius: 18px;
+}
+
+.detail-loading-hero {
+  min-height: 15rem;
+  align-content: center;
+}
+
+.detail-loading-stack .skeleton-line,
+.detail-loading-stack .skeleton-block,
+.detail-loading-stack .skeleton-chip {
+  background: rgba(141, 184, 255, 0.12);
 }
 
 @media (max-width: 860px) {

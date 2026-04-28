@@ -83,19 +83,24 @@ const heroTitleParts = computed(() => {
   min-height: 100svh;
   margin: 0 auto;
   text-align: center;
+  place-self: center;
   animation: heroReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ── Brand mark: dark navy "MTN" wordmark ── */
 .home-hero-mark {
   font-family: var(--display);
-  font-size: clamp(3.25rem, 10vw, 6.9rem);
+  font-size: clamp(4.6rem, 14vw, 10rem);
   font-weight: 900;
-  letter-spacing: 0.28em;
-  line-height: 0.8;
-  text-indent: 0.28em;
-  color: rgba(76, 147, 251, 0.92);
-  text-shadow: 0 20px 46px rgba(76, 147, 251, 0.22);
+  letter-spacing: 0.22em;
+  line-height: 0.72;
+  text-indent: 0.22em;
+  color: rgba(76, 147, 251, 0.96);
+  text-shadow:
+    0 24px 56px rgba(76, 147, 251, 0.28),
+    0 0 44px rgba(76, 147, 251, 0.2),
+    0 2px 0 rgba(255, 255, 255, 0.08);
+  text-transform: uppercase;
   margin-bottom: 0.05rem;
   animation: heroReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
 }
@@ -267,7 +272,9 @@ const heroTitleParts = computed(() => {
   }
 
   .home-hero-mark {
-    font-size: clamp(2.6rem, 16vw, 4.35rem);
+    font-size: clamp(3.1rem, 19vw, 5.2rem);
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
   }
 
   .home-hero-title {

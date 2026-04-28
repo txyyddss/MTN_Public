@@ -85,6 +85,7 @@ const historySummary = computed(() => {
 
 <template>
   <article class="glass-card panel-block">
+    <span class="panel-watermark" aria-hidden="true">MTN</span>
     <div class="panel-head">
       <div class="panel-heading">
         <span class="section-kicker">{{ siteContent.serverPanels.liveStatusTitle }}</span>
@@ -138,10 +139,35 @@ const historySummary = computed(() => {
 
 <style scoped>
 .panel-block {
+  isolation: isolate;
   display: grid;
   gap: 1.2rem;
   min-height: 100%;
   padding: 1.5rem;
+  border-color: rgba(76, 147, 251, 0.24);
+  background:
+    radial-gradient(circle at 88% 0%, rgba(76, 147, 251, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+    rgba(8, 11, 18, 0.86);
+}
+
+.panel-watermark {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.7rem;
+  z-index: 0;
+  color: rgba(141, 184, 255, 0.07);
+  font-family: var(--mono);
+  font-size: clamp(3rem, 7vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 0.26em;
+  pointer-events: none;
+}
+
+.panel-head,
+.status-stack {
+  position: relative;
+  z-index: 1;
 }
 
 .panel-head {
@@ -157,7 +183,7 @@ const historySummary = computed(() => {
 }
 
 .panel-title {
-  font-size: clamp(1.7rem, 3vw, 2.15rem);
+  font-size: clamp(1.95rem, 3.5vw, 2.55rem);
 }
 
 .panel-state {
@@ -174,6 +200,8 @@ const historySummary = computed(() => {
 
 .panel-state.live {
   color: var(--success);
+  border-color: rgba(131, 211, 167, 0.28);
+  background: rgba(131, 211, 167, 0.08);
 }
 
 .status-stack {
@@ -192,6 +220,10 @@ const historySummary = computed(() => {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.05rem;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(76, 147, 251, 0.12), transparent 42%),
+    rgba(255, 255, 255, 0.035);
 }
 
 .status-label {
@@ -204,7 +236,7 @@ const historySummary = computed(() => {
 
 .status-value {
   color: var(--text-strong);
-  font-size: 1rem;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
   font-weight: 700;
   text-align: right;
 }
@@ -233,6 +265,10 @@ const historySummary = computed(() => {
   display: grid;
   gap: 0.3rem;
   padding: 1rem;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(76, 147, 251, 0.1), transparent 44%),
+    rgba(255, 255, 255, 0.035);
 }
 
 .system-label {
@@ -254,6 +290,7 @@ const historySummary = computed(() => {
   color: var(--text-dim);
   font-size: 0.9rem;
   padding-top: 0.25rem;
+  font-family: var(--mono);
 }
 
 .status-skeleton-label {

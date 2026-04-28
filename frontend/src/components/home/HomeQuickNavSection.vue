@@ -22,6 +22,24 @@ const cards = computed(() =>
 function isAnchorLink(href: string): boolean {
   return href.startsWith('#')
 }
+
+function handleQuickCardClick(event: MouseEvent, href: string): void {
+  if (!isAnchorLink(href)) {
+    return
+  }
+
+  const target = document.querySelector(href)
+  if (!(target instanceof HTMLElement)) {
+    return
+  }
+
+  event.preventDefault()
+  target.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    block: 'start'
+  })
+  window.history.replaceState(null, '', href)
+}
 </script>
 
 <template>
@@ -41,6 +59,7 @@ function isAnchorLink(href: string): boolean {
             :target="card.external ? '_blank' : undefined"
             :rel="card.external ? 'noopener noreferrer' : undefined"
             :style="{ '--card-delay': `${index * 0.08}s` }"
+            @click="handleQuickCardClick($event, card.href)"
           >
             <div class="quick-card-backdrop" aria-hidden="true">MTN</div>
             <img :src="card.image" :alt="card.title" class="quick-card-media action-media" />
@@ -119,17 +138,19 @@ function isAnchorLink(href: string): boolean {
     transform 0.58s var(--transition-slow),
     box-shadow var(--transition-panel),
     border-color var(--transition-fast);
-  animation-delay: var(--card-delay);
 }
 
 .quick-nav-section.is-revealed .quick-card {
   opacity: 1;
   transform: translateY(0) scale(1);
+  transition-delay: var(--card-delay);
 }
 
-.quick-card:hover {
+.quick-card:hover,
+.quick-card:focus-visible {
   border-color: rgba(76, 147, 251, 0.34);
   box-shadow: 0 28px 64px rgba(10, 20, 36, 0.24);
+  transition-delay: 0s;
 }
 
 .quick-card-backdrop,

@@ -238,12 +238,14 @@ onUnmounted(() => {
 }
 
 .brand-mark {
-  color: #163f8f;
+  color: var(--primary);
   font-family: var(--display);
-  font-size: 1rem;
+  font-size: clamp(1.55rem, 5vw, 2.25rem);
   font-weight: 900;
-  letter-spacing: 0.32em;
-  text-indent: 0.32em;
+  letter-spacing: 0.24em;
+  line-height: 0.8;
+  text-indent: 0.24em;
+  text-shadow: 0 14px 32px rgba(76, 147, 251, 0.24);
 }
 
 .brand-lockup strong,
