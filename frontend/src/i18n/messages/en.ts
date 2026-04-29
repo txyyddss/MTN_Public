@@ -22,7 +22,6 @@ const en = {
       nav: [
         { id: 'home', label: 'Home', to: '/' },
         { id: 'players', label: 'Players', to: '/players' },
-        { id: 'gallery', label: 'Gallery', to: '/gallery' },
         { id: 'wiki', label: 'Documentation', to: 'https://docs.mcmtn.net/', external: true, emphasize: true }
       ]
     },
@@ -30,16 +29,12 @@ const en = {
       siteName: 'MTNetwork',
       default: {
         title: 'MTNetwork | MTN Potato Server',
-        description: 'MTNetwork Potato Server is a non-profit Minecraft Java and Bedrock community survival server with live status, player records, and a world gallery.'
+        description: 'MTNetwork Potato Server is a non-profit Minecraft Java and Bedrock community survival server with live status, player records, and a long-running world archive.'
       },
       routes: {
         home: {
           title: 'MTNetwork | MTN Potato Server',
           description: 'Join MTNetwork Potato Server for long-running vanilla-style survival, Java and Bedrock cross-play, live connection status, and shared community memories.'
-        },
-        gallery: {
-          title: 'World Gallery | MTNetwork',
-          description: 'Browse optimized MTNetwork world screenshots and captured moments from the long-running MTN Potato Server archive.'
         },
         players: {
           title: 'Player Directory | MTNetwork',
@@ -118,7 +113,6 @@ const en = {
         fallback: 'Open this route.',
         descriptions: {
           players: 'Browse the current archive and jump into individual records.',
-          gallery: 'Open the visual world log.',
           wiki: 'Read the server handbook and gameplay details.'
         }
       },
@@ -127,7 +121,7 @@ const en = {
         title: 'Recent Server Notes',
         items: [
           { date: '2026.04.28', title: 'The public web archive enters a new visual season.', badge: 'NEW', href: '#details' },
-          { date: '2026.04.19', title: 'Fresh world screenshots were added to the gallery archive.', href: '/gallery' },
+          { date: '2026.04.19', title: 'Fresh world screenshots now rotate through the home hero.', href: '#intro-section' },
           { date: '2026.04.15', title: 'Live status, route checks, and player records are now connected.', href: '#details' },
           { date: '2026.04.10', title: 'The potato server mascot joined the site identity.', href: '#intro-section' }
         ]
@@ -136,7 +130,7 @@ const en = {
         title: 'Quick navigation',
         items: [
           { title: 'Feature System', href: '#features' },
-          { title: 'World Gallery', href: '/gallery' },
+          { title: 'Player Archive', href: '/players' },
           { title: 'Server Handbook', href: 'https://docs.mcmtn.net/', external: true }
         ]
       },
@@ -232,7 +226,6 @@ const en = {
         links: [
           { label: 'Latest updates', href: '#news', external: true },
           { label: 'Features', href: '#features', external: true },
-          { label: 'Gallery', href: '/gallery' },
           { label: 'Players', href: '/players' }
         ],
         legal: 'MTNetwork is an independent Minecraft community and is not affiliated with Mojang or Microsoft.'

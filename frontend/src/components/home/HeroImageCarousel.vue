@@ -27,7 +27,11 @@ const images = galleryManifest as GalleryImage[]
 const imageCount = computed(() => images.length)
 const { matches: prefersReducedMotion } = useMediaQuery('(prefers-reduced-motion: reduce)')
 const rotationEnabled = computed(() => !prefersReducedMotion.value && imageCount.value > 1)
-const { currentIndex, next, previous, setIndex } = useAutoRotatingIndex(imageCount, rotationEnabled, 5600)
+const randomInitialIndex = imageCount.value > 1 ? Math.floor(Math.random() * imageCount.value) : 0
+const { currentIndex, next, previous, setIndex } = useAutoRotatingIndex(imageCount, rotationEnabled, {
+  intervalMs: 3200,
+  initialIndex: randomInitialIndex
+})
 const currentImage = computed(() => images[currentIndex.value] ?? images[0] ?? null)
 const currentImageSrcset = computed(() => {
   if (!currentImage.value) {
@@ -37,9 +41,14 @@ const currentImageSrcset = computed(() => {
   return `${currentImage.value.thumb} ${currentImage.value.thumbWidth}w, ${currentImage.value.large} ${currentImage.value.width}w`
 })
 const currentFrameLabel = computed(() => `${props.frameLabel} ${currentIndex.value + 1}`)
+const highPriorityImageId = computed(() => images[randomInitialIndex]?.id ?? images[0]?.id ?? '')
 
 function getImageAlt(index: number): string {
   return `${props.imageAlt} - ${props.frameLabel} ${index + 1}`
+}
+
+function formatDotIndex(index: number): string {
+  return String(index + 1).padStart(2, '0')
 }
 
 </script>
@@ -59,7 +68,7 @@ function getImageAlt(index: number): string {
           :height="currentImage.height"
           loading="eager"
           decoding="async"
-          :fetchpriority="currentIndex === 0 ? 'high' : 'auto'"
+          :fetchpriority="currentImage.id === highPriorityImageId ? 'high' : 'auto'"
         />
       </div>
     </Transition>
@@ -79,7 +88,7 @@ function getImageAlt(index: number): string {
           :aria-current="index === currentIndex ? 'true' : undefined"
           @click="setIndex(index)"
         >
-          <span aria-hidden="true"></span>
+          <span aria-hidden="true">{{ formatDotIndex(index) }}</span>
         </button>
       </div>
 
@@ -140,10 +149,10 @@ function getImageAlt(index: number): string {
   bottom: clamp(5.3rem, 9vh, 7rem);
   z-index: 4;
   display: grid;
-  grid-template-columns: 2.8rem minmax(0, auto) 2.8rem;
+  grid-template-columns: 2.8rem minmax(0, 1fr) 2.8rem;
   align-items: center;
   gap: 0.55rem;
-  width: min(34rem, calc(100vw - 2rem));
+  width: min(48rem, calc(100vw - 2rem));
   transform: translateX(-50%);
 }
 
@@ -151,11 +160,11 @@ function getImageAlt(index: number): string {
 .hero-carousel-dot {
   display: inline-grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(91, 113, 246, 0.32);
   color: #ffffff;
-  background: rgba(7, 12, 19, 0.36);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(12px);
+  background: rgba(3, 8, 18, 0.48);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+  backdrop-filter: saturate(155%) blur(18px);
   transition:
     transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
     border-color 0.18s cubic-bezier(0.2, 0, 0.2, 1),
@@ -186,7 +195,7 @@ function getImageAlt(index: number): string {
 .hero-carousel-dots {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   min-width: 0;
   max-width: 100%;
   height: 2.8rem;
@@ -194,11 +203,11 @@ function getImageAlt(index: number): string {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(91, 113, 246, 0.28);
   border-radius: 999px;
-  background: rgba(7, 12, 19, 0.28);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
+  background: rgba(3, 8, 18, 0.48);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+  backdrop-filter: saturate(155%) blur(18px);
 }
 
 .hero-carousel-dots::-webkit-scrollbar {
@@ -207,31 +216,42 @@ function getImageAlt(index: number): string {
 
 .hero-carousel-dot {
   flex: 0 0 auto;
-  width: 1.5rem;
+  width: 2.05rem;
   height: 1.5rem;
   padding: 0;
   border-radius: 999px;
 }
 
 .hero-carousel-dot span {
-  width: 0.26rem;
-  height: 0.26rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   border-radius: inherit;
-  background: currentColor;
-  opacity: 0.66;
+  color: rgba(237, 244, 255, 0.74);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .hero-carousel-dot.active {
-  width: 2rem;
-  border-color: rgba(146, 194, 255, 0.76);
-  background: rgba(76, 147, 251, 0.66);
+  width: 2.45rem;
+  border-color: rgba(147, 197, 253, 0.86);
+  background: linear-gradient(135deg, rgba(91, 113, 246, 0.92), rgba(59, 130, 246, 0.9));
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.28);
+}
+
+.hero-carousel-dot.active span {
+  color: #ffffff;
 }
 
 .hero-carousel-arrow:hover,
 .hero-carousel-dot:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.48);
-  background: rgba(76, 147, 251, 0.52);
+  border-color: rgba(147, 197, 253, 0.72);
+  background: rgba(59, 130, 246, 0.48);
 }
 
 .hero-carousel-arrow:focus-visible,

@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
     { path: '/', name: 'home', component: () => import('@/views/HomeView.vue'), meta: { seoKey: 'home', canonicalPath: '/' } },
     { path: '/server-intro', redirect: '/' },
     { path: '/wiki', name: 'wiki', component: () => import('@/views/WikiRedirectView.vue'), meta: { seoKey: 'wiki', canonicalPath: '/wiki', noindex: true } },
-    { path: '/gallery', name: 'gallery', component: () => import('@/views/GalleryView.vue'), meta: { seoKey: 'gallery', canonicalPath: '/gallery' } },
+    { path: '/gallery', redirect: '/' },
     { path: '/players', name: 'players', component: () => import('@/views/PlayersView.vue'), meta: { seoKey: 'players', canonicalPath: '/players' } },
     { path: '/player/:uuid', name: 'playerDetail', component: () => import('@/views/PlayerDetailView.vue'), meta: { seoKey: 'playerDetail' } },
     { path: '/whitelist', name: 'whitelist', component: () => import('@/views/WhitelistView.vue'), meta: { seoKey: 'whitelist', canonicalPath: '/whitelist', noindex: true } }

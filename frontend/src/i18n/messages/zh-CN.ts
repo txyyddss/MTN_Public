@@ -13,7 +13,6 @@ const zhCN = {
       nav: [
         { id: 'home', label: '首页', to: '/' },
         { id: 'players', label: '玩家', to: '/players' },
-        { id: 'gallery', label: '画廊', to: '/gallery' },
         { id: 'wiki', label: '文档', to: 'https://docs.mcmtn.net/', external: true, emphasize: true }
       ]
     },
@@ -21,16 +20,12 @@ const zhCN = {
       siteName: 'MTNetwork',
       default: {
         title: 'MTNetwork | MTN 土豆服务器',
-        description: 'MTNetwork 土豆服务器是公益 Minecraft Java / Bedrock 互通社区生存服务器，提供实时状态、玩家档案与世界画廊。'
+        description: 'MTNetwork 土豆服务器是公益 Minecraft Java / Bedrock 互通社区生存服务器，提供实时状态、玩家档案与长期世界档案。'
       },
       routes: {
         home: {
           title: 'MTNetwork | MTN 土豆服务器',
           description: '加入 MTNetwork 土豆服务器，在长期运营的原版风味生存世界中体验 Java / Bedrock 互通、实时连接状态与社区共同记忆。'
-        },
-        gallery: {
-          title: '世界画廊 | MTNetwork',
-          description: '浏览经过优化的 MTNetwork 世界截图，查看 MTN 土豆服务器长期存档中的精彩瞬间。'
         },
         players: {
           title: '玩家目录 | MTNetwork',
@@ -109,7 +104,6 @@ const zhCN = {
         fallback: '打开此页面。',
         descriptions: {
           players: '浏览当前档案，并跳转到任意玩家记录。',
-          gallery: '打开世界影像档案。',
           wiki: '阅读服务器手册与玩法说明。'
         }
       },
@@ -118,7 +112,7 @@ const zhCN = {
         title: '服务器近况',
         items: [
           { date: '2026.04.28', title: '公开网页档案进入新的视觉阶段。', badge: 'NEW', href: '#details' },
-          { date: '2026.04.19', title: '新的世界截图已加入画廊档案。', href: '/gallery' },
+          { date: '2026.04.19', title: '新的世界截图现在会在首页主视觉轮播。', href: '#intro-section' },
           { date: '2026.04.15', title: '实时状态、连接路由与玩家记录已经接入。', href: '#details' },
           { date: '2026.04.10', title: '土豆服务器看板娘加入站点识别。', href: '#intro-section' }
         ]
@@ -127,7 +121,7 @@ const zhCN = {
         title: '快速导航',
         items: [
           { title: '特色系统', href: '#features' },
-          { title: '世界画廊', href: '/gallery' },
+          { title: '玩家档案', href: '/players' },
           { title: '服务器手册', href: 'https://docs.mcmtn.net/', external: true }
         ]
       },
@@ -223,7 +217,6 @@ const zhCN = {
         links: [
           { label: '最新动态', href: '#news', external: true },
           { label: '特色玩法', href: '#features', external: true },
-          { label: '画廊', href: '/gallery' },
           { label: '玩家', href: '/players' }
         ],
         legal: 'MTNetwork 是独立 Minecraft 社区，与 Mojang 或 Microsoft 没有关联。'

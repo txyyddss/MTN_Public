@@ -3,7 +3,7 @@ const path = require('node:path')
 
 const projectRoot = path.resolve(__dirname, '..')
 const publicDir = path.join(projectRoot, 'public')
-const seoRoutes = ['/', '/gallery', '/players']
+const seoRoutes = ['/', '/players']
 
 function readEnvFile(filePath) {
   if (!fs.existsSync(filePath)) {

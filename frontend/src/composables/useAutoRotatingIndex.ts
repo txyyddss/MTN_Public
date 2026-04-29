@@ -1,12 +1,27 @@
 import { onUnmounted, shallowRef, watch, type Ref } from 'vue'
 
+interface AutoRotatingIndexOptions {
+  intervalMs?: number
+  initialIndex?: number
+}
+
 export function useAutoRotatingIndex(
   length: Readonly<Ref<number>>,
   enabled: Readonly<Ref<boolean>>,
-  intervalMs = 4200
+  options: AutoRotatingIndexOptions | number = {}
 ) {
-  const currentIndex = shallowRef(0)
+  const resolvedOptions = typeof options === 'number' ? { intervalMs: options } : options
+  const intervalMs = resolvedOptions.intervalMs ?? 4200
+  const currentIndex = shallowRef(normalizeIndex(resolvedOptions.initialIndex ?? 0))
   let timer: ReturnType<typeof window.setInterval> | null = null
+
+  function normalizeIndex(index: number): number {
+    if (length.value <= 0) {
+      return 0
+    }
+
+    return ((index % length.value) + length.value) % length.value
+  }
 
   function stopRotation(): void {
     if (!timer) {
@@ -22,7 +37,7 @@ export function useAutoRotatingIndex(
       return
     }
 
-    currentIndex.value = (currentIndex.value + 1) % length.value
+    currentIndex.value = normalizeIndex(currentIndex.value + 1)
     startRotation()
   }
 
@@ -31,7 +46,7 @@ export function useAutoRotatingIndex(
       return
     }
 
-    currentIndex.value = (currentIndex.value - 1 + length.value) % length.value
+    currentIndex.value = normalizeIndex(currentIndex.value - 1)
     startRotation()
   }
 
@@ -42,7 +57,7 @@ export function useAutoRotatingIndex(
       return
     }
 
-    currentIndex.value = ((index % length.value) + length.value) % length.value
+    currentIndex.value = normalizeIndex(index)
     startRotation()
   }
 
@@ -51,7 +66,7 @@ export function useAutoRotatingIndex(
       return
     }
 
-    currentIndex.value = (currentIndex.value + 1) % length.value
+    currentIndex.value = normalizeIndex(currentIndex.value + 1)
   }
 
   function startRotation(): void {
@@ -69,8 +84,10 @@ export function useAutoRotatingIndex(
   watch(
     [length, enabled],
     () => {
-      if (currentIndex.value >= length.value) {
+      if (length.value <= 0) {
         currentIndex.value = 0
+      } else if (currentIndex.value >= length.value) {
+        currentIndex.value = normalizeIndex(currentIndex.value)
       }
 
       startRotation()
