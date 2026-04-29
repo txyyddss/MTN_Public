@@ -38,7 +38,7 @@ const siteContent = useSiteContent()
   place-items: center;
   min-height: 100svh;
   overflow: hidden;
-  background: #070a0f;
+  background: #000000;
   color: #ffffff;
 }
 
@@ -53,8 +53,8 @@ const siteContent = useSiteContent()
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(4, 8, 14, 0.74), rgba(4, 8, 14, 0.16) 46%, rgba(4, 8, 14, 0.72)),
-    radial-gradient(circle at 50% 42%, rgba(76, 147, 251, 0.12), transparent 28%);
+    linear-gradient(90deg, rgba(0, 2, 8, 0.8), rgba(2, 8, 20, 0.24) 46%, rgba(0, 2, 8, 0.76)),
+    radial-gradient(circle at 50% 42%, rgba(59, 130, 246, 0.18), transparent 30%);
 }
 
 .home-hero-center {
@@ -80,10 +80,10 @@ const siteContent = useSiteContent()
   letter-spacing: 0.22em;
   line-height: 0.72;
   text-indent: 0.22em;
-  color: rgba(76, 147, 251, 0.96);
+  color: rgba(91, 113, 246, 0.98);
   text-shadow:
-    0 24px 56px rgba(76, 147, 251, 0.28),
-    0 0 44px rgba(76, 147, 251, 0.2),
+    0 24px 56px rgba(59, 130, 246, 0.32),
+    0 0 44px rgba(91, 113, 246, 0.24),
     0 2px 0 rgba(255, 255, 255, 0.08);
   text-transform: uppercase;
   margin-bottom: 0.05rem;
@@ -138,15 +138,17 @@ const siteContent = useSiteContent()
   min-height: 2.6rem;
   padding: 0.6rem 1.5rem;
   border-radius: 999px;
-  border: 1px solid rgba(146, 194, 255, 0.5);
-  background: var(--primary);
+  border: 1px solid rgba(147, 197, 253, 0.5);
+  background:
+    linear-gradient(135deg, rgba(91, 113, 246, 0.92), rgba(59, 130, 246, 0.9));
   color: #ffffff;
   font-family: var(--mono);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  box-shadow: 0 12px 32px rgba(36, 111, 207, 0.34);
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.34);
+  backdrop-filter: blur(16px);
   transition:
     transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
     background 0.18s cubic-bezier(0.2, 0, 0.2, 1),
@@ -155,8 +157,9 @@ const siteContent = useSiteContent()
 
 .hero-jump-btn:hover {
   transform: translateY(-2px);
-  background: #1d5eaf;
-  box-shadow: 0 16px 40px rgba(36, 111, 207, 0.42);
+  background:
+    linear-gradient(135deg, rgba(108, 127, 248, 0.96), rgba(75, 141, 247, 0.95));
+  box-shadow: 0 16px 40px rgba(59, 130, 246, 0.42);
 }
 
 .hero-jump-btn:active {
@@ -164,9 +167,9 @@ const siteContent = useSiteContent()
 }
 
 .hero-jump-btn--outline {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow: none;
+  background: rgba(2, 8, 20, 0.42);
+  border-color: rgba(147, 197, 253, 0.28);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 
 .hero-jump-btn--outline:hover {

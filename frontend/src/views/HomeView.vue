@@ -22,6 +22,6 @@ import ServerStorySection from '@/components/home/ServerStorySection.vue'
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: #ffffff;
+  background: #000000;
 }
 </style>

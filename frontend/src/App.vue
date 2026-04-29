@@ -214,10 +214,13 @@ onUnmounted(() => {
   height: 100vh;
   padding: 5.5rem 2.2rem 2rem;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 38%),
-    #101827;
+    radial-gradient(circle at 84% 8%, rgba(59, 130, 246, 0.22), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.018)),
+    rgba(2, 7, 21, 0.92);
   color: #ffffff;
-  box-shadow: -28px 0 64px rgba(0, 0, 0, 0.34);
+  box-shadow: -24px 0 54px rgba(0, 0, 0, 0.42);
+  border-left: 1px solid rgba(147, 197, 253, 0.14);
+  backdrop-filter: saturate(160%) blur(24px);
   transform: translateX(100%);
   transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
@@ -248,7 +251,7 @@ onUnmounted(() => {
   letter-spacing: 0.24em;
   line-height: 0.8;
   text-indent: 0.24em;
-  text-shadow: 0 14px 32px rgba(76, 147, 251, 0.24);
+  text-shadow: 0 14px 32px rgba(59, 130, 246, 0.28);
 }
 
 .brand-lockup strong,
@@ -282,7 +285,9 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.72rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--glass-border-soft);
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.06);
   color: rgba(255, 255, 255, 0.74);
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -324,7 +329,7 @@ onUnmounted(() => {
   width: 0;
   height: 2px;
   margin-right: 0;
-  background: var(--primary);
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
   transition:
     width var(--transition-fast),
     margin-right var(--transition-fast);
