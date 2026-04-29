@@ -45,9 +45,9 @@ function getCellStyle(value: number | boolean): { backgroundColor: string; borde
   }
 
   const ratio = Math.min(numericValue / props.weeklyMaxPlayers, 1)
-  const red = interpolateChannel(24, 76, ratio)
-  const green = interpolateChannel(42, 147, ratio)
-  const blue = interpolateChannel(68, 251, ratio)
+  const red = interpolateChannel(18, 59, ratio)
+  const green = interpolateChannel(32, 130, ratio)
+  const blue = interpolateChannel(74, 246, ratio)
   const alpha = 0.28 + ratio * 0.5
 
   return {

@@ -47,94 +47,33 @@ const zhCN = {
     },
     home: {
       hero: {
-        eyebrow: '公益原版风味生存优化之服务器',
-        title: 'MTNetwork | MTN土豆服务器',
         tagline: '「公益神人土豆原版风味生存优化之服务器」',
         imageAlt: 'MTN 土豆服务器夜景建筑截图',
         projectLine: 'PROJECT MTN LONG-SEASON ARCHIVE',
         jumpDetailsCta: '运行面板',
         jumpJoinCta: 'QQ 群号',
         scrollCta: '滚动到介绍',
-        accentLine: '土豆又发力了！！',
-        body: '性能一般般，但足够朋友间一同玩耍。最近土豆变强了不少，大土豆会努力服务大家的～～',
-        primaryCta: 'QQ群 1064494318',
-        primaryHref: '#join-mtn',
-        secondaryCta: '访问文档',
-        secondaryHref: 'https://docs.mcmtn.net/',
-        facts: [
-          { label: '运营方式', value: '公益非营利' },
-          { label: '接入方式', value: 'Je / Be 跨版本互通' },
-          { label: '世界目标', value: '长周目运营' }
-        ]
       },
       preloader: {
         steps: ['正在建立节点连接...', '正在检查土豆电压...', '正在加载世界档案...', '就绪。']
       },
-      follow: {
-        label: 'FOLLOW',
-        links: [
-          { label: 'Bilibili', short: 'B', href: 'https://space.bilibili.com/1066536503' },
-          { label: 'QQ 群', short: 'QQ', href: 'https://qm.qq.com/q/7muRxmmQvu' }
-        ]
-      },
       heroAside: {
-        kicker: '服务器娘',
-        title: '大土豆待命中',
         imageAlt: 'MTN 土豆服务器的服务器娘形象',
-        statusLabel: '当前目标',
-        statusValue: '把欢乐分享给更多人',
-        chips: ['原版生存', '社区驱动', '跨设备互通']
       },
       story: {
         kicker: '了解 MTN 土豆服务器',
         title: '一颗种在腐竹家的大土豆。',
-        imageCaption: '服务器娘 / MTN 土豆服务器',
         paragraphs: [
           '如同其名字，服务器的性能一般般，虽然并非专业服务器，但是足够朋友间一同玩耍。（最近土豆变强了不少）土豆平时种植在腐竹家，平时靠腐竹攒米发育，以及几个原始咕咚喂养，大土豆会努力服务大家的～～',
           '服务器建立之初的愿景是腐竹与几位舍友为了能在任何时间一起消遣而建立的，如今开放是希望将当初那份欢乐分享与更多人。',
           '服务器期望进行长周目运营，而非伴随短期存档的重置而导致记忆的消失。这里希望搭建一个富有社交性与娱乐性，使人们收获真面情绪与乐趣的地方。',
           '在以 Java 版生存为主基调上，服务器增添了不少更实用、趣味的插件，使其兼具建筑、生电、冒险、经济交易等更多主题。愿你在游玩时，也能收获你的那份欢乐。'
         ],
-        calloutTitle: '玩家社区驱动的运营',
-        calloutBody: '服务器实行非营利运营、由玩家社区共同维护，共同创造。一定要投喂腐竹的话我们也会很高兴哦：），代表我们的大土豆感谢您～～'
-      },
-      quickRoutes: {
-        kicker: '快捷入口',
-        title: '快速穿梭整个档案库。',
-        fallback: '打开此页面。',
-        descriptions: {
-          players: '浏览当前档案，并跳转到任意玩家记录。',
-          wiki: '阅读服务器手册与玩法说明。'
-        }
-      },
-      news: {
-        kicker: '最新动态',
-        title: '服务器近况',
-        items: [
-          { date: '2026.04.28', title: '公开网页档案进入新的视觉阶段。', badge: 'NEW', href: '#details' },
-          { date: '2026.04.19', title: '新的世界截图现在会在首页主视觉轮播。', href: '#intro-section' },
-          { date: '2026.04.15', title: '实时状态、连接路由与玩家记录已经接入。', href: '#details' },
-          { date: '2026.04.10', title: '土豆服务器看板娘加入站点识别。', href: '#intro-section' }
-        ]
-      },
-      quickCards: {
-        title: '快速导航',
-        items: [
-          { title: '特色系统', href: '#features' },
-          { title: '玩家档案', href: '/players' },
-          { title: '服务器手册', href: 'https://docs.mcmtn.net/', external: true }
-        ]
-      },
-      serverIntro: {
-        kicker: '运行面板',
-        title: '实时基础设施与连接路由。',
-        body: '在进入服务器之前，先检查节点状态、最近玩家活动以及适合你客户端的连接地址。'
       },
       featuresIntro: {
         kicker: '服务器与众不同的点在于',
         title: '为长寿存档和真实乐趣服务。'
       },
-      featureMode: '系统',
       features: [
         {
           title: '服务器理念',
@@ -186,7 +125,7 @@ const zhCN = {
             rows: [
               { label: '核心玩法', value: '生存 / 建筑 / 红石 / 冒险' },
               { label: '核心机制', value: '原版基底 + 实用插件' },
-          { label: '主题色', value: '#246FCF MTN 蓝' },
+          { label: '主题色', value: '#5B71F6 / #3B82F6' },
               { label: '目标', value: '值得被记住的稳定世界' }
             ]
           }
@@ -205,22 +144,6 @@ const zhCN = {
         bilibiliUrl: 'https://space.bilibili.com/1066536503',
         note: '文档：https://docs.mcmtn.net/'
       },
-      floatingJoin: {
-        label: '加入服务器',
-        detail: 'QQ群 1064494318',
-        href: 'https://qm.qq.com/q/7muRxmmQvu'
-      },
-      footer: {
-        tagline: '一个家用土豆机器上的公益服务器，服务于原版优先的生存、共同建筑和长久记忆。',
-        navTitle: '探索',
-        supportTitle: '支持',
-        links: [
-          { label: '最新动态', href: '#news', external: true },
-          { label: '特色玩法', href: '#features', external: true },
-          { label: '玩家', href: '/players' }
-        ],
-        legal: 'MTNetwork 是独立 Minecraft 社区，与 Mojang 或 Microsoft 没有关联。'
-      }
     },
     serverPanels: {
       liveStatusTitle: '实时服务器状态',
@@ -376,10 +299,6 @@ const zhCN = {
       distanceMeters: '{value} 米'
     },
     gallery: {
-      eyebrow: '世界档案',
-      title: '服务器中的定格瞬间',
-      body: '以时间顺序记录世界变化的影像日志。',
-      close: '关闭',
       frameLabel: '画面',
       previousImage: '上一张图片',
       nextImage: '下一张图片'
@@ -390,14 +309,6 @@ const zhCN = {
       body: '如果没有自动跳转，请使用下面的链接。',
       cta: '打开百科'
     },
-    teamPlaceholder: {
-      eyebrow: '占位页面',
-      title: '这个页面还在整理中。',
-      body: '页面入口已经保留，等内容准备完成后会直接接入。',
-      primaryCta: '打开百科',
-      secondaryCta: '返回首页',
-      note: '当前先保留路由与布局，避免后续上线时产生额外改动。'
-    }
   },
   leaderboardLabels: {
     skills: 'McMMO 总等级',

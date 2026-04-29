@@ -61,14 +61,6 @@ export interface HeatmapDay {
   weekday: string
 }
 
-export interface ServerHistoryResponse {
-  timezone: string
-  days: HeatmapDay[]
-  hours: number[]
-  cells: number[][]
-  weekly_max_players: number
-}
-
 export interface PlayerOnlineHeatmap {
   timezone: string
   days: HeatmapDay[]

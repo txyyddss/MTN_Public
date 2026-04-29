@@ -37,7 +37,6 @@ const javaAddresses = computed(() => {
   const addrs = props.connection?.addresses
   const list: AddressDisplay[] = []
 
-  // Helpers to handle address formatting correctly
   const formatAddress = (address?: { domain?: string; ip: string; port?: string } | string) => {
     if (!address) return ''
     if (typeof address === 'string') return address
@@ -47,10 +46,8 @@ const javaAddresses = computed(() => {
 
     if (!port) return host
 
-    // Avoid double porting if host already includes it (e.g., "domain:11451")
     if (host.includes(`:${port}`)) return host
 
-    // IPv6 logic: only bracket if it's a literal IPv6 (contains ':' but no '.')
     const isIPv6Literal = host.includes(':') && !host.includes('.')
     
     if (isIPv6Literal) {
@@ -60,7 +57,6 @@ const javaAddresses = computed(() => {
     return `${host}:${port}`
   }
 
-  // SRV Records (v4 and v6)
   if (conn?.java_srv) {
     list.push({ label: 'SRV', value: formatAddress(conn.java_srv), id: 'java-srv' })
   } else if (addrs?.java_ipv4_srv) {
@@ -71,12 +67,10 @@ const javaAddresses = computed(() => {
     list.push({ label: 'SRV v6', value: addrs.java_ipv6_srv, id: 'java-srv-v6' })
   }
 
-  // IPv4 Direct
   if (conn?.java_ipv4) {
     list.push({ label: 'IPv4', value: formatAddress(conn.java_ipv4), id: 'java-ipv4' })
   }
 
-  // IPv6 Direct
   if (conn?.java_ipv6) {
     list.push({ label: 'IPv6', value: formatAddress(conn.java_ipv6), id: 'java-ipv6' })
   } else if (addrs?.java_ipv6) {
@@ -194,11 +188,11 @@ const bedrockAddresses = computed(() => {
   gap: 1.2rem;
   min-height: 100%;
   padding: 1.5rem;
-  border-color: rgba(76, 147, 251, 0.24);
+  border-color: var(--glass-border);
   background:
-    radial-gradient(circle at 88% 0%, rgba(76, 147, 251, 0.16), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(var(--secondary-rgb), 0.16), transparent 34%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
-    rgba(8, 11, 18, 0.86);
+    rgba(3, 8, 24, 0.78);
 }
 
 .panel-watermark {
@@ -267,14 +261,14 @@ const bedrockAddresses = computed(() => {
   padding: 0.95rem 1rem;
   border-radius: 18px;
   background:
-    linear-gradient(135deg, rgba(76, 147, 251, 0.1), transparent 38%),
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.1), transparent 38%),
     rgba(255, 255, 255, 0.035);
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .address-row:hover {
-  border-color: rgba(76, 147, 251, 0.18);
-  background: rgba(76, 147, 251, 0.06);
+  border-color: rgba(var(--secondary-rgb), 0.22);
+  background: rgba(var(--secondary-rgb), 0.08);
 }
 
 .address-info {
@@ -289,9 +283,9 @@ const bedrockAddresses = computed(() => {
   font-family: var(--mono);
   font-size: 0.65rem;
   color: var(--primary);
-  background: rgba(76, 147, 251, 0.12);
+  background: rgba(var(--secondary-rgb), 0.12);
   padding: 0.24rem 0.46rem;
-  border: 1px solid rgba(76, 147, 251, 0.18);
+  border: 1px solid rgba(var(--secondary-rgb), 0.18);
   border-radius: 999px;
   flex-shrink: 0;
 }
@@ -311,22 +305,22 @@ const bedrockAddresses = computed(() => {
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 999px;
-  border: 1px solid rgba(76, 147, 251, 0.2);
-  background: rgba(76, 147, 251, 0.08);
+  border: 1px solid rgba(var(--secondary-rgb), 0.2);
+  background: rgba(var(--secondary-rgb), 0.08);
   color: var(--text-main);
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
 .copy-btn:hover {
-  background: rgba(76, 147, 251, 0.16);
+  background: rgba(var(--secondary-rgb), 0.16);
   color: var(--text-strong);
-  border-color: rgba(76, 147, 251, 0.34);
+  border-color: rgba(var(--secondary-rgb), 0.34);
   transform: translateY(-1px);
 }
 
 .copy-btn.copied {
-  background: rgba(131, 211, 167, 0.16);
+  background: rgba(var(--secondary-rgb), 0.18);
   color: var(--success);
   border-color: var(--success);
 }

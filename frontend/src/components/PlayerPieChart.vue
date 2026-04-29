@@ -30,7 +30,7 @@ async function initPieChart(): Promise<void> {
       datasets: [
         {
           data: props.oreStats.map((ore) => ore.mined),
-          backgroundColor: ['#246fcf', '#5f9df0', '#1c5da9', '#9bc4ff', '#d8e7ff', '#173d78'],
+          backgroundColor: ['#5b71f6', '#3b82f6', '#7aa7ff', '#93c5fd', '#c9dcff', '#10275f'],
           borderWidth: 0
         }
       ]
@@ -42,7 +42,7 @@ async function initPieChart(): Promise<void> {
         legend: {
           position: 'right',
           labels: {
-            color: '#edf1f7',
+            color: '#edf4ff',
             font: { family: 'system-ui' }
           }
         }
@@ -128,8 +128,11 @@ function formatNumber(value: number): string {
   gap: 1rem;
   padding: 0.75rem 0.85rem;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--glass-inset);
 }
 
 .ore-row span {
@@ -146,7 +149,8 @@ function formatNumber(value: number): string {
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
 }
 
 @media (max-width: 860px) {

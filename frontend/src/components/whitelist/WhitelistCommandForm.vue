@@ -145,8 +145,8 @@ function submitForm(): void {
   min-height: 2.9rem;
   padding: 0 0.9rem;
   border: 1px solid var(--control-border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.035);
+  border-radius: var(--radius-sm);
+  background: var(--control-bg);
   color: var(--text-main);
 }
 
@@ -162,13 +162,13 @@ function submitForm(): void {
   min-height: 2.9rem;
   padding: 3px;
   border: 1px solid var(--control-border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--control-surface);
 }
 
 .segment-btn {
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--control-text);
   font-size: 0.86rem;

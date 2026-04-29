@@ -2,17 +2,14 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import { API_BASE_URL } from '@/config'
-import type { ConnectionResponse, ServerHistoryResponse, StatusResponse } from '@/types/api'
-import { fetchWithCache } from '@/utils/dataCache'
+import type { ConnectionResponse, StatusResponse } from '@/types/api'
 
 export const useServerStatusStore = defineStore('serverStatus', () => {
   const status = ref<StatusResponse | null>(null)
   const connection = ref<ConnectionResponse | null>(null)
-  const history = ref<ServerHistoryResponse | null>(null)
   const isLoading = ref(false)
 
   let pollTimer: ReturnType<typeof setInterval> | null = null
-  let historyTimer: ReturnType<typeof setInterval> | null = null
   let refreshInFlight: Promise<void> | null = null
 
   async function fetchStatus(): Promise<void> {
@@ -33,17 +30,13 @@ export const useServerStatusStore = defineStore('serverStatus', () => {
     connection.value = (await response.json()) as ConnectionResponse
   }
 
-  async function fetchHistory(): Promise<void> {
-    history.value = await fetchWithCache<ServerHistoryResponse>(`${API_BASE_URL}/api/status/history`, 60000)
-  }
-
   async function refresh(): Promise<void> {
     if (refreshInFlight) {
       return refreshInFlight
     }
 
     isLoading.value = true
-    refreshInFlight = Promise.allSettled([fetchStatus(), fetchConnection(), fetchHistory()])
+    refreshInFlight = Promise.allSettled([fetchStatus(), fetchConnection()])
       .then(() => undefined)
       .finally(() => {
         isLoading.value = false
@@ -61,26 +54,14 @@ export const useServerStatusStore = defineStore('serverStatus', () => {
     }
   }
 
-  async function refreshHistoryOnly(): Promise<void> {
-    try {
-      await fetchHistory()
-    } catch (error) {
-      console.error('Failed to refresh server history', error)
-    }
-  }
-
-  function startPolling(intervalMs = 5000, historyIntervalMs = 60000): void {
-    if (pollTimer || historyTimer) {
+  function startPolling(intervalMs = 5000): void {
+    if (pollTimer) {
       stopPolling()
     }
 
     pollTimer = setInterval(() => {
       void refreshStatusOnly()
     }, intervalMs)
-
-    historyTimer = setInterval(() => {
-      void refreshHistoryOnly()
-    }, historyIntervalMs)
   }
 
   function stopPolling(): void {
@@ -89,16 +70,11 @@ export const useServerStatusStore = defineStore('serverStatus', () => {
       pollTimer = null
     }
 
-    if (historyTimer) {
-      clearInterval(historyTimer)
-      historyTimer = null
-    }
   }
 
   return {
     status,
     connection,
-    history,
     isLoading,
     refresh,
     startPolling,

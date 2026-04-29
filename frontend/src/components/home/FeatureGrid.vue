@@ -67,7 +67,7 @@ onUnmounted(() => {
       </div>
 
       <Transition name="feature-fade" mode="out-in">
-        <article :key="activeFeature.title" class="feature-panel">
+        <article :key="activeFeature.title" class="feature-panel glass-card action-card">
           <span class="feature-backdrop" aria-hidden="true">{{ activeFeatureBackdrop }}</span>
           <div class="feature-number">// {{ activeFeature.icon }}</div>
           <h3>{{ activeFeature.title }}</h3>
@@ -84,8 +84,11 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   padding: clamp(5rem, 9vw, 8rem) 0;
-  background: #ffffff;
-  color: #2a3040;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(var(--primary-rgb), 0.2), transparent 30%),
+    radial-gradient(circle at 84% 22%, rgba(var(--secondary-rgb), 0.14), transparent 28%),
+    linear-gradient(180deg, #000000, #030916 72%, #000000);
+  color: var(--text-main);
 }
 
 .features-shell {
@@ -106,7 +109,7 @@ onUnmounted(() => {
   content: 'SYSTEM';
   position: absolute;
   top: -3.4rem;
-  color: rgba(16, 24, 39, 0.035);
+  color: rgba(147, 197, 253, 0.075);
   font-family: var(--heading);
   font-size: clamp(4.6rem, 11vw, 9rem);
   font-weight: 900;
@@ -131,7 +134,7 @@ onUnmounted(() => {
 .features-heading h2 {
   position: relative;
   z-index: 1;
-  color: #2a3040;
+  color: var(--text-strong);
   font-size: clamp(2.2rem, 5vw, 4rem);
   letter-spacing: 0;
 }
@@ -160,7 +163,7 @@ onUnmounted(() => {
   right: 0;
   top: 50%;
   height: 1px;
-  background: rgba(16, 24, 39, 0.14);
+  background: linear-gradient(90deg, transparent, rgba(var(--secondary-rgb), 0.45), transparent);
 }
 
 .feature-diamond {
@@ -170,10 +173,13 @@ onUnmounted(() => {
   place-items: center;
   width: clamp(4.6rem, 8vw, 6.2rem);
   aspect-ratio: 1;
-  border: 1px solid rgba(16, 24, 39, 0.16);
-  background: #ffffff;
-  color: #2a3040;
-  transform: rotate(45deg);
+  border: 1px solid var(--glass-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--text-main);
+  transform: translateY(0);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  backdrop-filter: saturate(155%) blur(18px);
   transition:
     background var(--transition-fast),
     color var(--transition-fast),
@@ -185,15 +191,14 @@ onUnmounted(() => {
   font-family: var(--mono);
   font-size: 1rem;
   font-weight: 800;
-  transform: rotate(-45deg);
 }
 
 .feature-diamond.active,
 .feature-diamond:hover {
-  border-color: var(--primary);
-  background: #2b3040;
-  color: #ffffff;
-  transform: rotate(45deg) translateY(-4px);
+  border-color: var(--glass-border-strong);
+  background: var(--glass-bg-hover);
+  color: var(--text-strong);
+  transform: translateY(-4px);
 }
 
 .feature-panel {
@@ -204,13 +209,14 @@ onUnmounted(() => {
   width: min(900px, 100%);
   min-height: 300px;
   padding: clamp(2rem, 6vw, 4rem) 1rem;
+  border-radius: var(--radius-xl);
   text-align: center;
 }
 
 .feature-backdrop {
   position: absolute;
   inset: 50% auto auto 50%;
-  color: rgba(16, 24, 39, 0.035);
+  color: rgba(147, 197, 253, 0.07);
   font-family: var(--heading);
   font-size: clamp(4rem, 14vw, 9rem);
   font-weight: 900;
@@ -233,20 +239,20 @@ onUnmounted(() => {
 }
 
 .feature-panel h3 {
-  color: #2a3040;
+  color: var(--text-strong);
   font-size: clamp(2.5rem, 6vw, 4.7rem);
   letter-spacing: 0;
 }
 
 .feature-panel p {
   max-width: 62ch;
-  color: #505b70;
+  color: var(--text-muted);
   font-size: 1.06rem;
 }
 
 .feature-panel blockquote {
   margin: 0.5rem 0 0;
-  color: #586378;
+  color: var(--accent-soft);
   font-family: var(--heading);
   font-size: 1.1rem;
   font-style: italic;

@@ -33,8 +33,11 @@ const progress = Math.min((props.level / maxLevel) * 100, 100)
   align-items: center;
   padding: 0.72rem 0.85rem;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--glass-inset);
   width: 100%;
   color: inherit;
   text-align: left;
@@ -46,8 +49,8 @@ const progress = Math.min((props.level / maxLevel) * 100, 100)
 
 .skill-row.clickable:hover {
   transform: translateY(-1px);
-  border-color: rgba(76, 147, 251, 0.28);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--glass-border-strong);
+  background: var(--glass-bg-hover);
 }
 
 .skill-name {

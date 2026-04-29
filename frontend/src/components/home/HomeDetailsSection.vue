@@ -50,8 +50,9 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   overflow: hidden;
   padding: clamp(5rem, 8vw, 7rem) 0;
   background:
-    linear-gradient(180deg, #111629, #060812 72%),
-    #060812;
+    radial-gradient(circle at 22% 0%, rgba(var(--primary-rgb), 0.2), transparent 34%),
+    linear-gradient(180deg, #020713, #000000 72%),
+    #000000;
 }
 
 .details-stars {
@@ -83,13 +84,14 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   display: grid;
   gap: 1.4rem;
   padding: clamp(1.25rem, 3vw, 1.7rem);
-  border: 1px solid rgba(76, 147, 251, 0.22);
+  border: 1px solid var(--glass-border);
   border-radius: 28px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(76, 147, 251, 0.18), transparent 36%),
+    radial-gradient(circle at 100% 0%, rgba(var(--secondary-rgb), 0.18), transparent 36%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012)),
-    rgba(9, 12, 20, 0.52);
-  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.24);
+    rgba(3, 8, 24, 0.58);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  backdrop-filter: saturate(165%) blur(22px);
   color: #ffffff;
   opacity: 0;
   transform: translateY(22px);
@@ -105,7 +107,7 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   inset: 0;
   z-index: 2;
   background:
-    linear-gradient(118deg, rgba(141, 184, 255, 0.5), rgba(76, 147, 251, 0.94) 34%, rgba(10, 12, 20, 0.98) 72%),
+    linear-gradient(118deg, rgba(147, 197, 253, 0.5), rgba(var(--secondary-rgb), 0.94) 34%, rgba(2, 7, 21, 0.98) 72%),
     rgba(10, 12, 20, 0.98);
   transform: translateX(0);
   transition: transform 0.9s cubic-bezier(0.83, 0, 0.17, 1);
@@ -158,9 +160,12 @@ const { revealed } = useRevealOnScroll<HTMLElement>('detailsSection', { rootMarg
   gap: 1rem;
   align-items: baseline;
   padding: 0.78rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--glass-border-soft);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.035);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  box-shadow: var(--glass-inset);
   opacity: 0;
   transform: translateY(14px);
   transition:

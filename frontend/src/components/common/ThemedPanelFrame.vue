@@ -82,11 +82,11 @@ withDefaults(
 }
 
 .themed-panel-frame--archive {
-  border-color: rgba(76, 147, 251, 0.22);
+  border-color: var(--glass-border);
   background:
-    radial-gradient(circle at 82% 0%, rgba(76, 147, 251, 0.16), transparent 32%),
+    radial-gradient(circle at 82% 0%, rgba(var(--secondary-rgb), 0.16), transparent 32%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.018)),
-    rgba(10, 12, 18, 0.82);
+    rgba(3, 8, 24, 0.78);
 }
 
 .themed-panel-frame--archive .themed-panel-frame__mark {
@@ -153,10 +153,14 @@ withDefaults(
 .themed-panel-frame__status.is-live,
 .themed-panel-frame__status.is-success {
   color: var(--success);
+  border-color: rgba(var(--secondary-rgb), 0.3);
+  background: rgba(var(--secondary-rgb), 0.1);
 }
 
 .themed-panel-frame__status.is-warning {
   color: var(--warning);
+  border-color: rgba(var(--primary-rgb), 0.28);
+  background: rgba(var(--primary-rgb), 0.1);
 }
 
 .themed-panel-frame--compact {

@@ -141,13 +141,13 @@ async function handleSubmit(action: WhitelistAction, input: WhitelistMutationInp
   min-height: 2.7rem;
   padding: 3px;
   border: 1px solid var(--control-border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--control-surface);
 }
 
 .filter-btn {
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--control-text);
   font-size: 0.84rem;

@@ -84,8 +84,8 @@ const emit = defineEmits<{
   min-height: 3.05rem;
   padding: 0 1rem;
   border: 1px solid var(--control-border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.035);
+  border-radius: var(--radius-sm);
+  background: var(--control-bg);
   color: var(--text-main);
 }
 
@@ -107,8 +107,11 @@ const emit = defineEmits<{
   min-height: 4.25rem;
   padding: 0.8rem 0.9rem;
   border: 1px solid var(--glass-border-soft);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  box-shadow: var(--glass-inset);
 }
 
 .metric-tile span {
@@ -127,19 +130,19 @@ const emit = defineEmits<{
 
 .state-line {
   padding: 0.75rem 0.85rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
 }
 
 .state-line.error {
-  border: 1px solid rgba(255, 139, 139, 0.26);
-  background: rgba(255, 139, 139, 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.28);
+  background: rgba(var(--primary-rgb), 0.1);
   color: var(--danger);
 }
 
 .state-line.success {
-  border: 1px solid rgba(131, 211, 167, 0.24);
-  background: rgba(131, 211, 167, 0.08);
+  border: 1px solid rgba(var(--secondary-rgb), 0.28);
+  background: rgba(var(--secondary-rgb), 0.1);
   color: var(--success);
 }
 

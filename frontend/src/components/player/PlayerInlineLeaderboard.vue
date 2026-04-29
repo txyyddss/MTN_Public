@@ -135,8 +135,11 @@ function formatEntryValue(value: number): string {
   align-items: center;
   padding: 0.9rem 0.95rem;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--glass-inset);
 }
 
 .skeleton-player {

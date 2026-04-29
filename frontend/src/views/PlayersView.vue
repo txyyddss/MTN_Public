@@ -350,7 +350,7 @@ onUnmounted(() => {
   gap: 1rem;
   padding: 1.2rem;
   min-height: 100%;
-  border-color: rgba(76, 147, 251, 0.14);
+  border-color: var(--glass-border-soft);
 }
 
 .player-card-mark {
@@ -423,6 +423,8 @@ onUnmounted(() => {
 
 .player-status.online {
   color: var(--success);
+  border-color: rgba(var(--secondary-rgb), 0.3);
+  background: rgba(var(--secondary-rgb), 0.1);
 }
 
 .player-meta {

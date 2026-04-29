@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import HourlyPresenceHeatmap from '@/components/heatmap/HourlyPresenceHeatmap.vue'
 import { formatPlayerCount, getLocaleValue, useSiteContent } from '@/content/siteContent'
-import type { ServerHistoryResponse, StatusResponse } from '@/types/api'
+import type { StatusResponse } from '@/types/api'
 
 interface Props {
   status: StatusResponse | null
-  history: ServerHistoryResponse | null
 }
 
 const props = defineProps<Props>()
@@ -71,16 +69,6 @@ const updatedLabel = computed(() => {
   }).format(new Date(props.status.updated))
 })
 
-const historySummary = computed(() => {
-  if (!props.history) {
-    return siteContent.value.serverPanels.historyLoading
-  }
-
-  const peak = props.history.weekly_max_players
-  return peak > 0
-    ? siteContent.value.serverPanels.historyPeak.replace('{peak}', String(peak))
-    : siteContent.value.serverPanels.historyEmpty
-})
 </script>
 
 <template>
@@ -144,11 +132,11 @@ const historySummary = computed(() => {
   gap: 1.2rem;
   min-height: 100%;
   padding: 1.5rem;
-  border-color: rgba(76, 147, 251, 0.24);
+  border-color: var(--glass-border);
   background:
-    radial-gradient(circle at 88% 0%, rgba(76, 147, 251, 0.16), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(var(--secondary-rgb), 0.16), transparent 34%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
-    rgba(8, 11, 18, 0.86);
+    rgba(3, 8, 24, 0.78);
 }
 
 .panel-watermark {
@@ -200,8 +188,8 @@ const historySummary = computed(() => {
 
 .panel-state.live {
   color: var(--success);
-  border-color: rgba(131, 211, 167, 0.28);
-  background: rgba(131, 211, 167, 0.08);
+  border-color: rgba(var(--secondary-rgb), 0.3);
+  background: rgba(var(--secondary-rgb), 0.1);
 }
 
 .status-stack {
@@ -222,7 +210,7 @@ const historySummary = computed(() => {
   padding: 1rem 1.05rem;
   border-radius: 18px;
   background:
-    linear-gradient(135deg, rgba(76, 147, 251, 0.12), transparent 42%),
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.12), transparent 42%),
     rgba(255, 255, 255, 0.035);
 }
 
@@ -247,27 +235,13 @@ const historySummary = computed(() => {
   gap: 0.65rem;
 }
 
-.history-block {
-  display: grid;
-  gap: 0.75rem;
-  padding-top: 0.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.history-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
 .system-card {
   display: grid;
   gap: 0.3rem;
   padding: 1rem;
   border-radius: 16px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(76, 147, 251, 0.1), transparent 44%),
+    radial-gradient(circle at 100% 0%, rgba(var(--secondary-rgb), 0.1), transparent 44%),
     rgba(255, 255, 255, 0.035);
 }
 

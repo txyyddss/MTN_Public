@@ -160,7 +160,7 @@ function formatDotIndex(index: number): string {
 .hero-carousel-dot {
   display: inline-grid;
   place-items: center;
-  border: 1px solid rgba(91, 113, 246, 0.32);
+  border: 1px solid rgba(var(--primary-rgb), 0.32);
   color: #ffffff;
   background: rgba(3, 8, 18, 0.48);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
@@ -203,7 +203,7 @@ function formatDotIndex(index: number): string {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
-  border: 1px solid rgba(91, 113, 246, 0.28);
+  border: 1px solid rgba(var(--primary-rgb), 0.28);
   border-radius: 999px;
   background: rgba(3, 8, 18, 0.48);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
@@ -239,8 +239,8 @@ function formatDotIndex(index: number): string {
 .hero-carousel-dot.active {
   width: 2.45rem;
   border-color: rgba(147, 197, 253, 0.86);
-  background: linear-gradient(135deg, rgba(91, 113, 246, 0.92), rgba(59, 130, 246, 0.9));
-  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.28);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.92), rgba(var(--secondary-rgb), 0.9));
+  box-shadow: 0 10px 24px rgba(var(--secondary-rgb), 0.28);
 }
 
 .hero-carousel-dot.active span {
@@ -251,7 +251,7 @@ function formatDotIndex(index: number): string {
 .hero-carousel-dot:hover {
   transform: translateY(-2px);
   border-color: rgba(147, 197, 253, 0.72);
-  background: rgba(59, 130, 246, 0.48);
+  background: rgba(var(--secondary-rgb), 0.48);
 }
 
 .hero-carousel-arrow:focus-visible,

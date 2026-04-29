@@ -56,94 +56,33 @@ const en = {
     },
     home: {
       hero: {
-        eyebrow: 'Non-profit vanilla-flavored optimized survival',
-        title: 'MTNetwork | MTN Potato Server',
         tagline: 'A community potato server for vanilla-style survival.',
         imageAlt: 'MTN Potato Server in-game build at night',
         projectLine: 'Project MTN long-season archive',
         jumpDetailsCta: 'Status panel',
         jumpJoinCta: 'QQ group',
-        scrollCta: 'Scroll to introduction',
-        accentLine: 'The potato is pushing harder again.',
-        body: 'The hardware is modest, but it is enough for friends to play together. The potato has grown stronger recently, and it keeps working for everyone.',
-        primaryCta: 'QQ Group 1064494318',
-        primaryHref: '#join-mtn',
-        secondaryCta: 'Visit Documentation',
-        secondaryHref: 'https://docs.mcmtn.net/',
-        facts: [
-          { label: 'Operations', value: 'Non-profit' },
-          { label: 'Access', value: 'Java / Bedrock cross-play' },
-          { label: 'World Goal', value: 'Long-running season' }
-        ]
+        scrollCta: 'Scroll to introduction'
       },
       preloader: {
         steps: ['Opening node link...', 'Checking potato voltage...', 'Loading world archive...', 'Ready.']
       },
-      follow: {
-        label: 'Follow',
-        links: [
-          { label: 'Bilibili', short: 'B', href: 'https://space.bilibili.com/1066536503' },
-          { label: 'QQ Group', short: 'QQ', href: 'https://qm.qq.com/q/7muRxmmQvu' }
-        ]
-      },
       heroAside: {
-        kicker: 'Server Mascot',
-        title: 'The big potato is on duty',
-        imageAlt: 'MTN Potato Server mascot character',
-        statusLabel: 'Current goal',
-        statusValue: 'Share the original joy with more players',
-        chips: ['Vanilla survival', 'Community run', 'Cross-device access']
+        imageAlt: 'MTN Potato Server mascot character'
       },
       story: {
         kicker: 'About MTN Potato Server',
         title: 'A big potato planted at the owner’s home.',
-        imageCaption: 'Server mascot / MTN Potato Server',
         paragraphs: [
           'As the name suggests, the server performance is modest. It is not professional-grade hardware, but it is enough for friends to play together. The potato has grown stronger recently, lives at the owner’s home, and keeps developing through the owner’s effort and community support.',
           'The server began as a place where the owner and a few roommates could relax together at any time. Opening it now is a way to share that joy with more people.',
           'The goal is long-running operation rather than short resets that erase memories. The server is meant to be social, entertaining, and able to leave players with real emotion and fun.',
           'With Java survival as the main baseline, practical and playful plugins add room for building, redstone engineering, adventure, economy, and trading while keeping the experience close to vanilla.'
-        ],
-        calloutTitle: 'Player-community operations',
-        calloutBody: 'The server is non-profit, maintained by the player community, and built together. Voluntary support is appreciated and goes back into helping the potato grow.'
-      },
-      quickRoutes: {
-        kicker: 'Quick routes',
-        title: 'Move through the archive.',
-        fallback: 'Open this route.',
-        descriptions: {
-          players: 'Browse the current archive and jump into individual records.',
-          wiki: 'Read the server handbook and gameplay details.'
-        }
-      },
-      news: {
-        kicker: 'Latest updates',
-        title: 'Recent Server Notes',
-        items: [
-          { date: '2026.04.28', title: 'The public web archive enters a new visual season.', badge: 'NEW', href: '#details' },
-          { date: '2026.04.19', title: 'Fresh world screenshots now rotate through the home hero.', href: '#intro-section' },
-          { date: '2026.04.15', title: 'Live status, route checks, and player records are now connected.', href: '#details' },
-          { date: '2026.04.10', title: 'The potato server mascot joined the site identity.', href: '#intro-section' }
         ]
-      },
-      quickCards: {
-        title: 'Quick navigation',
-        items: [
-          { title: 'Feature System', href: '#features' },
-          { title: 'Player Archive', href: '/players' },
-          { title: 'Server Handbook', href: 'https://docs.mcmtn.net/', external: true }
-        ]
-      },
-      serverIntro: {
-        kicker: 'Operations surface',
-        title: 'Live infrastructure and connection routing.',
-        body: 'Check the node state, recent player activity, and the right address for your client before joining.'
       },
       featuresIntro: {
         kicker: 'What makes the server different',
         title: 'Built for a longer-lived world.'
       },
-      featureMode: 'System',
       features: [
         {
           title: 'Server philosophy',
@@ -195,7 +134,7 @@ const en = {
             rows: [
               { label: 'Core play', value: 'Survival / building / redstone / adventure' },
               { label: 'Mechanics', value: 'Vanilla baseline with practical plugins' },
-          { label: 'Theme color', value: '#246FCF MTN blue' },
+              { label: 'Theme color', value: '#5B71F6 / #3B82F6' },
               { label: 'Goal', value: 'A stable world worth remembering' }
             ]
           }
@@ -213,22 +152,6 @@ const en = {
         bilibiliCta: 'Bilibili',
         bilibiliUrl: 'https://space.bilibili.com/1066536503',
         note: 'Documentation: https://docs.mcmtn.net/'
-      },
-      floatingJoin: {
-        label: 'Join Server',
-        detail: 'QQ 1064494318',
-        href: 'https://qm.qq.com/q/7muRxmmQvu'
-      },
-      footer: {
-        tagline: 'A modest home-hosted potato server for vanilla-first survival, shared builds, and long-running memories.',
-        navTitle: 'Explore',
-        supportTitle: 'Support',
-        links: [
-          { label: 'Latest updates', href: '#news', external: true },
-          { label: 'Features', href: '#features', external: true },
-          { label: 'Players', href: '/players' }
-        ],
-        legal: 'MTNetwork is an independent Minecraft community and is not affiliated with Mojang or Microsoft.'
       }
     },
     serverPanels: {
@@ -385,10 +308,6 @@ const en = {
       distanceMeters: '{value} m'
     },
     gallery: {
-      eyebrow: 'World archive',
-      title: 'Captured moments from the server',
-      body: 'A timestamped visual log of the world.',
-      close: 'Close',
       frameLabel: 'Frame',
       previousImage: 'Previous image',
       nextImage: 'Next image'
@@ -398,14 +317,6 @@ const en = {
       title: 'Redirecting to the MTNetwork wiki.',
       body: 'If the redirect does not start automatically, use the link below.',
       cta: 'Open Wiki'
-    },
-    teamPlaceholder: {
-      eyebrow: 'Placeholder',
-      title: 'This page is still being assembled.',
-      body: 'The surface is reserved and will be filled with the final content once it is ready.',
-      primaryCta: 'Open Wiki',
-      secondaryCta: 'Return Home',
-      note: 'Navigation and layout stay in place so the route can ship safely.'
     }
   },
   leaderboardLabels: {

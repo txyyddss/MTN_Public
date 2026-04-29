@@ -12,7 +12,7 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
   <section id="intro-section" ref="introSection" :class="['home-intro', { 'is-revealed': revealed }]">
     <div class="intro-texture" aria-hidden="true"></div>
     <div class="container intro-layout">
-      <article class="intro-copy">
+      <article class="intro-copy glass-card">
         <p class="intro-kicker">{{ siteContent.home.story.kicker }}</p>
         <div class="intro-columns">
           <h2>{{ siteContent.home.story.title }}</h2>
@@ -37,9 +37,10 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
   overflow: hidden;
   padding: clamp(5rem, 10vw, 8rem) 0;
   background:
-    radial-gradient(circle at 4% 10%, rgba(16, 24, 39, 0.035), transparent 16%),
-    linear-gradient(180deg, #ffffff, #f7fbff);
-  color: #2a3040;
+    radial-gradient(circle at 8% 0%, rgba(var(--primary-rgb), 0.24), transparent 30%),
+    radial-gradient(circle at 88% 28%, rgba(var(--secondary-rgb), 0.16), transparent 28%),
+    linear-gradient(180deg, #000000, #020713 68%, #000000);
+  color: var(--text-main);
 }
 
 .intro-texture {
@@ -47,8 +48,8 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
   inset: 0;
   opacity: 0.42;
   background-image:
-    radial-gradient(circle, rgba(16, 24, 39, 0.32) 1px, transparent 1px),
-    radial-gradient(circle, rgba(76, 147, 251, 0.28) 1px, transparent 1px);
+    radial-gradient(circle, rgba(147, 197, 253, 0.2) 1px, transparent 1px),
+    radial-gradient(circle, rgba(var(--secondary-rgb), 0.3) 1px, transparent 1px);
   background-position: 0 0, 22px 38px;
   background-size: 46px 46px, 70px 70px;
   mask-image: linear-gradient(180deg, transparent, #000 8%, #000 92%, transparent);
@@ -68,6 +69,8 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
   display: grid;
   gap: 2.4rem;
   order: 1;
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  border-radius: var(--radius-xl);
   opacity: 0;
   transform: translateY(28px);
   transition:
@@ -96,8 +99,8 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
 
 .intro-columns h2 {
   padding: 0 0 1.2rem;
-  border-bottom: 1px solid rgba(16, 24, 39, 0.18);
-  color: #2d3342;
+  border-bottom: 1px solid var(--glass-border-soft);
+  color: var(--text-strong);
   font-family: var(--heading);
   font-size: clamp(1.8rem, 3.6vw, 2.9rem);
   font-weight: 800;
@@ -108,7 +111,7 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
 .intro-body {
   display: grid;
   gap: 1.1rem;
-  color: #667084;
+  color: var(--text-muted);
   font-size: clamp(0.95rem, 1.4vw, 1.08rem);
   line-height: 1.9;
 }
@@ -137,7 +140,7 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
   max-height: min(55vh, 520px);
   object-fit: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 28px 0 rgba(16, 24, 39, 0.08));
+  filter: drop-shadow(0 28px 44px rgba(0, 0, 0, 0.36));
 }
 
 @keyframes mascotStep {

@@ -5,10 +5,9 @@ import { storeToRefs } from 'pinia'
 
 import AppPreloader from '@/components/AppPreloader.vue'
 import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
-import ShellSideControls from '@/components/ShellSideControls.vue'
 import { usePreloader } from '@/composables/usePreloader'
 import { useSeoMeta } from '@/composables/useSeoMeta'
-import { formatPlayerCount, useSiteContent } from '@/content/siteContent'
+import { formatPlayerCount, useSiteContent, type NavItem } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
 const menuOpen = shallowRef(false)
@@ -34,6 +33,14 @@ function closeMenu(): void {
 
 function toggleMenu(): void {
   menuOpen.value = !menuOpen.value
+}
+
+function isExternalNavItem(item: NavItem): boolean {
+  return 'external' in item && item.external === true
+}
+
+function isEmphasizedNavItem(item: NavItem): boolean {
+  return 'emphasize' in item && item.emphasize === true
 }
 
 watch(
@@ -100,9 +107,9 @@ onUnmounted(() => {
         <div class="nav-links">
           <template v-for="item in siteContent.app.nav" :key="item.id">
             <a
-              v-if="item.external"
+              v-if="isExternalNavItem(item)"
               :href="item.to"
-              :class="['nav-link', { 'nav-link-emphasis': item.emphasize }]"
+              :class="['nav-link', { 'nav-link-emphasis': isEmphasizedNavItem(item) }]"
               target="_blank"
               rel="noopener noreferrer"
               @click="closeMenu"
@@ -118,8 +125,6 @@ onUnmounted(() => {
         <LocaleSwitcher class="nav-locale-switch" />
       </div>
     </nav>
-
-    <ShellSideControls />
 
     <main class="main-content">
       <RouterView v-slot="{ Component, route }">
@@ -214,13 +219,14 @@ onUnmounted(() => {
   height: 100vh;
   padding: 5.5rem 2.2rem 2rem;
   background:
-    radial-gradient(circle at 84% 8%, rgba(59, 130, 246, 0.22), transparent 30%),
+    radial-gradient(circle at 84% 8%, rgba(var(--secondary-rgb), 0.22), transparent 30%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.018)),
     rgba(2, 7, 21, 0.92);
   color: #ffffff;
   box-shadow: -24px 0 54px rgba(0, 0, 0, 0.42);
   border-left: 1px solid rgba(147, 197, 253, 0.14);
   backdrop-filter: saturate(160%) blur(24px);
+  -webkit-backdrop-filter: saturate(160%) blur(24px);
   transform: translateX(100%);
   transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
@@ -251,7 +257,7 @@ onUnmounted(() => {
   letter-spacing: 0.24em;
   line-height: 0.8;
   text-indent: 0.24em;
-  text-shadow: 0 14px 32px rgba(59, 130, 246, 0.28);
+  text-shadow: 0 14px 32px rgba(var(--secondary-rgb), 0.28);
 }
 
 .brand-lockup strong,
@@ -287,7 +293,7 @@ onUnmounted(() => {
   padding: 0.5rem 0.72rem;
   border: 1px solid var(--glass-border-soft);
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.06);
+  background: rgba(var(--secondary-rgb), 0.08);
   color: rgba(255, 255, 255, 0.74);
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -297,12 +303,12 @@ onUnmounted(() => {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
-  background: rgba(182, 190, 203, 0.8);
+  background: color-mix(in srgb, var(--accent-soft) 58%, transparent);
 }
 
 .status-dot.active {
   background: var(--success);
-  box-shadow: 0 0 0 5px rgba(131, 211, 167, 0.14);
+  box-shadow: 0 0 0 5px rgba(var(--secondary-rgb), 0.16);
 }
 
 .nav-links {

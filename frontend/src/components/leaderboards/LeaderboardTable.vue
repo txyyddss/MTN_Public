@@ -89,7 +89,10 @@ const siteContent = useSiteContent()
 }
 
 .leaderboard-table tbody tr {
-  background: rgba(255, 255, 255, 0.03);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.07), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  box-shadow: var(--glass-inset);
   transition:
     transform var(--transition-panel),
     background var(--transition-fast),
@@ -97,9 +100,9 @@ const siteContent = useSiteContent()
 }
 
 .leaderboard-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg-hover);
   transform: translateY(-1px);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24), var(--glass-inset);
 }
 
 .leaderboard-table tbody td:first-child {
@@ -163,9 +166,10 @@ const siteContent = useSiteContent()
     gap: 0.7rem;
     padding: 0.85rem 0.9rem;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.03);
-    box-shadow: var(--panel-shadow);
+    border: 1px solid var(--glass-border-soft);
+    background: var(--glass-bg);
+    box-shadow: var(--panel-shadow), var(--glass-inset);
+    backdrop-filter: saturate(150%) blur(18px);
   }
 
   .mobile-board-topline {

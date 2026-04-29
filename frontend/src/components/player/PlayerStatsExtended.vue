@@ -145,7 +145,7 @@ const activeCategoryLabel = computed(() => {
   font-family: var(--sans);
   font-size: 0.84rem;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   text-transform: capitalize;
   transition:
     transform var(--transition-panel),

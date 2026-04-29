@@ -72,7 +72,7 @@ const statusLabel = computed(() =>
   font-family: var(--sans);
   font-size: 0.86rem;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   transition:
     border-color var(--transition-fast),
     transform var(--transition-fast),

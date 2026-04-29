@@ -200,7 +200,7 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   isolation: isolate;
   display: grid;
   gap: 1rem;
-  border-color: rgba(76, 147, 251, 0.24);
+  border-color: var(--glass-border);
   padding: 1.35rem;
 }
 
@@ -240,8 +240,9 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   background:
-    radial-gradient(circle at 50% 92%, rgba(76, 147, 251, 0.18), transparent 42%),
+    radial-gradient(circle at 50% 92%, rgba(var(--secondary-rgb), 0.18), transparent 42%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
+  box-shadow: var(--glass-inset);
 }
 
 .skin-frame::after {
@@ -283,7 +284,8 @@ function selectLeaderboard(target: LeaderboardTarget): void {
 }
 
 .status-chip.online {
-  border-color: rgba(131, 211, 167, 0.34);
+  border-color: rgba(var(--secondary-rgb), 0.34);
+  background: rgba(var(--secondary-rgb), 0.1);
   color: var(--success);
 }
 
@@ -340,7 +342,7 @@ function selectLeaderboard(target: LeaderboardTarget): void {
 }
 
 .hero-metric-action:hover {
-  background: rgba(76, 147, 251, 0.08);
+  background: rgba(var(--secondary-rgb), 0.08);
   color: var(--text-strong);
 }
 
@@ -386,7 +388,7 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   min-width: 0;
   padding: 0.68rem 0.78rem;
   border-left: 1px solid rgba(141, 184, 255, 0.28);
-  background: linear-gradient(90deg, rgba(76, 147, 251, 0.055), rgba(255, 255, 255, 0.018));
+  background: linear-gradient(90deg, rgba(var(--secondary-rgb), 0.065), rgba(255, 255, 255, 0.018));
 }
 
 .identity-value {
@@ -408,8 +410,8 @@ function selectLeaderboard(target: LeaderboardTarget): void {
 }
 
 .rank-chip:hover {
-  border-color: rgba(76, 147, 251, 0.28);
-  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(var(--secondary-rgb), 0.3);
+  background: rgba(var(--secondary-rgb), 0.1);
   color: var(--text-strong);
   transform: translateY(-1px);
 }

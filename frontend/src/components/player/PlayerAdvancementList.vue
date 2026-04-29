@@ -71,9 +71,22 @@ function handleImageError(event: Event): void {
   gap: 0.7rem;
   padding: 0.76rem 0.86rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--glass-inset);
   align-items: center;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.advancement-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--glass-border-strong);
+  background: var(--glass-bg-hover);
 }
 
 .icon-wrap {
@@ -82,21 +95,21 @@ function handleImageError(event: Event): void {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(var(--secondary-rgb), 0.08);
+  border: 1px solid var(--glass-border-soft);
   flex-shrink: 0;
 }
 
 .icon-wrap.task {
-  border-color: rgba(59, 130, 246, 0.35);
+  border-color: rgba(var(--secondary-rgb), 0.35);
 }
 
 .icon-wrap.goal {
-  border-color: rgba(91, 113, 246, 0.38);
+  border-color: rgba(var(--primary-rgb), 0.38);
 }
 
 .icon-wrap.challenge {
-  border-color: rgba(125, 211, 252, 0.34);
+  border-color: rgba(147, 197, 253, 0.34);
 }
 
 .icon-wrap img {

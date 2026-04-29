@@ -48,7 +48,7 @@ withDefaults(
   position: relative;
   overflow: hidden;
   padding: clamp(1.55rem, 3vw, 2.4rem);
-  border-color: rgba(76, 147, 251, 0.22);
+  border-color: var(--glass-border);
 }
 
 .route-hero-header::before {
@@ -56,8 +56,8 @@ withDefaults(
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 82% 18%, rgba(76, 147, 251, 0.16), transparent 26%),
-    linear-gradient(125deg, rgba(76, 147, 251, 0.08), transparent 34%);
+    radial-gradient(circle at 82% 18%, rgba(var(--secondary-rgb), 0.16), transparent 26%),
+    linear-gradient(125deg, rgba(var(--primary-rgb), 0.08), transparent 34%);
   pointer-events: none;
 }
 
@@ -86,7 +86,7 @@ withDefaults(
 }
 
 .route-hero-header__mark {
-  color: rgba(76, 147, 251, 0.92);
+  color: rgba(var(--primary-rgb), 0.92);
   font-family: var(--display);
   font-size: clamp(4.2rem, 13vw, 9rem);
   font-weight: 900;
@@ -94,8 +94,8 @@ withDefaults(
   line-height: 0.74;
   text-indent: 0.24em;
   text-shadow:
-    0 22px 52px rgba(76, 147, 251, 0.24),
-    0 0 34px rgba(76, 147, 251, 0.16);
+    0 22px 52px rgba(var(--secondary-rgb), 0.24),
+    0 0 34px rgba(var(--primary-rgb), 0.16);
   text-transform: uppercase;
 }
 

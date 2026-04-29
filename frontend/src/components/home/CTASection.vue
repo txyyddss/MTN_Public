@@ -7,7 +7,7 @@ const siteContent = useSiteContent()
 <template>
   <section id="join-mtn" class="cta-section">
     <div class="cta-backdrop" aria-hidden="true"></div>
-    <div class="container cta-shell">
+    <div class="container cta-shell glass-card">
       <span class="cta-kicker">{{ siteContent.home.cta.kicker }}</span>
       <h2>{{ siteContent.home.cta.title }}</h2>
       <p>{{ siteContent.home.cta.body }}</p>
@@ -32,8 +32,10 @@ const siteContent = useSiteContent()
   position: relative;
   overflow: hidden;
   padding: clamp(5rem, 8vw, 7rem) 0;
-  background: var(--primary);
-  color: #ffffff;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--primary-rgb), 0.32), transparent 38%),
+    linear-gradient(180deg, #020713, #000000);
+  color: var(--text-strong);
 }
 
 .cta-backdrop {
@@ -41,8 +43,8 @@ const siteContent = useSiteContent()
   inset: -30% auto auto 50%;
   width: min(60vw, 560px);
   aspect-ratio: 1;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 62%);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  background: radial-gradient(circle, rgba(var(--secondary-rgb), 0.22), transparent 62%);
   transform: rotate(45deg);
   animation: ctaPulse 4.8s ease-in-out infinite;
 }
@@ -52,6 +54,8 @@ const siteContent = useSiteContent()
   display: grid;
   justify-items: center;
   gap: 1rem;
+  width: min(980px, calc(100vw - 2rem));
+  padding: clamp(1.6rem, 4vw, 3rem);
   text-align: center;
 }
 
@@ -65,14 +69,14 @@ const siteContent = useSiteContent()
 
 .cta-shell h2 {
   max-width: 13ch;
-  color: #ffffff;
+  color: var(--text-strong);
   font-size: clamp(2.8rem, 7vw, 6rem);
   letter-spacing: 0;
 }
 
 .cta-shell p {
   max-width: 58ch;
-  color: #ffffff;
+  color: var(--text-muted);
 }
 
 .cta-actions {
@@ -84,20 +88,20 @@ const siteContent = useSiteContent()
 }
 
 .cta-actions .btn-primary {
-  border-color: rgba(255, 255, 255, 0.42);
-  background: #ffffff;
-  color: #1b5ca9;
-  box-shadow: 0 20px 44px rgba(16, 24, 39, 0.18);
+  border-color: rgba(147, 197, 253, 0.5);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #ffffff;
+  box-shadow: 0 12px 28px rgba(var(--secondary-rgb), 0.28);
 }
 
 .cta-actions .btn-secondary {
-  border-color: rgba(255, 255, 255, 0.46);
-  background: rgba(15, 41, 82, 0.28);
-  color: #ffffff;
+  border-color: var(--control-border-hover);
+  background: var(--control-surface);
+  color: var(--text-main);
 }
 
 .cta-shell small {
-  color: #ffffff;
+  color: var(--text-dim);
   font-family: var(--mono);
 }
 

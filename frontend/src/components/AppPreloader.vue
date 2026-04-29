@@ -148,7 +148,7 @@ onUnmounted(() => {
   z-index: 999;
   display: grid;
   overflow: hidden;
-  color: #f7fbff;
+  color: var(--text-strong);
   pointer-events: auto;
 }
 
@@ -166,7 +166,7 @@ onUnmounted(() => {
   overflow: hidden;
   background:
     radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.18), transparent 28%),
-    linear-gradient(135deg, #1b5fbf, #7bb6ff 52%, #10203a);
+    linear-gradient(135deg, #000000, var(--primary) 48%, #05102a);
 }
 
 .preloader-panel-main {
@@ -177,9 +177,9 @@ onUnmounted(() => {
   align-items: center;
   padding: clamp(2rem, 6vw, 5rem);
   background:
-    radial-gradient(circle at 56% 50%, rgba(76, 147, 251, 0.16), transparent 38%),
-    linear-gradient(135deg, #f8fbff 0%, #dfeeff 100%);
-  color: #101827;
+    radial-gradient(circle at 56% 50%, rgba(var(--secondary-rgb), 0.18), transparent 38%),
+    linear-gradient(135deg, #020713 0%, #000000 100%);
+  color: var(--text-main);
 }
 
 .app-preloader.is-sliding-out {
@@ -211,14 +211,14 @@ onUnmounted(() => {
   height: min(52vh, 440px);
   overflow: visible;
   border-radius: 999px;
-  background: rgba(16, 24, 39, 0.16);
+  background: rgba(147, 197, 253, 0.16);
 }
 
 .preloader-progress-fill {
   position: relative;
   width: 100%;
-  background: linear-gradient(180deg, var(--primary), #83d3a7);
-  box-shadow: 0 0 18px rgba(76, 147, 251, 0.5);
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  box-shadow: 0 0 18px rgba(var(--secondary-rgb), 0.5);
   transition: height 0.08s linear;
 }
 
@@ -229,7 +229,7 @@ onUnmounted(() => {
   width: 12px;
   height: 12px;
   border: 2px solid var(--primary);
-  background: #ffffff;
+  background: var(--text-strong);
   transform: translateX(-50%) rotate(45deg);
 }
 
@@ -245,7 +245,7 @@ onUnmounted(() => {
 }
 
 .preloader-copy strong {
-  color: #101827;
+  color: var(--text-strong);
   font-family: var(--mono);
   font-size: clamp(5rem, 12vw, 10rem);
   font-weight: 600;
@@ -263,7 +263,7 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 0.8rem;
-  color: #4d5c72;
+  color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.75rem;
   letter-spacing: 0.18em;

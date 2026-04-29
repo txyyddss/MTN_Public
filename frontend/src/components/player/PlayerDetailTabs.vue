@@ -82,7 +82,7 @@ const siteContent = useSiteContent()
   font-family: var(--sans);
   font-size: 0.88rem;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 @media (max-width: 720px) {
@@ -104,7 +104,7 @@ const siteContent = useSiteContent()
 
   .detail-tab-label {
     font-size: 0.78rem;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 }
 </style>

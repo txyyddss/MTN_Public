@@ -83,8 +83,11 @@ function formatDate(value: string): string {
   gap: 0.5rem;
   padding: 1rem;
   border: 1px solid var(--glass-border-soft);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  box-shadow: var(--glass-inset);
 }
 
 .empty-state h3 {
@@ -110,8 +113,21 @@ function formatDate(value: string): string {
   min-width: 720px;
   padding: 0.78rem 0.85rem;
   border: 1px solid var(--glass-border-soft);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.07), transparent 42%),
+    rgba(255, 255, 255, 0.035);
+  box-shadow: var(--glass-inset);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.table-row:not(.table-row-head):hover {
+  transform: translateY(-1px);
+  border-color: var(--glass-border-strong);
+  background: var(--glass-bg-hover);
 }
 
 .table-row-head {
@@ -121,7 +137,7 @@ function formatDate(value: string): string {
   font-size: 0.68rem;
   letter-spacing: 0;
   text-transform: uppercase;
-  background: rgba(76, 147, 251, 0.06);
+  background: rgba(var(--secondary-rgb), 0.08);
 }
 
 .player-cell {
@@ -141,7 +157,7 @@ function formatDate(value: string): string {
   min-width: 4.5rem;
   justify-content: center;
   padding: 0.28rem 0.55rem;
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--chip-border);
   color: var(--text-main);
   font-family: var(--mono);
@@ -151,23 +167,23 @@ function formatDate(value: string): string {
 }
 
 .edition-pill.java {
-  border-color: rgba(131, 211, 167, 0.26);
-  background: rgba(131, 211, 167, 0.08);
+  border-color: rgba(var(--secondary-rgb), 0.28);
+  background: rgba(var(--secondary-rgb), 0.1);
   color: var(--success);
 }
 
 .edition-pill.bedrock {
-  border-color: rgba(242, 200, 110, 0.28);
-  background: rgba(242, 200, 110, 0.08);
+  border-color: rgba(var(--primary-rgb), 0.28);
+  background: rgba(var(--primary-rgb), 0.1);
   color: var(--warning);
 }
 
 .remove-btn {
   min-height: 2.25rem;
   padding: 0.45rem 0.75rem;
-  border: 1px solid rgba(255, 139, 139, 0.22);
-  border-radius: 8px;
-  background: rgba(255, 139, 139, 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.28);
+  border-radius: var(--radius-xs);
+  background: rgba(var(--primary-rgb), 0.1);
   color: var(--danger);
   font-size: 0.82rem;
   font-weight: 600;
