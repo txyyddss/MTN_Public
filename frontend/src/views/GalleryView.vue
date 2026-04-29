@@ -4,21 +4,31 @@ import { onBeforeRouteLeave } from 'vue-router'
 
 import RouteHeroHeader from '@/components/common/RouteHeroHeader.vue'
 import ThemedPanelFrame from '@/components/common/ThemedPanelFrame.vue'
+import galleryManifest from '@/assets/generated/gallery-manifest.json'
 import { useMediaQuery } from '@/composables/useMediaQuery'
 import { useSiteContent } from '@/content/siteContent'
 
-const imageModules = import.meta.glob('/public/gallery-images/*.{png,jpg,jpeg,webp}', { eager: true })
-const images = Object.keys(imageModules)
-  .map((path) => path.split('/').pop() || '')
-  .filter((image): image is string => image.length > 0)
-  .sort((left, right) => right.localeCompare(left))
+interface GalleryImage {
+  id: string
+  label: string
+  thumb: string
+  large: string
+  thumbWidth: number
+  thumbHeight: number
+  width: number
+  height: number
+}
+
+const images = galleryManifest as GalleryImage[]
 
 const { matches: isPhone } = useMediaQuery('(max-width: 720px)')
 const selectedIndex = ref<number | null>(null)
 const siteContent = useSiteContent()
-const selectedImage = computed(() => (selectedIndex.value === null ? null : images[selectedIndex.value]))
+const selectedImage = computed(() =>
+  selectedIndex.value === null ? null : images[selectedIndex.value] ?? null
+)
 const selectedLabel = computed(() =>
-  selectedIndex.value === null ? '' : `${siteContent.gallery.frameLabel} ${images.length - selectedIndex.value}`
+  selectedIndex.value === null ? '' : `${siteContent.value.gallery.frameLabel} ${images.length - selectedIndex.value}`
 )
 let previousBodyOverflow = ''
 let lightboxScrollLocked = false
@@ -60,11 +70,19 @@ function nextImage(): void {
     return
   }
 
+  if (images.length === 0) {
+    return
+  }
+
   selectedIndex.value = (selectedIndex.value + 1) % images.length
 }
 
 function previousImage(): void {
   if (selectedIndex.value === null) {
+    return
+  }
+
+  if (images.length === 0) {
     return
   }
 
@@ -127,7 +145,7 @@ onUnmounted(() => {
       <div class="waterfall-grid">
         <button
           v-for="(image, index) in images"
-          :key="image"
+          :key="image.id"
           type="button"
           :class="['gallery-card', 'glass-card', 'action-card', 'animate-entry', { passive: isPhone }]"
           :aria-disabled="isPhone"
@@ -136,10 +154,15 @@ onUnmounted(() => {
           @click="openLightbox(index)"
         >
           <img
-            :src="`/gallery-images/${image}`"
+            :src="image.thumb"
+            :srcset="`${image.thumb} ${image.thumbWidth}w, ${image.large} ${image.width}w`"
+            sizes="(min-width: 1100px) 31vw, (min-width: 720px) 46vw, calc(100vw - 4rem)"
             :alt="`${siteContent.gallery.frameLabel} ${index + 1}`"
             class="action-media"
+            :width="image.thumbWidth"
+            :height="image.thumbHeight"
             loading="lazy"
+            decoding="async"
           />
           <div class="gallery-meta">
             <strong>{{ images.length - index }}</strong>
@@ -154,7 +177,16 @@ onUnmounted(() => {
           <button class="lightbox-nav" type="button" :aria-label="siteContent.gallery.previousImage" @click="previousImage">&lt;</button>
           <div class="lightbox-image-wrap">
             <p class="lightbox-label">{{ selectedLabel }}</p>
-            <img :src="`/gallery-images/${selectedImage}`" :alt="selectedLabel" class="lightbox-image" />
+            <img
+              v-if="selectedImage"
+              :src="selectedImage.large"
+              :alt="selectedLabel"
+              class="lightbox-image"
+              :width="selectedImage.width"
+              :height="selectedImage.height"
+              decoding="async"
+              fetchpriority="high"
+            />
           </div>
           <button class="lightbox-nav" type="button" :aria-label="siteContent.gallery.nextImage" @click="nextImage">&gt;</button>
         </div>

@@ -23,6 +23,7 @@ export function useAutoRotatingIndex(
     }
 
     currentIndex.value = (currentIndex.value + 1) % length.value
+    startRotation()
   }
 
   function previous(): void {
@@ -31,6 +32,26 @@ export function useAutoRotatingIndex(
     }
 
     currentIndex.value = (currentIndex.value - 1 + length.value) % length.value
+    startRotation()
+  }
+
+  function setIndex(index: number): void {
+    if (length.value <= 0) {
+      currentIndex.value = 0
+      stopRotation()
+      return
+    }
+
+    currentIndex.value = ((index % length.value) + length.value) % length.value
+    startRotation()
+  }
+
+  function rotateNext(): void {
+    if (length.value <= 1) {
+      return
+    }
+
+    currentIndex.value = (currentIndex.value + 1) % length.value
   }
 
   function startRotation(): void {
@@ -41,7 +62,7 @@ export function useAutoRotatingIndex(
     }
 
     timer = window.setInterval(() => {
-      next()
+      rotateNext()
     }, intervalMs)
   }
 
@@ -64,6 +85,7 @@ export function useAutoRotatingIndex(
   return {
     currentIndex,
     next,
-    previous
+    previous,
+    setIndex
   }
 }

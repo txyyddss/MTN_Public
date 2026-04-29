@@ -240,13 +240,13 @@ onUnmounted(() => {
 
 .feature-panel p {
   max-width: 62ch;
-  color: #667084;
+  color: #505b70;
   font-size: 1.06rem;
 }
 
 .feature-panel blockquote {
   margin: 0.5rem 0 0;
-  color: #8b95a7;
+  color: #586378;
   font-family: var(--heading);
   font-size: 1.1rem;
   font-style: italic;

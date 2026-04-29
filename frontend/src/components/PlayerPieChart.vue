@@ -30,7 +30,7 @@ async function initPieChart(): Promise<void> {
       datasets: [
         {
           data: props.oreStats.map((ore) => ore.mined),
-          backgroundColor: ['#4c93fb', '#72acff', '#2d6fd1', '#9bc4ff', '#d8e7ff', '#173d78'],
+          backgroundColor: ['#246fcf', '#5f9df0', '#1c5da9', '#9bc4ff', '#d8e7ff', '#173d78'],
           borderWidth: 0
         }
       ]
@@ -43,7 +43,7 @@ async function initPieChart(): Promise<void> {
           position: 'right',
           labels: {
             color: '#edf1f7',
-            font: { family: 'Instrument Sans' }
+            font: { family: 'system-ui' }
           }
         }
       }

@@ -7,6 +7,7 @@ import AppPreloader from '@/components/AppPreloader.vue'
 import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
 import ShellSideControls from '@/components/ShellSideControls.vue'
 import { usePreloader } from '@/composables/usePreloader'
+import { useSeoMeta } from '@/composables/useSeoMeta'
 import { formatPlayerCount, useSiteContent } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
 
@@ -17,6 +18,8 @@ const siteContent = useSiteContent()
 const { initPreloading, isReady } = usePreloader()
 const serverStatus = useServerStatusStore()
 const { status } = storeToRefs(serverStatus)
+
+useSeoMeta()
 
 const isLive = computed(() => Boolean(status.value?.java?.online))
 const shellStatus = computed(() =>

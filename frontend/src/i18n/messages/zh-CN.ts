@@ -17,6 +17,39 @@ const zhCN = {
         { id: 'wiki', label: '文档', to: 'https://docs.mcmtn.net/', external: true, emphasize: true }
       ]
     },
+    seo: {
+      siteName: 'MTNetwork',
+      default: {
+        title: 'MTNetwork | MTN 土豆服务器',
+        description: 'MTNetwork 土豆服务器是公益 Minecraft Java / Bedrock 互通社区生存服务器，提供实时状态、玩家档案与世界画廊。'
+      },
+      routes: {
+        home: {
+          title: 'MTNetwork | MTN 土豆服务器',
+          description: '加入 MTNetwork 土豆服务器，在长期运营的原版风味生存世界中体验 Java / Bedrock 互通、实时连接状态与社区共同记忆。'
+        },
+        gallery: {
+          title: '世界画廊 | MTNetwork',
+          description: '浏览经过优化的 MTNetwork 世界截图，查看 MTN 土豆服务器长期存档中的精彩瞬间。'
+        },
+        players: {
+          title: '玩家目录 | MTNetwork',
+          description: '搜索 MTNetwork 公开玩家档案、近期活动记录与土豆服务器社区玩家页面。'
+        },
+        playerDetail: {
+          title: '玩家档案 | MTNetwork',
+          description: '查看 MTNetwork 公开玩家档案，包括资料、进度摘要、成就与统计数据。'
+        },
+        whitelist: {
+          title: '白名单控制台 | MTNetwork',
+          description: 'MTNetwork 服务器运营使用的私有白名单工具。'
+        },
+        wiki: {
+          title: 'MTNetwork 文档',
+          description: '打开外部 MTNetwork 文档与玩法指南。'
+        }
+      }
+    },
     home: {
       hero: {
         eyebrow: '公益原版风味生存优化之服务器',
@@ -24,6 +57,8 @@ const zhCN = {
         tagline: '「公益神人土豆原版风味生存优化之服务器」',
         imageAlt: 'MTN 土豆服务器夜景建筑截图',
         projectLine: 'PROJECT MTN LONG-SEASON ARCHIVE',
+        jumpDetailsCta: '运行面板',
+        jumpJoinCta: 'QQ 群号',
         scrollCta: '滚动到介绍',
         accentLine: '土豆又发力了！！',
         body: '性能一般般，但足够朋友间一同玩耍。最近土豆变强了不少，大土豆会努力服务大家的～～',
@@ -103,8 +138,7 @@ const zhCN = {
       },
       featuresIntro: {
         kicker: '服务器与众不同的点在于',
-        title: '为长寿存档和真实乐趣服务。',
-        body: '公益跨版本互通、原版优先、多样玩法与社区规划，一起让这个世界更适合长期留下记忆。'
+        title: '为长寿存档和真实乐趣服务。'
       },
       featureMode: '系统',
       features: [
@@ -131,18 +165,6 @@ const zhCN = {
           description: '双版本无障碍互通【Je/be】，无论你喜欢哪一种版本都可以畅玩本服。',
           icon: '04',
           accent: 'copper'
-        },
-        {
-          title: '公益跨设备覆盖',
-          description: '完全公益跨版本互通，覆盖几乎所有设备，让更多玩家能进入同一个世界。',
-          icon: '05',
-          accent: 'moss'
-        },
-        {
-          title: '长周目与社区规划',
-          description: '规则不是为了处罚玩家，而是为了让存档更长寿，并用档案规划减少玩家纠纷。',
-          icon: '06',
-          accent: 'redstone'
         }
       ],
       featureBackdrops: ['HARDWARE', 'COMMUNITY', 'VANILLA', 'CROSSPLAY'],
@@ -170,7 +192,7 @@ const zhCN = {
             rows: [
               { label: '核心玩法', value: '生存 / 建筑 / 红石 / 冒险' },
               { label: '核心机制', value: '原版基底 + 实用插件' },
-              { label: '主题色', value: '#4C93FB MTN 蓝' },
+          { label: '主题色', value: '#246FCF MTN 蓝' },
               { label: '目标', value: '值得被记住的稳定世界' }
             ]
           }
@@ -215,13 +237,11 @@ const zhCN = {
       operational: '运行中',
       standby: '待机',
       historyTitle: '每周在线热力图',
-      historyHint: '基于实时采样器生成的最近 7 天逐小时在线情况。',
       historyLoading: '正在加载最近在线历史...',
       historyEmpty: '暂无活动',
       historyPeak: '峰值 {peak}',
       connectionTitle: '连接指南',
       connectionPanelTitle: '连接路由',
-      connectionLoading: '正在加载连接记录...',
       connectionHint: '如果设备和网络都支持，优先使用 IPv6。',
       javaTitle: 'Java 版',
       bedrockTitle: '基岩版',
@@ -277,7 +297,6 @@ const zhCN = {
         identityAria: '玩家身份详情',
         metricsAria: '玩家摘要指标'
       },
-      profileCardTitle: '档案',
       tabsAria: '玩家详情分区',
       tabs: {
         overview: '概览',
@@ -287,12 +306,7 @@ const zhCN = {
       summary: {
         onlineNow: '当前在线',
         archiveRecord: '档案记录',
-        linkedTo: '关联到',
-        playtime: '游玩时间',
         advancements: '进度',
-        skillTotal: 'McMMO 总等级',
-        skillLeaderboard: '技能榜排名',
-        xpLevel: '经验等级',
         bestRank: '最佳排名',
         ranks: '排行榜名次',
         noSkillData: '暂无公开技能数据',
@@ -341,8 +355,6 @@ const zhCN = {
       }
     },
     leaderboards: {
-      title: '排行榜',
-      body: '基于实时后端数据生成的排名。',
       kicker: '排行榜',
       loading: '正在刷新排行榜数据...',
       visibleEntries: '当前显示 {count} 条记录',

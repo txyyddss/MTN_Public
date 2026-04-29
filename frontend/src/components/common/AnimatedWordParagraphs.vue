@@ -99,8 +99,8 @@ const segmentedParagraphs = computed<ParagraphTokens[]>(() => {
       v-for="paragraph in segmentedParagraphs"
       :key="paragraph.id"
       class="animated-word-paragraphs__item"
-      :aria-label="paragraph.text"
     >
+      <span class="sr-only">{{ paragraph.text }}</span>
       <span
         v-for="(token, tokenIndex) in paragraph.tokens"
         :key="`${paragraph.id}-${tokenIndex}`"
@@ -122,6 +122,18 @@ const segmentedParagraphs = computed<ParagraphTokens[]>(() => {
 
 .animated-word-paragraphs__item {
   line-height: inherit;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .animated-word-paragraphs__word {

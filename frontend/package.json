@@ -4,7 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "assets:gallery": "node scripts/generate-gallery-assets.cjs",
+    "assets:seo": "node scripts/generate-seo-assets.cjs",
+    "predev": "npm run assets:gallery && npm run assets:seo",
     "dev": "vite",
+    "prebuild": "npm run assets:gallery && npm run assets:seo",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -15,7 +19,6 @@
     "svgo": "^4.0.1",
     "typescript": "~6.0.3",
     "vite": "^8.0.9",
-    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-image-optimizer": "^2.0.3",
     "vue-tsc": "^3.2.7"
   },

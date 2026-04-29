@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import homeHero from '@/assets/home-remake/home-hero.webp'
+import HeroImageCarousel from '@/components/home/HeroImageCarousel.vue'
 import { useSiteContent } from '@/content/siteContent'
 
 const siteContent = useSiteContent()
@@ -7,7 +7,12 @@ const siteContent = useSiteContent()
 
 <template>
   <section class="home-hero">
-    <img :src="homeHero" :alt="siteContent.home.hero.imageAlt" class="home-hero-image" />
+    <HeroImageCarousel
+      :image-alt="siteContent.home.hero.imageAlt"
+      :previous-label="siteContent.gallery.previousImage"
+      :next-label="siteContent.gallery.nextImage"
+      :frame-label="siteContent.gallery.frameLabel"
+    />
     <div class="home-hero-shade" aria-hidden="true"></div>
 
     <div class="home-hero-center">
@@ -15,8 +20,8 @@ const siteContent = useSiteContent()
       <p class="home-hero-tagline">{{ siteContent.home.hero.tagline }}</p>
       <p class="home-hero-project">{{ siteContent.home.hero.projectLine }}</p>
       <div class="hero-jump-actions">
-        <a class="hero-jump-btn" href="#details">运行面板</a>
-        <a class="hero-jump-btn hero-jump-btn--outline" href="#join-mtn">QQ 群号</a>
+        <a class="hero-jump-btn" href="#details">{{ siteContent.home.hero.jumpDetailsCta }}</a>
+        <a class="hero-jump-btn hero-jump-btn--outline" href="#join-mtn">{{ siteContent.home.hero.jumpJoinCta }}</a>
       </div>
     </div>
 
@@ -37,7 +42,6 @@ const siteContent = useSiteContent()
   color: #ffffff;
 }
 
-.home-hero-image,
 .home-hero-shade {
   position: absolute;
   inset: 0;
@@ -45,13 +49,9 @@ const siteContent = useSiteContent()
   height: 100%;
 }
 
-.home-hero-image {
-  object-fit: cover;
-  filter: saturate(0.78) brightness(0.62) contrast(1.08);
-  transform: scale(1.04);
-}
-
 .home-hero-shade {
+  z-index: 1;
+  pointer-events: none;
   background:
     linear-gradient(90deg, rgba(4, 8, 14, 0.74), rgba(4, 8, 14, 0.16) 46%, rgba(4, 8, 14, 0.72)),
     radial-gradient(circle at 50% 42%, rgba(76, 147, 251, 0.12), transparent 28%);
@@ -139,14 +139,14 @@ const siteContent = useSiteContent()
   padding: 0.6rem 1.5rem;
   border-radius: 999px;
   border: 1px solid rgba(146, 194, 255, 0.5);
-  background: #4c93fb;
+  background: var(--primary);
   color: #ffffff;
   font-family: var(--mono);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  box-shadow: 0 12px 32px rgba(76, 147, 251, 0.32);
+  box-shadow: 0 12px 32px rgba(36, 111, 207, 0.34);
   transition:
     transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
     background 0.18s cubic-bezier(0.2, 0, 0.2, 1),
@@ -155,8 +155,8 @@ const siteContent = useSiteContent()
 
 .hero-jump-btn:hover {
   transform: translateY(-2px);
-  background: #5aa0ff;
-  box-shadow: 0 16px 40px rgba(76, 147, 251, 0.42);
+  background: #1d5eaf;
+  box-shadow: 0 16px 40px rgba(36, 111, 207, 0.42);
 }
 
 .hero-jump-btn:active {

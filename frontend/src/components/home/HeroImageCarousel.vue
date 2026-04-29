@@ -1,0 +1,284 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+
+import galleryManifest from '@/assets/generated/gallery-manifest.json'
+import { useAutoRotatingIndex } from '@/composables/useAutoRotatingIndex'
+import { useMediaQuery } from '@/composables/useMediaQuery'
+
+interface GalleryImage {
+  id: string
+  label: string
+  thumb: string
+  large: string
+  thumbWidth: number
+  thumbHeight: number
+  width: number
+  height: number
+}
+
+const props = defineProps<{
+  imageAlt: string
+  previousLabel: string
+  nextLabel: string
+  frameLabel: string
+}>()
+
+const images = galleryManifest as GalleryImage[]
+const imageCount = computed(() => images.length)
+const { matches: prefersReducedMotion } = useMediaQuery('(prefers-reduced-motion: reduce)')
+const rotationEnabled = computed(() => !prefersReducedMotion.value && imageCount.value > 1)
+const { currentIndex, next, previous, setIndex } = useAutoRotatingIndex(imageCount, rotationEnabled, 5600)
+const currentImage = computed(() => images[currentIndex.value] ?? images[0] ?? null)
+const currentImageSrcset = computed(() => {
+  if (!currentImage.value) {
+    return ''
+  }
+
+  return `${currentImage.value.thumb} ${currentImage.value.thumbWidth}w, ${currentImage.value.large} ${currentImage.value.width}w`
+})
+const currentFrameLabel = computed(() => `${props.frameLabel} ${currentIndex.value + 1}`)
+
+function getImageAlt(index: number): string {
+  return `${props.imageAlt} - ${props.frameLabel} ${index + 1}`
+}
+
+</script>
+
+<template>
+  <div class="hero-carousel" :aria-label="imageAlt" aria-roledescription="carousel">
+    <Transition name="hero-carousel-fade">
+      <div v-if="currentImage" :key="currentImage.id" class="hero-carousel-slide">
+        <img
+          :src="currentImage.large"
+          :srcset="currentImageSrcset"
+          sizes="100vw"
+          :alt="getImageAlt(currentIndex)"
+          class="hero-carousel-image"
+          :class="{ 'hero-carousel-image--still': prefersReducedMotion }"
+          :width="currentImage.width"
+          :height="currentImage.height"
+          loading="eager"
+          decoding="async"
+          :fetchpriority="currentIndex === 0 ? 'high' : 'auto'"
+        />
+      </div>
+    </Transition>
+
+    <div v-if="imageCount > 1" class="hero-carousel-controls" :aria-label="currentFrameLabel">
+      <button class="hero-carousel-arrow hero-carousel-arrow--previous" type="button" :aria-label="previousLabel" @click="previous">
+        <span aria-hidden="true"></span>
+      </button>
+
+      <div class="hero-carousel-dots" aria-label="Gallery images">
+        <button
+          v-for="(_, index) in images"
+          :key="`hero-dot-${index}`"
+          type="button"
+          :class="['hero-carousel-dot', { active: index === currentIndex }]"
+          :aria-label="`${frameLabel} ${index + 1}`"
+          :aria-current="index === currentIndex ? 'true' : undefined"
+          @click="setIndex(index)"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <button class="hero-carousel-arrow hero-carousel-arrow--next" type="button" :aria-label="nextLabel" @click="next">
+        <span aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.hero-carousel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.hero-carousel-slide {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.hero-carousel-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.78) brightness(0.62) contrast(1.08);
+  animation: heroImageDrift 8.8s ease-in-out both;
+}
+
+.hero-carousel-image--still {
+  animation: none;
+  transform: scale(1.04);
+}
+
+.hero-carousel-fade-enter-active,
+.hero-carousel-fade-leave-active {
+  transition:
+    opacity 1.05s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.05s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-carousel-fade-enter-from {
+  opacity: 0;
+  transform: scale(1.018);
+}
+
+.hero-carousel-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.034);
+}
+
+.hero-carousel-controls {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(5.3rem, 9vh, 7rem);
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 2.8rem minmax(0, auto) 2.8rem;
+  align-items: center;
+  gap: 0.55rem;
+  width: min(34rem, calc(100vw - 2rem));
+  transform: translateX(-50%);
+}
+
+.hero-carousel-arrow,
+.hero-carousel-dot {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+  background: rgba(7, 12, 19, 0.36);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0, 0.2, 1),
+    border-color 0.18s cubic-bezier(0.2, 0, 0.2, 1),
+    background 0.18s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.hero-carousel-arrow {
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 999px;
+}
+
+.hero-carousel-arrow span {
+  width: 0.68rem;
+  height: 0.68rem;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+}
+
+.hero-carousel-arrow--previous span {
+  transform: translateX(0.12rem) rotate(-45deg);
+}
+
+.hero-carousel-arrow--next span {
+  transform: translateX(-0.12rem) rotate(135deg);
+}
+
+.hero-carousel-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  max-width: 100%;
+  height: 2.8rem;
+  padding: 0.42rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(7, 12, 19, 0.28);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+}
+
+.hero-carousel-dots::-webkit-scrollbar {
+  display: none;
+}
+
+.hero-carousel-dot {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.hero-carousel-dot span {
+  width: 0.26rem;
+  height: 0.26rem;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0.66;
+}
+
+.hero-carousel-dot.active {
+  width: 2rem;
+  border-color: rgba(146, 194, 255, 0.76);
+  background: rgba(76, 147, 251, 0.66);
+}
+
+.hero-carousel-arrow:hover,
+.hero-carousel-dot:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.48);
+  background: rgba(76, 147, 251, 0.52);
+}
+
+.hero-carousel-arrow:focus-visible,
+.hero-carousel-dot:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+}
+
+@keyframes heroImageDrift {
+  from {
+    transform: scale(1.04) translate3d(-0.4%, -0.28%, 0);
+  }
+
+  to {
+    transform: scale(1.09) translate3d(0.65%, 0.52%, 0);
+  }
+}
+
+@media (max-width: 680px) {
+  .hero-carousel-controls {
+    grid-template-columns: 2.55rem minmax(0, 1fr) 2.55rem;
+    bottom: 5rem;
+    gap: 0.45rem;
+    width: min(100%, calc(100vw - 1.25rem));
+  }
+
+  .hero-carousel-arrow {
+    width: 2.55rem;
+    height: 2.55rem;
+  }
+
+  .hero-carousel-dots {
+    height: 2.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-carousel-image {
+    animation: none;
+    transform: scale(1.04);
+  }
+
+  .hero-carousel-fade-enter-active,
+  .hero-carousel-fade-leave-active,
+  .hero-carousel-arrow,
+  .hero-carousel-dot {
+    transition: none;
+  }
+}
+</style>

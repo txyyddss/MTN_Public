@@ -22,8 +22,7 @@ const siteContent = useSiteContent()
             class="footer-social-link"
             :aria-label="link.label"
           >
-            <i v-if="link.label === 'Bilibili'" class="fa-brands fa-bilibili text-lg" aria-hidden="true"></i>
-            <span v-else>{{ link.short }}</span>
+            <span>{{ link.short }}</span>
           </a>
         </div>
       </div>
@@ -100,11 +99,6 @@ const siteContent = useSiteContent()
 .footer-socials a:hover {
   opacity: 0.5;
   transform: translateY(-0.25rem);
-}
-
-.footer-socials .text-lg {
-  font-size: 1.125rem;
-  line-height: 1;
 }
 
 .footer-links {

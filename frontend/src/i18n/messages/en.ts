@@ -26,6 +26,39 @@ const en = {
         { id: 'wiki', label: 'Documentation', to: 'https://docs.mcmtn.net/', external: true, emphasize: true }
       ]
     },
+    seo: {
+      siteName: 'MTNetwork',
+      default: {
+        title: 'MTNetwork | MTN Potato Server',
+        description: 'MTNetwork Potato Server is a non-profit Minecraft Java and Bedrock community survival server with live status, player records, and a world gallery.'
+      },
+      routes: {
+        home: {
+          title: 'MTNetwork | MTN Potato Server',
+          description: 'Join MTNetwork Potato Server for long-running vanilla-style survival, Java and Bedrock cross-play, live connection status, and shared community memories.'
+        },
+        gallery: {
+          title: 'World Gallery | MTNetwork',
+          description: 'Browse optimized MTNetwork world screenshots and captured moments from the long-running MTN Potato Server archive.'
+        },
+        players: {
+          title: 'Player Directory | MTNetwork',
+          description: 'Search MTNetwork public player records, recent activity, and linked archive pages for the MTN Potato Server community.'
+        },
+        playerDetail: {
+          title: 'Player Record | MTNetwork',
+          description: 'View a public MTNetwork player record with profile data, progression summaries, advancements, and statistics.'
+        },
+        whitelist: {
+          title: 'Whitelist Console | MTNetwork',
+          description: 'Private whitelist tools for MTNetwork server operators.'
+        },
+        wiki: {
+          title: 'MTNetwork Wiki',
+          description: 'Open the external MTNetwork documentation and gameplay guide.'
+        }
+      }
+    },
     home: {
       hero: {
         eyebrow: 'Non-profit vanilla-flavored optimized survival',
@@ -33,6 +66,8 @@ const en = {
         tagline: 'A community potato server for vanilla-style survival.',
         imageAlt: 'MTN Potato Server in-game build at night',
         projectLine: 'Project MTN long-season archive',
+        jumpDetailsCta: 'Status panel',
+        jumpJoinCta: 'QQ group',
         scrollCta: 'Scroll to introduction',
         accentLine: 'The potato is pushing harder again.',
         body: 'The hardware is modest, but it is enough for friends to play together. The potato has grown stronger recently, and it keeps working for everyone.',
@@ -112,8 +147,7 @@ const en = {
       },
       featuresIntro: {
         kicker: 'What makes the server different',
-        title: 'Built for a longer-lived world.',
-        body: 'Non-profit cross-version access, vanilla-first survival, varied gameplay, and community planning all support a world worth remembering.'
+        title: 'Built for a longer-lived world.'
       },
       featureMode: 'System',
       features: [
@@ -140,18 +174,6 @@ const en = {
           description: 'Java and Bedrock can both join smoothly, so players can use the edition they prefer.',
           icon: '04',
           accent: 'copper'
-        },
-        {
-          title: 'Non-profit device coverage',
-          description: 'Cross-version support covers nearly every device while keeping the server public-benefit oriented.',
-          icon: '05',
-          accent: 'moss'
-        },
-        {
-          title: 'Long seasons and planning',
-          description: 'Rules and documented community planning help the save live longer and reduce player disputes.',
-          icon: '06',
-          accent: 'redstone'
         }
       ],
       featureBackdrops: ['HARDWARE', 'COMMUNITY', 'VANILLA', 'CROSSPLAY'],
@@ -179,7 +201,7 @@ const en = {
             rows: [
               { label: 'Core play', value: 'Survival / building / redstone / adventure' },
               { label: 'Mechanics', value: 'Vanilla baseline with practical plugins' },
-              { label: 'Theme color', value: '#4C93FB MTN blue' },
+          { label: 'Theme color', value: '#246FCF MTN blue' },
               { label: 'Goal', value: 'A stable world worth remembering' }
             ]
           }
@@ -224,13 +246,11 @@ const en = {
       operational: 'Operational',
       standby: 'Standby',
       historyTitle: 'Weekly online heatmap',
-      historyHint: 'Rolling 7-day hourly presence based on the live sampler.',
       historyLoading: 'Loading recent online history...',
       historyEmpty: 'No activity',
       historyPeak: 'Peak {peak}',
       connectionTitle: 'Connection guide',
       connectionPanelTitle: 'Connection routing',
-      connectionLoading: 'Loading connection records...',
       connectionHint: 'Prefer IPv6 when your device and network support it.',
       javaTitle: 'Java Edition',
       bedrockTitle: 'Bedrock Edition',
@@ -286,7 +306,6 @@ const en = {
         identityAria: 'Player identity details',
         metricsAria: 'Player summary metrics'
       },
-      profileCardTitle: 'Profile',
       tabsAria: 'Player detail sections',
       tabs: {
         overview: 'Overview',
@@ -296,12 +315,7 @@ const en = {
       summary: {
         onlineNow: 'Online now',
         archiveRecord: 'Archive record',
-        linkedTo: 'Linked to',
-        playtime: 'Playtime',
         advancements: 'Advancements',
-        skillTotal: 'McMMO Total',
-        skillLeaderboard: 'Skill leaderboard',
-        xpLevel: 'XP Level',
         bestRank: 'Best Rank',
         ranks: 'Leaderboard ranks',
         noSkillData: 'No public skill data',
@@ -350,8 +364,6 @@ const en = {
       }
     },
     leaderboards: {
-      title: 'Leaderboards',
-      body: 'Rankings generated from live backend data.',
       kicker: 'Leaderboard',
       loading: 'Refreshing leaderboard data...',
       visibleEntries: '{count} visible entries',

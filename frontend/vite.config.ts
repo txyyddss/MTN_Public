@@ -3,7 +3,6 @@ import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import viteCompression from 'vite-plugin-compression'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 
 const _dirname = typeof __dirname !== 'undefined'
@@ -17,8 +16,8 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [
             vue(),
-            viteCompression(),
             ViteImageOptimizer({
+                includePublic: false,
                 webp: {
                     quality: 80,
                 },

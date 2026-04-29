@@ -72,7 +72,7 @@ const siteContent = useSiteContent()
 
 .cta-shell p {
   max-width: 58ch;
-  color: rgba(255, 255, 255, 0.86);
+  color: #ffffff;
 }
 
 .cta-actions {
@@ -86,18 +86,18 @@ const siteContent = useSiteContent()
 .cta-actions .btn-primary {
   border-color: rgba(255, 255, 255, 0.42);
   background: #ffffff;
-  color: var(--primary);
+  color: #1b5ca9;
   box-shadow: 0 20px 44px rgba(16, 24, 39, 0.18);
 }
 
 .cta-actions .btn-secondary {
   border-color: rgba(255, 255, 255, 0.46);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(15, 41, 82, 0.28);
   color: #ffffff;
 }
 
 .cta-shell small {
-  color: rgba(255, 255, 255, 0.72);
+  color: #ffffff;
   font-family: var(--mono);
 }
 
