@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 
 import galleryManifest from '@/assets/generated/gallery-manifest.json'
 import { useAutoRotatingIndex } from '@/composables/useAutoRotatingIndex'
@@ -44,6 +44,8 @@ const currentFrameLabel = computed(() => `${props.frameLabel} ${currentIndex.val
 const highPriorityImageId = computed(() => images[initialIndex]?.id ?? images[0]?.id ?? '')
 const dotsRef = useTemplateRef<HTMLDivElement>('dots')
 const dotRefs = useTemplateRef<HTMLButtonElement[]>('dot')
+const dotScrollGutter = 10
+let dotsResizeObserver: ResizeObserver | null = null
 
 function getImageAlt(index: number): string {
   return `${props.imageAlt} - ${props.frameLabel} ${index + 1}`
@@ -53,7 +55,7 @@ function formatDotIndex(index: number): string {
   return String(index + 1).padStart(2, '0')
 }
 
-function centerActiveDot(): void {
+function keepActiveDotVisible(): void {
   void nextTick(() => {
     const dots = dotsRef.value
     const activeDot = dotRefs.value?.[currentIndex.value]
@@ -62,19 +64,58 @@ function centerActiveDot(): void {
       return
     }
 
-    const targetLeft = activeDot.offsetLeft - dots.clientWidth / 2 + activeDot.offsetWidth / 2
     const maxLeft = Math.max(0, dots.scrollWidth - dots.clientWidth)
-    const centeredLeft = Math.min(Math.max(targetLeft, 0), maxLeft)
+    if (maxLeft <= 0) {
+      if (dots.scrollLeft !== 0) {
+        dots.scrollTo({ left: 0, behavior: 'auto' })
+      }
+      return
+    }
+
+    const visibleLeft = dots.scrollLeft
+    const visibleRight = visibleLeft + dots.clientWidth
+    const dotLeft = activeDot.offsetLeft
+    const dotRight = dotLeft + activeDot.offsetWidth
+    let targetLeft = visibleLeft
+
+    if (dotLeft < visibleLeft + dotScrollGutter) {
+      targetLeft = dotLeft - dotScrollGutter
+    } else if (dotRight > visibleRight - dotScrollGutter) {
+      targetLeft = dotRight - dots.clientWidth + dotScrollGutter
+    }
+
+    const clampedLeft = Math.min(Math.max(targetLeft, 0), maxLeft)
+
+    if (Math.abs(clampedLeft - visibleLeft) < 1) {
+      return
+    }
 
     dots.scrollTo({
-      left: centeredLeft,
+      left: clampedLeft,
       behavior: 'auto'
     })
   })
 }
 
-watch(currentIndex, centerActiveDot, { flush: 'post' })
-onMounted(centerActiveDot)
+watch(currentIndex, keepActiveDotVisible, { flush: 'post' })
+
+onMounted(() => {
+  keepActiveDotVisible()
+
+  if (typeof ResizeObserver === 'undefined' || !dotsRef.value) {
+    return
+  }
+
+  dotsResizeObserver = new ResizeObserver(() => {
+    keepActiveDotVisible()
+  })
+  dotsResizeObserver.observe(dotsRef.value)
+})
+
+onUnmounted(() => {
+  dotsResizeObserver?.disconnect()
+  dotsResizeObserver = null
+})
 </script>
 
 <template>
@@ -233,12 +274,6 @@ onMounted(centerActiveDot)
   background: rgba(3, 8, 18, 0.48);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
   backdrop-filter: saturate(155%) blur(18px);
-}
-
-.hero-carousel-dots::before,
-.hero-carousel-dots::after {
-  content: '';
-  flex: 0 0 calc(50% - 1.225rem);
 }
 
 .hero-carousel-dots::-webkit-scrollbar {

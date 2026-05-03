@@ -50,10 +50,8 @@ function handleImageError(event: Event): void {
   align-items: center;
   padding: 0.76rem 0.86rem;
   border-radius: 18px;
-  border: 1px solid var(--glass-border-soft);
-  background:
-    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
-    rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--player-glass-border-soft);
+  background: var(--player-glass-tile-bg);
   box-shadow: var(--glass-inset);
   width: 100%;
   color: inherit;
@@ -66,8 +64,8 @@ function handleImageError(event: Event): void {
 
 .stat-box.clickable:hover {
   transform: translateY(-1px);
-  border-color: var(--glass-border-strong);
-  background: var(--glass-bg-hover);
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-tile-bg-hover);
 }
 
 .stat-icon-wrap {

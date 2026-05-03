@@ -1,23 +1,23 @@
-import { computed, ref, toValue, watch, type MaybeRefOrGetter } from 'vue'
+import { computed, shallowRef, toValue, watch, type MaybeRefOrGetter } from 'vue'
 
 import { API_BASE_URL } from '@/config'
 import { fetchWithCache } from '@/utils/dataCache'
 import type { PlayerInfo, PlayerListResponse } from '@/types/api'
 
 export function usePlayers(onlinePlayerIds: MaybeRefOrGetter<string[]> = []) {
-  const players = ref<PlayerInfo[]>([])
-  const count = ref(0)
-  const activeDays = ref(0)
-  const searchQuery = ref('')
-  const showAll = ref(false)
-  const loading = ref(true)
+  const players = shallowRef<PlayerInfo[]>([])
+  const count = shallowRef(0)
+  const activeDays = shallowRef(0)
+  const searchQuery = shallowRef('')
+  const showAll = shallowRef(false)
+  const loading = shallowRef(true)
 
   const sortedPlayers = computed(() => {
-    const online = toValue(onlinePlayerIds)
+    const online = new Set(toValue(onlinePlayerIds))
 
     return [...players.value].sort((left, right) => {
-      const leftOnline = online.includes(left.uuid)
-      const rightOnline = online.includes(right.uuid)
+      const leftOnline = online.has(left.uuid)
+      const rightOnline = online.has(right.uuid)
 
       if (leftOnline !== rightOnline) {
         return leftOnline ? -1 : 1

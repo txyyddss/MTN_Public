@@ -117,7 +117,7 @@ function selectLeaderboard(target: LeaderboardTarget): void {
 </script>
 
 <template>
-  <section class="glass-card detail-hero animate-entry">
+  <section class="glass-card detail-hero player-glass-card player-glass-reveal">
     <span class="detail-header-mark" aria-hidden="true">MTN</span>
 
     <div class="detail-hero-layout">
@@ -200,7 +200,9 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   isolation: isolate;
   display: grid;
   gap: 1rem;
-  border-color: var(--glass-border);
+  border-color: var(--player-glass-border);
+  background: var(--player-glass-bg);
+  box-shadow: var(--player-glass-shadow), var(--glass-inset);
   padding: 1.35rem;
 }
 
@@ -237,11 +239,9 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   min-height: 292px;
   place-items: center;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--player-glass-border-soft);
   border-radius: 18px;
-  background:
-    radial-gradient(circle at 50% 92%, rgba(var(--secondary-rgb), 0.18), transparent 42%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
+  background: var(--player-glass-tile-bg);
   box-shadow: var(--glass-inset);
 }
 
@@ -275,7 +275,7 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   padding: 0.42rem 0.68rem;
   border: 1px solid var(--chip-border);
   border-radius: 999px;
-  background: var(--chip-bg);
+  background: rgba(var(--secondary-rgb), 0.1);
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -313,9 +313,10 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--player-glass-border-soft);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--player-glass-tile-bg);
+  box-shadow: var(--glass-inset);
 }
 
 .hero-metric {
@@ -342,7 +343,7 @@ function selectLeaderboard(target: LeaderboardTarget): void {
 }
 
 .hero-metric-action:hover {
-  background: rgba(var(--secondary-rgb), 0.08);
+  background: var(--player-glass-tile-bg-hover);
   color: var(--text-strong);
 }
 
@@ -387,8 +388,11 @@ function selectLeaderboard(target: LeaderboardTarget): void {
   gap: 0.28rem;
   min-width: 0;
   padding: 0.68rem 0.78rem;
-  border-left: 1px solid rgba(141, 184, 255, 0.28);
-  background: linear-gradient(90deg, rgba(var(--secondary-rgb), 0.065), rgba(255, 255, 255, 0.018));
+  border: 1px solid var(--player-glass-border-soft);
+  border-left-color: rgba(141, 184, 255, 0.28);
+  border-radius: 14px;
+  background: var(--player-glass-tile-bg);
+  box-shadow: var(--glass-inset);
 }
 
 .identity-value {

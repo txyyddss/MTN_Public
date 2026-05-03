@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import { getAdvancementTypeLabel, useSiteContent } from '@/content/siteContent'
 import type { AdvancementMetadata, PlayerAdvancement } from '@/types/api'
 
-defineProps<{
+const props = defineProps<{
   advancements: PlayerAdvancement[] | null
   completedAdvancements: number
   totalAdvancements: number
@@ -13,6 +15,22 @@ defineProps<{
 }>()
 
 const siteContent = useSiteContent()
+const hasAdvancements = computed(() => (props.advancements?.length ?? 0) > 0)
+const advancementSections = computed(() =>
+  Object.entries(props.categorizedAdvancements).map(([category, items]) => ({
+    category,
+    items: items.map((advancement) => {
+      const metadata = props.getAdvancementMetadata(advancement.key)
+
+      return {
+        key: advancement.key,
+        metadata,
+        iconPath: props.getAdvIconPath(advancement.key),
+        typeLabel: getAdvancementTypeLabel(metadata.type)
+      }
+    })
+  }))
+)
 
 function handleImageError(event: Event): void {
   const image = event.target as HTMLImageElement | null
@@ -24,20 +42,20 @@ function handleImageError(event: Event): void {
 
 <template>
   <PlayerCollapsiblePanel
-    v-if="advancements && advancements.length > 0"
+    v-if="hasAdvancements"
     class="panel-card"
     :title="siteContent.playerDetail.sections.advancements"
   >
-    <div v-for="(items, category) in categorizedAdvancements" :key="category" class="advancement-section">
-      <h4>{{ category }}</h4>
+    <div v-for="section in advancementSections" :key="section.category" class="advancement-section">
+      <h4>{{ section.category }}</h4>
       <div class="advancement-grid">
-        <article v-for="advancement in items" :key="advancement.key" class="advancement-card">
-          <div :class="['icon-wrap', getAdvancementMetadata(advancement.key).type]">
-            <img :src="getAdvIconPath(advancement.key)" :alt="getAdvancementMetadata(advancement.key).name" @error="handleImageError" />
+        <article v-for="advancement in section.items" :key="advancement.key" class="advancement-card">
+          <div :class="['icon-wrap', advancement.metadata.type]">
+            <img :src="advancement.iconPath" :alt="advancement.metadata.name" @error="handleImageError" />
           </div>
           <div class="advancement-copy">
-            <strong>{{ getAdvancementMetadata(advancement.key).name }}</strong>
-            <small>{{ getAdvancementTypeLabel(getAdvancementMetadata(advancement.key).type) }}</small>
+            <strong>{{ advancement.metadata.name }}</strong>
+            <small>{{ advancement.typeLabel }}</small>
           </div>
         </article>
       </div>
@@ -71,10 +89,8 @@ function handleImageError(event: Event): void {
   gap: 0.7rem;
   padding: 0.76rem 0.86rem;
   border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
-    rgba(255, 255, 255, 0.035);
-  border: 1px solid var(--glass-border-soft);
+  background: var(--player-glass-tile-bg);
+  border: 1px solid var(--player-glass-border-soft);
   box-shadow: var(--glass-inset);
   align-items: center;
   transition:
@@ -85,8 +101,8 @@ function handleImageError(event: Event): void {
 
 .advancement-card:hover {
   transform: translateY(-1px);
-  border-color: var(--glass-border-strong);
-  background: var(--glass-bg-hover);
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-tile-bg-hover);
 }
 
 .icon-wrap {
@@ -96,7 +112,7 @@ function handleImageError(event: Event): void {
   place-items: center;
   border-radius: 14px;
   background: rgba(var(--secondary-rgb), 0.08);
-  border: 1px solid var(--glass-border-soft);
+  border: 1px solid var(--player-glass-border-soft);
   flex-shrink: 0;
 }
 

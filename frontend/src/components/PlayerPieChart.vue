@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { nextTick, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
+import type { Chart, ChartData, ChartOptions } from 'chart.js'
 
 import PlayerCollapsiblePanel from '@/components/player/PlayerCollapsiblePanel.vue'
 import { getLocaleValue, getOreLabel, useCurrentLocale, useSiteContent } from '@/content/siteContent'
@@ -10,63 +11,119 @@ const props = defineProps<{
 }>()
 
 const pieChartCanvas = ref<HTMLCanvasElement | null>(null)
-let chartInstance: import('chart.js').Chart | null = null
+type PieChart = Chart<'pie', number[], string>
+type ChartConstructor = typeof import('chart.js/auto')['default']
+
+let chartInstance: PieChart | null = null
+let chartLoader: Promise<ChartConstructor> | null = null
+let chartRenderToken = 0
 const siteContent = useSiteContent()
 const currentLocale = useCurrentLocale()
+const visibleOreStats = computed(() => props.oreStats.slice(0, 8))
 
-async function initPieChart(): Promise<void> {
-  if (!pieChartCanvas.value || props.oreStats.length === 0) {
-    return
+function loadChart(): Promise<ChartConstructor> {
+  chartLoader ??= import('chart.js/auto').then((module) => module.default)
+  return chartLoader
+}
+
+function getCssVar(name: string, fallback: string): string {
+  if (typeof window === 'undefined') {
+    return fallback
   }
 
-  const { default: Chart } = await import('chart.js/auto')
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
+}
 
-  chartInstance?.destroy()
+function getChartColors(): string[] {
+  const primaryRgb = getCssVar('--primary-rgb', '91, 113, 246')
+  const secondaryRgb = getCssVar('--secondary-rgb', '59, 130, 246')
 
-  chartInstance = new Chart(pieChartCanvas.value, {
-    type: 'pie',
-    data: {
-      labels: props.oreStats.map((ore) => getOreLabel(ore.name)),
-      datasets: [
-        {
-          data: props.oreStats.map((ore) => ore.mined),
-          backgroundColor: ['#5b71f6', '#3b82f6', '#7aa7ff', '#93c5fd', '#c9dcff', '#10275f'],
-          borderWidth: 0
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: {
-            color: '#edf4ff',
-            font: { family: 'system-ui' }
-          }
+  return [
+    getCssVar('--primary', '#5b71f6'),
+    getCssVar('--secondary', '#3b82f6'),
+    getCssVar('--accent', '#93c5fd'),
+    getCssVar('--accent-soft', '#c9dcff'),
+    `rgba(${primaryRgb}, 0.74)`,
+    `rgba(${secondaryRgb}, 0.48)`
+  ]
+}
+
+function createChartData(): ChartData<'pie', number[], string> {
+  return {
+    labels: props.oreStats.map((ore) => getOreLabel(ore.name)),
+    datasets: [
+      {
+        data: props.oreStats.map((ore) => ore.mined),
+        backgroundColor: getChartColors(),
+        borderWidth: 0
+      }
+    ]
+  }
+}
+
+function createChartOptions(): ChartOptions<'pie'> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          color: getCssVar('--text-main', '#edf4ff'),
+          font: { family: getCssVar('--sans', 'system-ui') }
         }
       }
     }
-  })
+  }
+}
+
+async function syncPieChart(): Promise<void> {
+  const token = ++chartRenderToken
+
+  if (!pieChartCanvas.value || props.oreStats.length === 0) {
+    chartInstance?.destroy()
+    chartInstance = null
+    return
+  }
+
+  const Chart = await loadChart()
+
+  if (token !== chartRenderToken || !pieChartCanvas.value) {
+    return
+  }
+
+  if (!chartInstance) {
+    chartInstance = new Chart(pieChartCanvas.value, {
+      type: 'pie',
+      data: createChartData(),
+      options: createChartOptions()
+    })
+    return
+  }
+
+  chartInstance.data = createChartData()
+  chartInstance.options = createChartOptions()
+  chartInstance.update()
 }
 
 watch(
   () => props.oreStats,
   async () => {
     await nextTick()
-    await initPieChart()
+    await syncPieChart()
   },
   { deep: true, immediate: true }
 )
 
 watch(currentLocale, async () => {
   await nextTick()
-  await initPieChart()
+  await syncPieChart()
 })
 
 onUnmounted(() => {
+  chartRenderToken++
   chartInstance?.destroy()
+  chartInstance = null
 })
 
 function formatNumber(value: number): string {
@@ -90,7 +147,7 @@ function formatNumber(value: number): string {
         <canvas ref="pieChartCanvas"></canvas>
       </div>
       <div class="ore-list">
-        <div v-for="ore in oreStats.slice(0, 8)" :key="ore.name" class="ore-row">
+        <div v-for="ore in visibleOreStats" :key="ore.name" class="ore-row">
           <span>{{ getOreLabel(ore.name) }}</span>
           <strong>{{ formatNumber(ore.mined) }}</strong>
         </div>
@@ -128,10 +185,8 @@ function formatNumber(value: number): string {
   gap: 1rem;
   padding: 0.75rem 0.85rem;
   border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
-    rgba(255, 255, 255, 0.035);
-  border: 1px solid var(--glass-border-soft);
+  background: var(--player-glass-tile-bg);
+  border: 1px solid var(--player-glass-border-soft);
   box-shadow: var(--glass-inset);
 }
 
@@ -149,8 +204,8 @@ function formatNumber(value: number): string {
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
-  border: 1px solid var(--chip-border);
-  background: var(--chip-bg);
+  border: 1px solid var(--player-glass-border-soft);
+  background: rgba(var(--secondary-rgb), 0.1);
 }
 
 @media (max-width: 860px) {

@@ -57,8 +57,9 @@ const tabOptions = computed<PlayerDetailTabOption[]>(() => [
 ])
 
 const onlinePlayers = computed(() => status.value?.online_players ?? [])
-const isOnline = computed(() => onlinePlayers.value.includes(uuid.value))
-const isLeaderboardPlayerOnline = (playerUuid: string): boolean => onlinePlayers.value.includes(playerUuid)
+const onlinePlayerSet = computed(() => new Set(onlinePlayers.value))
+const isOnline = computed(() => onlinePlayerSet.value.has(uuid.value))
+const isLeaderboardPlayerOnline = (playerUuid: string): boolean => onlinePlayerSet.value.has(playerUuid)
 
 const filteredStats = computed(() => getFilteredStats(selectedCategory.value, statSearch.value))
 const filteredMcmmo = computed(() => getFilteredMcmmo(mcmmo.value))
@@ -189,7 +190,7 @@ function closeLeaderboard(): void {
 <template>
   <div class="player-detail container page-shell route-page-shell">
     <div v-if="loading" class="detail-loading-stack" aria-hidden="true">
-      <DossierLoadingPanel class="detail-loading-hero" label="MTN PLAYER DOSSIER">
+      <DossierLoadingPanel class="detail-loading-hero player-glass-panel player-glass-reveal" label="MTN PLAYER DOSSIER">
         <span class="skeleton-line skeleton-title-line"></span>
         <span class="skeleton-line skeleton-name-line"></span>
         <span class="skeleton-line skeleton-copy-line"></span>
@@ -200,18 +201,27 @@ function closeLeaderboard(): void {
         </div>
       </DossierLoadingPanel>
 
-      <DossierLoadingPanel class="detail-tabs-skeleton" label="PROFILE TABS" compact>
+      <DossierLoadingPanel
+        class="detail-tabs-skeleton player-glass-panel player-glass-reveal-soft"
+        label="PROFILE TABS"
+        compact
+        :style="{ '--player-motion-delay': '0.08s' }"
+      >
         <span v-for="index in 3" :key="index" class="skeleton-block detail-tab-skeleton"></span>
       </DossierLoadingPanel>
 
-      <DossierLoadingPanel class="detail-panel-skeleton" label="ARCHIVE STREAM">
+      <DossierLoadingPanel
+        class="detail-panel-skeleton player-glass-panel player-glass-reveal-soft"
+        label="ARCHIVE STREAM"
+        :style="{ '--player-motion-delay': '0.14s' }"
+      >
         <div class="detail-skeleton-grid">
           <span v-for="index in 6" :key="index" class="skeleton-block detail-card-skeleton"></span>
         </div>
       </DossierLoadingPanel>
     </div>
 
-    <div v-else-if="!info" class="glass-card state-card">
+    <div v-else-if="!info" class="glass-card state-card player-glass-panel player-glass-reveal">
       <h1>{{ siteContent.playerDetail.emptyTitle }}</h1>
       <p>{{ siteContent.playerDetail.emptyBody }}</p>
       <RouterLink class="btn-primary" to="/players">{{ siteContent.playerDetail.back }}</RouterLink>
@@ -292,6 +302,22 @@ function closeLeaderboard(): void {
   gap: 1rem;
 }
 
+.player-detail :deep(.player-glass-panel),
+.player-detail :deep(.player-glass-card) {
+  border-color: var(--player-glass-border);
+  background: var(--player-glass-bg);
+  box-shadow: var(--player-glass-shadow), var(--glass-inset);
+}
+
+.player-detail :deep(.player-glass-panel:hover),
+.player-detail :deep(.player-glass-card:hover),
+.player-detail :deep(.player-glass-panel:focus-within),
+.player-detail :deep(.player-glass-card:focus-within) {
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-bg-hover);
+  box-shadow: var(--player-glass-shadow-hover), var(--glass-inset);
+}
+
 .tab-panel {
   align-items: start;
 }
@@ -300,6 +326,7 @@ function closeLeaderboard(): void {
   display: grid;
   gap: 0.85rem;
   padding: 1.4rem;
+  border-color: var(--player-glass-border);
 }
 
 .detail-loading-hero,
@@ -318,6 +345,7 @@ function closeLeaderboard(): void {
 .detail-tab-skeleton {
   min-height: 3rem;
   border-radius: 18px;
+  background: var(--player-glass-tile-bg);
 }
 
 .detail-skeleton-badges {
@@ -348,6 +376,7 @@ function closeLeaderboard(): void {
 .detail-card-skeleton {
   min-height: 8rem;
   border-radius: 18px;
+  background: var(--player-glass-tile-bg);
 }
 
 .detail-loading-hero {

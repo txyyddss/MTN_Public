@@ -28,10 +28,10 @@ const siteContent = useSiteContent()
     ref="overviewSection"
     :class="['overview-dashboard', 'scroll-reveal', { 'is-revealed': revealed }]"
   >
-    <PlayerPieChart class="overview-panel overview-panel-ores hover-rise" :ore-stats="oreStats" />
+    <PlayerPieChart class="overview-panel overview-panel-ores player-glass-lift" :ore-stats="oreStats" />
 
     <PlayerCollapsiblePanel
-      class="overview-panel overview-panel-history hover-rise"
+      class="overview-panel overview-panel-history player-glass-lift"
       :title="siteContent.playerDetail.sections.onlineHistory"
     >
       <template #summary>
@@ -50,7 +50,7 @@ const siteContent = useSiteContent()
     </PlayerCollapsiblePanel>
 
     <PlayerSkills
-      class="overview-panel overview-panel-skills hover-rise"
+      class="overview-panel overview-panel-skills player-glass-lift"
       :mcmmo="mcmmo"
       :ranks="ranks"
       :filtered-mcmmo="filteredMcmmo"
@@ -81,8 +81,8 @@ const siteContent = useSiteContent()
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
-  border: 1px solid var(--chip-border);
-  background: var(--chip-bg);
+  border: 1px solid var(--player-glass-border-soft);
+  background: rgba(var(--secondary-rgb), 0.1);
 }
 
 .empty-copy {

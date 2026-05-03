@@ -1,4 +1,4 @@
-import { ref, toValue, watch, type MaybeRefOrGetter } from 'vue'
+import { shallowRef, toValue, watch, type MaybeRefOrGetter } from 'vue'
 
 import { API_BASE_URL } from '@/config'
 import { fetchWithCache } from '@/utils/dataCache'
@@ -15,16 +15,16 @@ import type {
 } from '@/types/api'
 
 export function usePlayerDetail(uuid: MaybeRefOrGetter<string>) {
-  const loading = ref(true)
-  const info = ref<PlayerInfo | null>(null)
-  const stats = ref<PlayerStatBuckets | null>(null)
-  const advancements = ref<PlayerAdvancement[] | null>(null)
-  const mcmmo = ref<McMMOSkills | null>(null)
-  const linkedAccount = ref<LinkedAccount | null>(null)
-  const whitelistAccount = ref<WhitelistAccount | null>(null)
-  const oreStats = ref<OreStat[]>([])
-  const ranks = ref<Record<string, number>>({})
-  const onlineHeatmap = ref<PlayerOnlineHeatmap | null>(null)
+  const loading = shallowRef(true)
+  const info = shallowRef<PlayerInfo | null>(null)
+  const stats = shallowRef<PlayerStatBuckets | null>(null)
+  const advancements = shallowRef<PlayerAdvancement[] | null>(null)
+  const mcmmo = shallowRef<McMMOSkills | null>(null)
+  const linkedAccount = shallowRef<LinkedAccount | null>(null)
+  const whitelistAccount = shallowRef<WhitelistAccount | null>(null)
+  const oreStats = shallowRef<OreStat[]>([])
+  const ranks = shallowRef<Record<string, number>>({})
+  const onlineHeatmap = shallowRef<PlayerOnlineHeatmap | null>(null)
 
   async function fetchDetail(playerUuid = toValue(uuid)): Promise<void> {
     if (!playerUuid) {

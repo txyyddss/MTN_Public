@@ -11,7 +11,7 @@ const siteContent = useSiteContent()
 </script>
 
 <template>
-  <nav class="detail-tabs glass-card animate-entry-soft" :aria-label="siteContent.playerDetail.tabsAria">
+  <nav class="detail-tabs glass-card player-glass-card player-glass-reveal-soft" :aria-label="siteContent.playerDetail.tabsAria">
     <button
       v-for="tab in tabs"
       :key="tab.value"
@@ -30,15 +30,18 @@ const siteContent = useSiteContent()
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.55rem;
   padding: 0.55rem;
+  border-color: var(--player-glass-border);
+  background: var(--player-glass-bg);
+  box-shadow: var(--player-glass-shadow), var(--glass-inset);
 }
 
 .detail-tab {
   position: relative;
   overflow: hidden;
   min-height: 3rem;
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--player-glass-border-soft);
   border-radius: 18px;
-  background: var(--control-bg);
+  background: var(--player-glass-tile-bg);
   color: var(--control-text);
   padding: 0.75rem 0.9rem;
   text-align: center;
@@ -63,15 +66,18 @@ const siteContent = useSiteContent()
 
 .detail-tab:hover {
   color: var(--control-text-hover);
-  border-color: var(--control-border-hover);
-  background: var(--control-bg-hover);
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-tile-bg-hover);
   transform: translateY(-1px);
 }
 
 .detail-tab.active {
   border-color: var(--control-border-active);
-  background: var(--control-bg-active);
+  background:
+    linear-gradient(135deg, rgba(var(--primary-rgb), 0.24), rgba(var(--secondary-rgb), 0.11)),
+    rgba(255, 255, 255, 0.05);
   color: var(--control-text-active);
+  box-shadow: var(--glass-inset), 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
 .detail-tab.active::after {

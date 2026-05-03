@@ -147,7 +147,7 @@ function getTooltip(day: HeatmapDay, hourLabel: number, value: number | boolean)
   width: 1.2rem;
   height: 1.2rem;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--player-glass-border-soft);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 </style>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const props = defineProps<{
   name: string
   level: number
@@ -11,7 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const maxLevel = 1000
-const progress = Math.min((props.level / maxLevel) * 100, 100)
+const progress = computed(() => Math.min((props.level / maxLevel) * 100, 100))
 </script>
 
 <template>
@@ -33,10 +35,8 @@ const progress = Math.min((props.level / maxLevel) * 100, 100)
   align-items: center;
   padding: 0.72rem 0.85rem;
   border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
-    rgba(255, 255, 255, 0.035);
-  border: 1px solid var(--glass-border-soft);
+  background: var(--player-glass-tile-bg);
+  border: 1px solid var(--player-glass-border-soft);
   box-shadow: var(--glass-inset);
   width: 100%;
   color: inherit;
@@ -49,8 +49,8 @@ const progress = Math.min((props.level / maxLevel) * 100, 100)
 
 .skill-row.clickable:hover {
   transform: translateY(-1px);
-  border-color: var(--glass-border-strong);
-  background: var(--glass-bg-hover);
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-tile-bg-hover);
 }
 
 .skill-name {

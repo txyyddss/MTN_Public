@@ -11,7 +11,7 @@ const props = withDefaults(
 </script>
 
 <template>
-  <section :class="['glass-card', 'collapsible-panel', 'animate-entry-soft', { sticky: props.sticky }]">
+  <section :class="['glass-card', 'collapsible-panel', 'player-glass-card', 'player-glass-reveal-soft', { sticky: props.sticky }]">
     <header class="panel-header">
       <div class="panel-heading">
         <h3 class="panel-title">{{ props.title }}</h3>
@@ -32,6 +32,9 @@ const props = withDefaults(
 .collapsible-panel {
   display: grid;
   gap: 0.85rem;
+  border-color: var(--player-glass-border);
+  background: var(--player-glass-bg);
+  box-shadow: var(--player-glass-shadow), var(--glass-inset);
 }
 
 .collapsible-panel.sticky {

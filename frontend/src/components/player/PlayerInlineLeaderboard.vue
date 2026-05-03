@@ -44,7 +44,7 @@ function formatEntryValue(value: number): string {
 </script>
 
 <template>
-  <section class="glass-card inline-board animate-entry-soft">
+  <section class="glass-card inline-board player-glass-card player-glass-reveal-soft">
     <div class="inline-board-head">
       <div class="inline-board-copy">
         <span class="hud-kicker">{{ siteContent.leaderboards.kicker }}</span>
@@ -96,6 +96,9 @@ function formatEntryValue(value: number): string {
 .inline-board {
   display: grid;
   gap: 0.9rem;
+  border-color: var(--player-glass-border);
+  background: var(--player-glass-bg);
+  box-shadow: var(--player-glass-shadow), var(--glass-inset);
 }
 
 .inline-board-head {
@@ -135,10 +138,8 @@ function formatEntryValue(value: number): string {
   align-items: center;
   padding: 0.9rem 0.95rem;
   border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(var(--secondary-rgb), 0.08), transparent 42%),
-    rgba(255, 255, 255, 0.035);
-  border: 1px solid var(--glass-border-soft);
+  background: var(--player-glass-tile-bg);
+  border: 1px solid var(--player-glass-border-soft);
   box-shadow: var(--glass-inset);
 }
 

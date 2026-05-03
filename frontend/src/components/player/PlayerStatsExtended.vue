@@ -28,8 +28,13 @@ const emit = defineEmits<{
   (event: 'selectLeaderboard', value: ReturnType<typeof createStatLeaderboardTarget>): void
 }>()
 
-function rankForStat(name: string): number | undefined {
-  return props.ranks[`stat:${props.selectedCategory}:${name}`]
+interface StatEntry {
+  name: string
+  label: string
+  value: string
+  icon: string | undefined
+  rank: number | undefined
+  target: ReturnType<typeof createStatLeaderboardTarget>
 }
 
 const siteContent = useSiteContent()
@@ -37,6 +42,21 @@ const activeCategoryLabel = computed(() => {
   const key = props.selectedCategory.replace('minecraft:', '')
   return getStatCategoryLabel(key) ?? key.replace(/_/g, ' ')
 })
+
+const statEntries = computed<StatEntry[]>(() =>
+  Object.entries(props.filteredStats).map(([name, value]) => {
+    const label = props.formatStatName(name)
+
+    return {
+      name,
+      label,
+      value: props.formatStatValue(value, name),
+      icon: props.getStatIconPath(props.selectedCategory, name),
+      rank: props.ranks[`stat:${props.selectedCategory}:${name}`],
+      target: createStatLeaderboardTarget(props.selectedCategory, name, label, (rawValue) => props.formatStatValue(rawValue, name))
+    }
+  })
+)
 </script>
 
 <template>
@@ -80,16 +100,16 @@ const activeCategoryLabel = computed(() => {
       </button>
     </div>
 
-    <div v-if="Object.keys(filteredStats).length > 0" class="stat-grid">
+    <div v-if="statEntries.length > 0" class="stat-grid">
       <StatBox
-        v-for="(value, name) in filteredStats"
-        :key="name"
-        :name="formatStatName(name)"
-        :value="formatStatValue(value, name)"
+        v-for="entry in statEntries"
+        :key="entry.name"
+        :name="entry.label"
+        :value="entry.value"
         clickable
-        :icon="getStatIconPath(selectedCategory, name)"
-        :rank="rankForStat(name)"
-        @select="emit('selectLeaderboard', createStatLeaderboardTarget(selectedCategory, name, formatStatName(name), (rawValue) => formatStatValue(rawValue, name)))"
+        :icon="entry.icon"
+        :rank="entry.rank"
+        @select="emit('selectLeaderboard', entry.target)"
       />
     </div>
     <p v-else class="empty-copy">{{ siteContent.playerDetail.sections.emptyStats }}</p>
@@ -113,17 +133,18 @@ const activeCategoryLabel = computed(() => {
   width: min(300px, 100%);
   min-height: 2.5rem;
   padding: 0 0.9rem;
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--player-glass-border-soft);
   border-radius: 999px;
-  background: var(--control-bg);
+  background: var(--player-glass-tile-bg);
   color: var(--text-main);
   font-size: 0.9rem;
+  box-shadow: var(--glass-inset);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--control-border-active);
-  background: var(--control-bg-hover);
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-tile-bg-hover);
 }
 
 .group-tabs,
@@ -137,9 +158,9 @@ const activeCategoryLabel = computed(() => {
 .category-tab {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--player-glass-border-soft);
   border-radius: 999px;
-  background: var(--control-bg);
+  background: var(--player-glass-tile-bg);
   color: var(--control-text);
   padding: 0.58rem 0.86rem;
   font-family: var(--sans);
@@ -170,8 +191,8 @@ const activeCategoryLabel = computed(() => {
 .group-tab:hover,
 .category-tab:hover {
   color: var(--control-text-hover);
-  border-color: var(--control-border-hover);
-  background: var(--control-bg-hover);
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-tile-bg-hover);
   transform: translateY(-1px);
 }
 
@@ -203,8 +224,8 @@ const activeCategoryLabel = computed(() => {
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
-  border: 1px solid var(--chip-border);
-  background: var(--chip-bg);
+  border: 1px solid var(--player-glass-border-soft);
+  background: rgba(var(--secondary-rgb), 0.1);
   text-transform: capitalize;
 }
 

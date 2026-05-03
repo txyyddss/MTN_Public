@@ -19,6 +19,7 @@ const { status } = storeToRefs(statusStore)
 const siteContent = useSiteContent()
 
 const onlinePlayers = computed(() => status.value?.online_players ?? [])
+const onlinePlayerSet = computed(() => new Set(onlinePlayers.value))
 const {
   players,
   count,
@@ -77,7 +78,7 @@ async function handleRandom(): Promise<void> {
 }
 
 function isOnline(uuid: string): boolean {
-  return onlinePlayers.value.includes(uuid)
+  return onlinePlayerSet.value.has(uuid)
 }
 
 function resetFilters(): void {
@@ -98,13 +99,19 @@ onUnmounted(() => {
 <template>
   <div class="players-view container page-shell route-page-shell">
     <RouteHeroHeader
+      class="player-glass-panel player-glass-reveal"
       :kicker="siteContent.players.kicker"
       :title="siteContent.players.title"
       :body="siteContent.players.body"
       align="center"
     />
 
-    <ThemedPanelFrame tag="section" class="controls-panel animate-entry delay-100" variant="archive">
+    <ThemedPanelFrame
+      tag="section"
+      class="controls-panel player-glass-panel player-glass-reveal"
+      variant="archive"
+      :style="{ '--player-motion-delay': '0.08s' }"
+    >
       <div class="controls-row">
         <div class="controls-copy">
           <span class="hud-kicker">{{ siteContent.players.controlsKicker }}</span>
@@ -140,7 +147,11 @@ onUnmounted(() => {
       </div>
     </ThemedPanelFrame>
 
-    <p v-if="!loading || players.length > 0" class="results-line animate-entry delay-200">
+    <p
+      v-if="!loading || players.length > 0"
+      class="results-line player-glass-reveal-soft"
+      :style="{ '--player-motion-delay': '0.14s' }"
+    >
       <span class="badge-pill">{{ formatPlayerCount(count) }}</span>
       <span>{{ resultsDescriptor }}</span>
     </p>
@@ -149,9 +160,9 @@ onUnmounted(() => {
       <DossierLoadingPanel
         v-for="index in 6"
         :key="index"
-        class="player-card player-card-skeleton animate-entry-soft"
+        class="player-card player-card-skeleton player-glass-panel player-glass-reveal-soft"
         label="MTN PLAYER DOSSIER"
-        :style="{ animationDelay: `${(index - 1) * 0.05}s` }"
+        :style="{ '--player-motion-delay': `${(index - 1) * 0.045}s` }"
       >
         <div class="player-head">
           <span class="skeleton-avatar player-skeleton-avatar"></span>
@@ -167,7 +178,7 @@ onUnmounted(() => {
       </DossierLoadingPanel>
     </div>
 
-    <div v-else-if="players.length === 0" class="glass-card state-card">
+    <div v-else-if="players.length === 0" class="glass-card state-card player-glass-panel player-glass-reveal">
       <h2>{{ siteContent.players.emptyTitle }}</h2>
       <p>{{ siteContent.players.emptyBody }}</p>
       <button class="btn-primary" type="button" @click="resetFilters">
@@ -180,8 +191,8 @@ onUnmounted(() => {
         v-for="(player, index) in sortedPlayers"
         :key="player.uuid"
         :to="`/player/${player.uuid}`"
-        class="player-card player-live-card glass-card action-card animate-entry"
-        :style="{ animationDelay: `${(index % 18) * 0.03}s` }"
+        class="player-card player-live-card glass-card player-glass-card action-card player-glass-reveal"
+        :style="{ '--player-motion-delay': `${(index % 18) * 0.025}s` }"
       >
         <span class="player-card-mark" aria-hidden="true">MTN</span>
         <div class="player-head">
@@ -218,6 +229,20 @@ onUnmounted(() => {
 .players-view {
   display: grid;
   gap: 1rem;
+}
+
+.players-view :deep(.player-glass-panel),
+.players-view :deep(.player-glass-card) {
+  border-color: var(--player-glass-border);
+  background: var(--player-glass-bg);
+  box-shadow: var(--player-glass-shadow), var(--glass-inset);
+}
+
+.players-view :deep(.player-glass-panel:hover),
+.players-view :deep(.player-glass-card:hover) {
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-bg-hover);
+  box-shadow: var(--player-glass-shadow-hover), var(--glass-inset);
 }
 
 .controls-panel :deep(.themed-panel-frame__content) {
@@ -257,16 +282,17 @@ onUnmounted(() => {
   width: 100%;
   min-height: 3.2rem;
   padding: 0 1rem;
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--player-glass-border-soft);
   border-radius: 18px;
-  background: var(--control-bg);
+  background: var(--player-glass-tile-bg);
   color: var(--text-main);
+  box-shadow: var(--glass-inset);
 }
 
 .search-field input:focus {
   outline: none;
-  border-color: var(--control-border-active);
-  background: var(--control-bg-hover);
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-tile-bg-hover);
 }
 
 .control-actions {
@@ -279,10 +305,11 @@ onUnmounted(() => {
 
 .segmented-control {
   display: flex;
-  background: var(--control-surface);
+  background: rgba(var(--secondary-rgb), 0.075);
   border-radius: 12px;
   padding: 3px;
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--player-glass-border-soft);
+  box-shadow: var(--glass-inset);
 }
 
 .switch-btn {
@@ -337,6 +364,7 @@ onUnmounted(() => {
   display: grid;
   gap: 1rem;
   justify-items: start;
+  border-color: var(--player-glass-border);
 }
 
 .player-grid {
@@ -350,7 +378,16 @@ onUnmounted(() => {
   gap: 1rem;
   padding: 1.2rem;
   min-height: 100%;
-  border-color: var(--glass-border-soft);
+  border-color: var(--player-glass-border-soft);
+  background: var(--player-glass-bg);
+  box-shadow: var(--player-glass-shadow), var(--glass-inset);
+}
+
+.player-live-card:hover,
+.player-live-card:focus-visible {
+  border-color: var(--player-glass-border-strong);
+  background: var(--player-glass-bg-hover);
+  box-shadow: var(--player-glass-shadow-hover), var(--glass-inset);
 }
 
 .player-card-mark {
@@ -385,7 +422,9 @@ onUnmounted(() => {
   width: 72px;
   height: 72px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--player-glass-border-soft);
+  background: var(--player-glass-tile-bg);
+  box-shadow: var(--glass-inset);
   image-rendering: pixelated;
 }
 
@@ -413,7 +452,8 @@ onUnmounted(() => {
 .player-status {
   padding: 0.3rem 0.55rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--player-glass-border-soft);
+  background: rgba(255, 255, 255, 0.032);
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;

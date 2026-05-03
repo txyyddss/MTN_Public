@@ -59,8 +59,8 @@ const siteContent = useSiteContent()
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.68rem;
-  border: 1px solid var(--chip-border);
-  background: var(--chip-bg);
+  border: 1px solid var(--player-glass-border-soft);
+  background: rgba(var(--secondary-rgb), 0.1);
 }
 
 .skill-grid {
