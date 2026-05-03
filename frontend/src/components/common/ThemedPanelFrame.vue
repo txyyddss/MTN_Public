@@ -33,7 +33,6 @@ withDefaults(
       { 'themed-panel-frame--compact': compact }
     ]"
   >
-    <span class="themed-panel-frame__mark" aria-hidden="true">MTN</span>
     <header
       v-if="kicker || title || body || status || $slots.header || $slots.actions"
       class="themed-panel-frame__header"
@@ -41,7 +40,7 @@ withDefaults(
       <div class="themed-panel-frame__copy">
         <slot name="header">
           <span v-if="kicker" class="section-kicker">{{ kicker }}</span>
-          <h3 v-if="title" class="themed-panel-frame__title">{{ title }}</h3>
+          <h2 v-if="title" class="themed-panel-frame__title">{{ title }}</h2>
           <p v-if="body" class="themed-panel-frame__body">{{ body }}</p>
         </slot>
       </div>
@@ -69,30 +68,12 @@ withDefaults(
   min-height: 100%;
 }
 
-.themed-panel-frame__mark {
-  position: absolute;
-  inset: 1rem 1.25rem auto auto;
-  z-index: 0;
-  color: rgba(141, 184, 255, 0.07);
-  font-family: var(--mono);
-  font-size: clamp(1.9rem, 4vw, 3.1rem);
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  pointer-events: none;
-}
-
 .themed-panel-frame--archive {
   border-color: var(--glass-border);
   background:
     radial-gradient(circle at 82% 0%, rgba(var(--secondary-rgb), 0.16), transparent 32%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.018)),
     rgba(3, 8, 24, 0.78);
-}
-
-.themed-panel-frame--archive .themed-panel-frame__mark {
-  color: rgba(141, 184, 255, 0.1);
-  font-size: clamp(2.4rem, 5vw, 4.2rem);
-  font-weight: 900;
 }
 
 .themed-panel-frame__header {

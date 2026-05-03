@@ -19,7 +19,6 @@ withDefaults(
     :class="[
       'route-hero-header',
       'glass-card',
-      'animate-entry',
       `route-hero-header--${align}`,
       { 'route-hero-header--no-mark': !showMark }
     ]"
@@ -27,7 +26,6 @@ withDefaults(
     <div class="route-hero-header__grid">
       <div class="route-hero-header__copy">
         <span class="page-kicker">{{ kicker }}</span>
-        <div v-if="showMark" class="route-hero-header__mark" aria-hidden="true">MTN</div>
         <slot name="title">
           <h1 class="route-hero-header__title">{{ title }}</h1>
         </slot>
@@ -85,20 +83,6 @@ withDefaults(
   max-width: min(100%, 54rem);
 }
 
-.route-hero-header__mark {
-  color: rgba(var(--primary-rgb), 0.92);
-  font-family: var(--display);
-  font-size: clamp(4.2rem, 13vw, 9rem);
-  font-weight: 900;
-  letter-spacing: 0.24em;
-  line-height: 0.74;
-  text-indent: 0.24em;
-  text-shadow:
-    0 22px 52px rgba(var(--secondary-rgb), 0.24),
-    0 0 34px rgba(var(--primary-rgb), 0.16);
-  text-transform: uppercase;
-}
-
 .route-hero-header__title {
   max-width: 11ch;
   font-size: clamp(3.35rem, 8vw, 6.2rem);
@@ -154,10 +138,6 @@ withDefaults(
 
   .route-hero-header__actions {
     justify-content: flex-start;
-  }
-
-  .route-hero-header__mark {
-    font-size: clamp(3.1rem, 18vw, 5.2rem);
   }
 
   .route-hero-header__title,

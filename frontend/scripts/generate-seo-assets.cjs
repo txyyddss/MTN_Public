@@ -3,7 +3,7 @@ const path = require('node:path')
 
 const projectRoot = path.resolve(__dirname, '..')
 const publicDir = path.join(projectRoot, 'public')
-const seoRoutes = ['/', '/players']
+const seoRoutes = ['/', '/players', '/whitelist']
 
 function readEnvFile(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -95,7 +95,7 @@ if (!siteOrigin) {
 
 fs.mkdirSync(publicDir, { recursive: true })
 
-const robotsLines = ['User-agent: *', 'Allow: /', 'Disallow: /whitelist', 'Disallow: /wiki', '']
+const robotsLines = ['User-agent: *', 'Allow: /', 'Disallow: /wiki', '']
 
 if (siteOrigin) {
   robotsLines.push(`Sitemap: ${new URL('/sitemap.xml', siteOrigin).toString()}`, '')

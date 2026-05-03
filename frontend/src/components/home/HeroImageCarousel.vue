@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, useTemplateRef, watch } from 'vue'
 
 import galleryManifest from '@/assets/generated/gallery-manifest.json'
 import { useAutoRotatingIndex } from '@/composables/useAutoRotatingIndex'
@@ -27,10 +27,10 @@ const images = galleryManifest as GalleryImage[]
 const imageCount = computed(() => images.length)
 const { matches: prefersReducedMotion } = useMediaQuery('(prefers-reduced-motion: reduce)')
 const rotationEnabled = computed(() => !prefersReducedMotion.value && imageCount.value > 1)
-const randomInitialIndex = imageCount.value > 1 ? Math.floor(Math.random() * imageCount.value) : 0
+const initialIndex = 0
 const { currentIndex, next, previous, setIndex } = useAutoRotatingIndex(imageCount, rotationEnabled, {
   intervalMs: 3200,
-  initialIndex: randomInitialIndex
+  initialIndex
 })
 const currentImage = computed(() => images[currentIndex.value] ?? images[0] ?? null)
 const currentImageSrcset = computed(() => {
@@ -41,7 +41,9 @@ const currentImageSrcset = computed(() => {
   return `${currentImage.value.thumb} ${currentImage.value.thumbWidth}w, ${currentImage.value.large} ${currentImage.value.width}w`
 })
 const currentFrameLabel = computed(() => `${props.frameLabel} ${currentIndex.value + 1}`)
-const highPriorityImageId = computed(() => images[randomInitialIndex]?.id ?? images[0]?.id ?? '')
+const highPriorityImageId = computed(() => images[initialIndex]?.id ?? images[0]?.id ?? '')
+const dotsRef = useTemplateRef<HTMLDivElement>('dots')
+const dotRefs = useTemplateRef<HTMLButtonElement[]>('dot')
 
 function getImageAlt(index: number): string {
   return `${props.imageAlt} - ${props.frameLabel} ${index + 1}`
@@ -51,6 +53,28 @@ function formatDotIndex(index: number): string {
   return String(index + 1).padStart(2, '0')
 }
 
+function centerActiveDot(): void {
+  void nextTick(() => {
+    const dots = dotsRef.value
+    const activeDot = dotRefs.value?.[currentIndex.value]
+
+    if (!dots || !activeDot) {
+      return
+    }
+
+    const targetLeft = activeDot.offsetLeft - dots.clientWidth / 2 + activeDot.offsetWidth / 2
+    const maxLeft = Math.max(0, dots.scrollWidth - dots.clientWidth)
+    const centeredLeft = Math.min(Math.max(targetLeft, 0), maxLeft)
+
+    dots.scrollTo({
+      left: centeredLeft,
+      behavior: 'auto'
+    })
+  })
+}
+
+watch(currentIndex, centerActiveDot, { flush: 'post' })
+onMounted(centerActiveDot)
 </script>
 
 <template>
@@ -78,9 +102,10 @@ function formatDotIndex(index: number): string {
         <span aria-hidden="true"></span>
       </button>
 
-      <div class="hero-carousel-dots" aria-label="Gallery images">
+      <div ref="dots" class="hero-carousel-dots" aria-label="Gallery images">
         <button
           v-for="(_, index) in images"
+          ref="dot"
           :key="`hero-dot-${index}`"
           type="button"
           :class="['hero-carousel-dot', { active: index === currentIndex }]"
@@ -208,6 +233,12 @@ function formatDotIndex(index: number): string {
   background: rgba(3, 8, 18, 0.48);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
   backdrop-filter: saturate(155%) blur(18px);
+}
+
+.hero-carousel-dots::before,
+.hero-carousel-dots::after {
+  content: '';
+  flex: 0 0 calc(50% - 1.225rem);
 }
 
 .hero-carousel-dots::-webkit-scrollbar {

@@ -323,7 +323,6 @@ code {
     background var(--transition-fast),
     box-shadow var(--transition-panel),
     filter var(--transition-fast);
-  animation: glassSettle 0.5s var(--transition-slow) both;
 }
 
 .glass-card::before,

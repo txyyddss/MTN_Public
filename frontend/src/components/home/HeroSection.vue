@@ -21,6 +21,7 @@ const siteContent = useSiteContent()
       <p class="home-hero-project">{{ siteContent.home.hero.projectLine }}</p>
       <div class="hero-jump-actions">
         <a class="hero-jump-btn" href="#details">{{ siteContent.home.hero.jumpDetailsCta }}</a>
+        <a class="hero-jump-btn hero-jump-btn--outline" href="https://docs.mcmtn.net/" target="_blank" rel="noopener noreferrer">{{ siteContent.home.hero.jumpDocsCta }}</a>
         <a class="hero-jump-btn hero-jump-btn--outline" href="#join-mtn">{{ siteContent.home.hero.jumpJoinCta }}</a>
       </div>
     </div>

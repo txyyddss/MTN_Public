@@ -33,6 +33,11 @@ function startRotation(): void {
 }
 
 function selectFeature(index: number): void {
+  if (index === activeIndex.value) {
+    startRotation()
+    return
+  }
+
   activeIndex.value = index
   startRotation()
 }
@@ -66,15 +71,17 @@ onUnmounted(() => {
         </button>
       </div>
 
-      <Transition name="feature-fade" mode="out-in">
-        <article :key="activeFeature.title" class="feature-panel glass-card action-card">
-          <span class="feature-backdrop" aria-hidden="true">{{ activeFeatureBackdrop }}</span>
-          <div class="feature-number">// {{ activeFeature.icon }}</div>
-          <h3>{{ activeFeature.title }}</h3>
-          <p>{{ activeFeature.description }}</p>
-          <blockquote>{{ siteContent.home.featureQuotes[activeIndex] }}</blockquote>
-        </article>
-      </Transition>
+      <div class="feature-panel-stage">
+        <Transition name="feature-fade">
+          <article :key="activeFeature.title" class="feature-panel glass-card action-card">
+            <span class="feature-backdrop" aria-hidden="true">{{ activeFeatureBackdrop }}</span>
+            <div class="feature-number">// {{ activeFeature.icon }}</div>
+            <h3>{{ activeFeature.title }}</h3>
+            <p>{{ activeFeature.description }}</p>
+            <blockquote>{{ siteContent.home.featureQuotes[activeIndex] }}</blockquote>
+          </article>
+        </Transition>
+      </div>
     </div>
   </section>
 </template>
@@ -203,14 +210,21 @@ onUnmounted(() => {
 
 .feature-panel {
   position: relative;
+  grid-area: 1 / 1;
   display: grid;
   justify-items: center;
   gap: 1rem;
-  width: min(900px, 100%);
+  width: 100%;
   min-height: 300px;
   padding: clamp(2rem, 6vw, 4rem) 1rem;
   border-radius: var(--radius-xl);
   text-align: center;
+}
+
+.feature-panel-stage {
+  display: grid;
+  justify-items: center;
+  width: min(900px, 100%);
 }
 
 .feature-backdrop {

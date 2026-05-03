@@ -60,6 +60,7 @@ const en = {
         imageAlt: 'MTN Potato Server in-game build at night',
         projectLine: 'Project MTN long-season archive',
         jumpDetailsCta: 'Status panel',
+        jumpDocsCta: 'View docs',
         jumpJoinCta: 'QQ group',
         scrollCta: 'Scroll to introduction'
       },

@@ -3,9 +3,7 @@ import { computed, onMounted, onUnmounted, shallowRef, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
-import AppPreloader from '@/components/AppPreloader.vue'
 import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
-import { usePreloader } from '@/composables/usePreloader'
 import { useSeoMeta } from '@/composables/useSeoMeta'
 import { formatPlayerCount, useSiteContent, type NavItem } from '@/content/siteContent'
 import { useServerStatusStore } from '@/stores/serverStatus'
@@ -14,7 +12,6 @@ const menuOpen = shallowRef(false)
 const route = useRoute()
 const siteContent = useSiteContent()
 
-const { initPreloading, isReady } = usePreloader()
 const serverStatus = useServerStatusStore()
 const { status } = storeToRefs(serverStatus)
 
@@ -43,6 +40,8 @@ function isEmphasizedNavItem(item: NavItem): boolean {
   return 'emphasize' in item && item.emphasize === true
 }
 
+let statusTimer: ReturnType<typeof window.setTimeout> | null = null
+
 watch(
   () => route.fullPath,
   () => {
@@ -55,21 +54,23 @@ watch(menuOpen, (open) => {
 })
 
 onMounted(() => {
-  void serverStatus.refresh()
-  void initPreloading()
-  serverStatus.startPolling()
+  statusTimer = window.setTimeout(() => {
+    void serverStatus.refresh()
+    serverStatus.startPolling()
+  }, 1200)
 })
 
 onUnmounted(() => {
   document.body.style.overflow = ''
+  if (statusTimer) {
+    window.clearTimeout(statusTimer)
+  }
   serverStatus.stopPolling()
 })
 </script>
 
 <template>
   <div class="app-shell">
-    <AppPreloader :ready="isReady" />
-
     <button
       :class="['menu-trigger', 'action-inline', 'action-press', { active: menuOpen }]"
       type="button"
@@ -86,7 +87,7 @@ onUnmounted(() => {
       <button v-if="menuOpen" class="nav-scrim" type="button" :aria-label="siteContent.app.menuToggleAria" @click="closeMenu"></button>
     </Transition>
 
-    <nav :class="['nav-overlay', { active: menuOpen }]" :aria-hidden="!menuOpen">
+    <nav :class="['nav-overlay', { active: menuOpen }]" :aria-hidden="!menuOpen" :inert="!menuOpen">
       <div class="nav-overlay-inner">
         <RouterLink class="brand-lockup" to="/" @click="closeMenu">
           <span class="brand-mark" aria-hidden="true">MTN</span>
@@ -128,9 +129,7 @@ onUnmounted(() => {
 
     <main class="main-content">
       <RouterView v-slot="{ Component, route }">
-        <Transition name="route-swap" mode="out-in">
-          <component :is="Component" :key="route.fullPath" class="route-layer" />
-        </Transition>
+        <component :is="Component" :key="route.fullPath" class="route-layer" />
       </RouterView>
     </main>
   </div>

@@ -51,6 +51,7 @@ const zhCN = {
         imageAlt: 'MTN 土豆服务器夜景建筑截图',
         projectLine: 'PROJECT MTN LONG-SEASON ARCHIVE',
         jumpDetailsCta: '运行面板',
+        jumpDocsCta: '查看文档',
         jumpJoinCta: 'QQ 群号',
         scrollCta: '滚动到介绍',
       },

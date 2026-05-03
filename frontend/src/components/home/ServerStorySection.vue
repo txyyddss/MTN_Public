@@ -25,7 +25,7 @@ const { revealed } = useRevealOnScroll<HTMLElement>('introSection', { rootMargin
       </article>
 
       <div class="intro-mascot-wrap" aria-hidden="true">
-        <img :src="serverMascot" :alt="siteContent.home.heroAside.imageAlt" class="intro-mascot" />
+        <img :src="serverMascot" :alt="siteContent.home.heroAside.imageAlt" class="intro-mascot" width="672" height="1416" />
       </div>
     </div>
   </section>

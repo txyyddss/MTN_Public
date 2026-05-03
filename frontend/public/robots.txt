@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /whitelist
 Disallow: /wiki
