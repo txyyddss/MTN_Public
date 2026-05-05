@@ -159,7 +159,7 @@ const zhCN = {
       historyPeak: '峰值 {peak}',
       connectionTitle: '连接指南',
       connectionPanelTitle: '连接路由',
-      connectionHint: '如果设备和网络都支持，优先使用 IPv6。',
+      connectionHint: '按照此顺序尝试 SRV v6 > IPV6 > SRV v4 > IPV4',
       javaTitle: 'Java 版',
       bedrockTitle: '基岩版',
       copy: '复制',

@@ -168,7 +168,7 @@ const en = {
       historyPeak: 'Peak {peak}',
       connectionTitle: 'Connection guide',
       connectionPanelTitle: 'Connection routing',
-      connectionHint: 'Prefer IPv6 when your device and network support it.',
+      connectionHint: 'Try: SRV v6 > IPV6 > SRV v4 > IPV4',
       javaTitle: 'Java Edition',
       bedrockTitle: 'Bedrock Edition',
       copy: 'Copy',
