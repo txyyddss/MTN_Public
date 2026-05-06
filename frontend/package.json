@@ -25,7 +25,7 @@
   "dependencies": {
     "chart.js": "^4.5.1",
     "pinia": "^3.0.4",
-    "skinview3d": "^3.4.1",
+    "skinview3d": "^3.4.2",
     "vue": "^3.5.33",
     "vue-i18n": "^11.4.0",
     "vue-router": "^5.0.6"
