@@ -9,7 +9,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/mcstatus-io/mcutil/v4 v4.0.1
 	github.com/redis/go-redis/v9 v9.19.0
-	github.com/shirou/gopsutil/v4 v4.26.3
+	github.com/shirou/gopsutil/v4 v4.26.4
 	nhooyr.io/websocket v1.8.17
 )
 
