@@ -20,7 +20,7 @@
     "typescript": "~6.0.3",
     "vite": "^8.0.10",
     "vite-plugin-image-optimizer": "^2.0.3",
-    "vue-tsc": "^3.2.7"
+    "vue-tsc": "^3.2.8"
   },
   "dependencies": {
     "chart.js": "^4.5.1",
